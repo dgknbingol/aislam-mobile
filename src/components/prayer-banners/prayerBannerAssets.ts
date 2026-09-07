@@ -4,12 +4,12 @@ import type { ImageSourcePropType } from 'react-native';
 import type { PrayerBannerId } from './shared';
 
 export const PRAYER_BANNER_IMAGES: Record<PrayerBannerId, ImageSourcePropType> = {
-  imsak: require('../../../assets/prayer-times/imsak.png'),
-  gunes: require('../../../assets/prayer-times/gunes.png'),
-  ogle: require('../../../assets/prayer-times/ogle.png'),
-  ikindi: require('../../../assets/prayer-times/ikindi.png'),
-  aksam: require('../../../assets/prayer-times/aksam.png'),
-  yatsi: require('../../../assets/prayer-times/yatsi.png'),
+  imsak: require('../../../assets/prayer-times/imsak.jpg'),
+  gunes: require('../../../assets/prayer-times/gunes.jpg'),
+  ogle: require('../../../assets/prayer-times/ogle.jpg'),
+  ikindi: require('../../../assets/prayer-times/ikindi.jpg'),
+  aksam: require('../../../assets/prayer-times/aksam.jpg'),
+  yatsi: require('../../../assets/prayer-times/yatsi.jpg'),
 };
 
 export const PRAYER_BANNER_ASPECTS: Record<PrayerBannerId, number> = {
