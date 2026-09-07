@@ -1,0 +1,596 @@
+[
+  {
+    "mp": "111",
+    "name": "Allah C.C.",
+    "arabic": "اللّٰه",
+    "turkish": "Eşi benzeri bulunmayan, bütün noksan sıfatlardan münezzeh tek ilah, her biri sonsuz bir hazine olan bütün isimlerini kuşatan özel ismi. İsimlerin sultanı."
+  },
+  {
+    "mp": "000",
+    "name": "Er-Rahmân",
+    "arabic": "الرَّحْمَٰن",
+    "turkish": "Dünyada bütün mahlükata merhamet eden, şefkat gösteren, ihsan eden."
+  },
+  {
+    "mp": "001",
+    "name": "Er-Rahîm",
+    "arabic": "الرَّحِيم",
+    "turkish": "Ahirette, müminlere sonsuz ikram, lütuf ve ihsanda bulunan."
+  },
+  {
+    "mp": "002",
+    "name": "El-Melik",
+    "arabic": "الْمَلِك",
+    "turkish": "Mülkün, kainatın sahibi, mülk ve saltanatı devamlı olan."
+  },
+  {
+    "mp": "003",
+    "name": "El-Kuddûs",
+    "arabic": "الْقُدُّوس",
+    "turkish": "Her noksanlıktan uzak ve her türlü takdıse layık olan."
+  },
+  {
+    "mp": "004",
+    "name": "Es-Selâm",
+    "arabic": "السَّلَام",
+    "turkish": "Her türlü tehlikelerden selamete çıkaran."
+  },
+  {
+    "mp": "005",
+    "name": "El-Mü'min",
+    "arabic": "الْمُؤْمِن",
+    "turkish": "Güven veren, emin kılan, koruyan."
+  },
+  {
+    "mp": "006",
+    "name": "El-Müheymin",
+    "arabic": "الْمُهَيْمِن",
+    "turkish": "Her şeyi görüp gözeten."
+  },
+  {
+    "mp": "007",
+    "name": "El-Azîz",
+    "arabic": "الْعَزِيز",
+    "turkish": "İzzet sahibi, her şeye galip olan."
+  },
+  {
+    "mp": "008",
+    "name": "El-Cebbâr",
+    "arabic": "الْجَبَّار",
+    "turkish": "Azamet ve kudret sahibi. Dilediğini yapan ve yaptıran."
+  },
+  {
+    "mp": "009",
+    "name": "El-Mütekebbir",
+    "arabic": "الْمُتَكَبِّر",
+    "turkish": "Büyüklükte eşi, benzeri olmayan."
+  },
+  {
+    "mp": "010",
+    "name": "El-Hâlik",
+    "arabic": "الْخَالِق",
+    "turkish": "Yaratan, yoktan var eden."
+  },
+  {
+    "mp": "011",
+    "name": "El-Bâri'",
+    "arabic": "الْبَارِئ",
+    "turkish": "Her şeyi kusursuz ve uyumlu yaratan."
+  },
+  {
+    "mp": "012",
+    "name": "El-Musavvir",
+    "arabic": "الْمُصَوِّر",
+    "turkish": "Varlıklara şekil veren."
+  },
+  {
+    "mp": "013",
+    "name": "El-Gaffâr",
+    "arabic": "الْغَفَّار",
+    "turkish": "Günahları örten ve çok mağfiret eden."
+  },
+  {
+    "mp": "014",
+    "name": "El-Kahhâr",
+    "arabic": "الْقَهَّار",
+    "turkish": "Her şeye, her istediğini yapacak surette, galip ve hakim olan."
+  },
+  {
+    "mp": "015",
+    "name": "El-Vehhâb",
+    "arabic": "الْوَهَّاب",
+    "turkish": "Karşılıksız hibeler veren, çok fazla ihsan eden."
+  },
+  {
+    "mp": "016",
+    "name": "Er-Rezzâk",
+    "arabic": "الرَّزَّاق",
+    "turkish": "Bütün mahlükatın rızkını veren ve ihtiyacını karşılayan."
+  },
+  {
+    "mp": "017",
+    "name": "El-Fettâh",
+    "arabic": "الْفَتَّاح",
+    "turkish": "Her türlü müşkülleri açan ve kolaylaştıran, darlıktan kurtaran."
+  },
+  {
+    "mp": "018",
+    "name": "El-Alîm",
+    "arabic": "الْعَلِيم",
+    "turkish": "Gizli açık, geçmiş, gelecek, her şeyi en ince detaylarına kadar bilen."
+  },
+  {
+    "mp": "019",
+    "name": "El-Kâbıd",
+    "arabic": "الْقَابِض",
+    "turkish": "Dilediğine darlık veren, sıkan, daraltan."
+  },
+  {
+    "mp": "020",
+    "name": "El-Bâsıt",
+    "arabic": "الْبَاسِط",
+    "turkish": "Dilediğine bolluk veren, açan, genişleten."
+  },
+  {
+    "mp": "021",
+    "name": "El-Hâfıd",
+    "arabic": "الْخَافِض",
+    "turkish": "Dereceleri alçaltan."
+  },
+  {
+    "mp": "022",
+    "name": "Er-Râfi",
+    "arabic": "الرَّافِع",
+    "turkish": "Şeref verip yükselten."
+  },
+  {
+    "mp": "023",
+    "name": "El-Mu'ız",
+    "arabic": "الْمُعِزّ",
+    "turkish": "Dilediğini aziz eden, izzet veren."
+  },
+  {
+    "mp": "024",
+    "name": "El-Müzil",
+    "arabic": "الْمُذِلّ",
+    "turkish": "Dilediğini zillete düşüren."
+  },
+  {
+    "mp": "025",
+    "name": "Es-Semi",
+    "arabic": "السَّمِيع",
+    "turkish": "Her şeyi en iyi işiten."
+  },
+  {
+    "mp": "026",
+    "name": "El-Basîr",
+    "arabic": "الْبَصِير",
+    "turkish": "Gizli açık, her şeyi en iyi gören."
+  },
+  {
+    "mp": "027",
+    "name": "El-Hakem",
+    "arabic": "الْحَكَم",
+    "turkish": "Mutlak hakim, hakkı batıldan ayıran. Hikmetle hükmeden."
+  },
+  {
+    "mp": "028",
+    "name": "El-Adl",
+    "arabic": "الْعَدْل",
+    "turkish": "Mutlak adil, çok adaletli."
+  },
+  {
+    "mp": "029",
+    "name": "El-Latîf",
+    "arabic": "اللَّطِيف",
+    "turkish": "Lütuf ve ihsan sahibi olan. Bütün incelikleri bilen."
+  },
+  {
+    "mp": "030",
+    "name": "El-Habîr",
+    "arabic": "الْخَبِير",
+    "turkish": "Olmuş olacak her şeyden haberdar."
+  },
+  {
+    "mp": "031",
+    "name": "El-Halîm",
+    "arabic": "الْحَلِيم",
+    "turkish": "Cezada, acele etmeyen, yumuşak davranan."
+  },
+  {
+    "mp": "032",
+    "name": "El-Azîm",
+    "arabic": "الْعَظِيم",
+    "turkish": "Büyüklükte benzeri yok. Pek yüce."
+  },
+  {
+    "mp": "033",
+    "name": "El-Gafûr",
+    "arabic": "الْغَفُور",
+    "turkish": "Affı, mağfireti bol."
+  },
+  {
+    "mp": "034",
+    "name": "Eş-Şekûr",
+    "arabic": "الشَّكُور",
+    "turkish": "Az amele, çok sevap veren."
+  },
+  {
+    "mp": "035",
+    "name": "El-Aliyy",
+    "arabic": "الْعَلِيّ",
+    "turkish": "Yüceler yücesi, çok yüce."
+  },
+  {
+    "mp": "036",
+    "name": "El-Kebîr",
+    "arabic": "الْكَبِير",
+    "turkish": "Büyüklükte benzeri yok, pek büyük."
+  },
+  {
+    "mp": "037",
+    "name": "El-Hafîz",
+    "arabic": "الْحَفِيظ",
+    "turkish": "Her şeyi koruyucu olan."
+  },
+  {
+    "mp": "038",
+    "name": "El-Mukît",
+    "arabic": "الْمُقِيت",
+    "turkish": "El-Mukît"
+  },
+  {
+    "mp": "039",
+    "name": "El-Hasîb",
+    "arabic": "الْحَسِيب",
+    "turkish": "Kulların hesabını en iyi gören."
+  },
+  {
+    "mp": "040",
+    "name": "El-Celîl",
+    "arabic": "الْجَلِيل",
+    "turkish": "Celal ve azamet sahibi olan."
+  },
+  {
+    "mp": "041",
+    "name": "El-Kerîm",
+    "arabic": "الْكَرِيم",
+    "turkish": "Keremi, lütuf ve ihsanı bol, karşılıksız veren, çok ikram eden."
+  },
+  {
+    "mp": "042",
+    "name": "Er-Rakîb",
+    "arabic": "الرَّقِيب",
+    "turkish": "Her varlığı, her işi her an görüp, gözeten, kontrolü altında tutan."
+  },
+  {
+    "mp": "043",
+    "name": "El-Mucîb",
+    "arabic": "الْمُجِيب",
+    "turkish": "Duaları, istekleri kabul eden."
+  },
+  {
+    "mp": "044",
+    "name": "El-Vâsi",
+    "arabic": "الْوَاسِع",
+    "turkish": "Rahmet, kudret ve ilmi ile her şeyi ihata eden."
+  },
+  {
+    "mp": "045",
+    "name": "El-Hakîm",
+    "arabic": "الْحَكِيم",
+    "turkish": "Her işi hikmetli, her şeyi hikmetle yaratan."
+  },
+  {
+    "mp": "046",
+    "name": "El-Vedûd",
+    "arabic": "الْوَدُود",
+    "turkish": "Kullarını en fazla seven, sevilmeye en layık olan."
+  },
+  {
+    "mp": "047",
+    "name": "El-Mecîd",
+    "arabic": "الْمَجِيد",
+    "turkish": "Her türlü övgüye layık bulunan."
+  },
+  {
+    "mp": "048",
+    "name": "El-Bâis",
+    "arabic": "الْبَاعِث",
+    "turkish": "Ölüleri dirilten."
+  },
+  {
+    "mp": "049",
+    "name": "Eş-Şehîd",
+    "arabic": "الشَّهِيد",
+    "turkish": "Her zaman her yerde hazır ve nazır olan."
+  },
+  {
+    "mp": "050",
+    "name": "El-Hakk",
+    "arabic": "الْحَقّ",
+    "turkish": "El-Hakk"
+  },
+  {
+    "mp": "051",
+    "name": "El-Vekîl",
+    "arabic": "الْوَكِيل",
+    "turkish": "Kendisine tevekkül edenlerin işlerini en iyi neticeye ulaştıran."
+  },
+  {
+    "mp": "052",
+    "name": "El-Kaviyy",
+    "arabic": "الْقَوِيّ",
+    "turkish": "Kudreti en üstün ve hiç azalmaz."
+  },
+  {
+    "mp": "053",
+    "name": "El-Metîn",
+    "arabic": "الْمَتِين",
+    "turkish": "Kuvvet ve kudret kaynağı, pek güçlü."
+  },
+  {
+    "mp": "054",
+    "name": "El-Veliyy",
+    "arabic": "الْوَلِيّ",
+    "turkish": "İnananların dostu, onları sevip yardım eden."
+  },
+  {
+    "mp": "055",
+    "name": "El-Hamîd",
+    "arabic": "الْحَمِيد",
+    "turkish": "Her türlü hamd ve senaya layık olan."
+  },
+  {
+    "mp": "056",
+    "name": "El-Muhsî",
+    "arabic": "الْمُحْصِي",
+    "turkish": "Yarattığı ve yaratacağı bütün varlıkların sayısını bilen."
+  },
+  {
+    "mp": "057",
+    "name": "El-Mübdi",
+    "arabic": "الْمُبْدِئ",
+    "turkish": "Maddesiz, örneksiz yaratan."
+  },
+  {
+    "mp": "058",
+    "name": "El-Muîd",
+    "arabic": "الْمُعِيد",
+    "turkish": "Yarattıklarını yok edip, sonra tekrar diriltecek olan."
+  },
+  {
+    "mp": "059",
+    "name": "El-Muhyî",
+    "arabic": "الْمُحْيِي",
+    "turkish": "İhya eden, dirilten, can veren."
+  },
+  {
+    "mp": "060",
+    "name": "El-Mümît",
+    "arabic": "الْمُمِيت",
+    "turkish": "Her canlıya ölümü tattıran."
+  },
+  {
+    "mp": "061",
+    "name": "El-Hayy",
+    "arabic": "الْحَيّ",
+    "turkish": "Ezeli ve ebedi hayat sahibi."
+  },
+  {
+    "mp": "062",
+    "name": "El-Kayyûm",
+    "arabic": "الْقَيُّوم",
+    "turkish": "Varlıkları diri tutan, zatı ile kaim olan."
+  },
+  {
+    "mp": "063",
+    "name": "El-Vâcid",
+    "arabic": "الْوَاجِد",
+    "turkish": "Kendisinden hiçbir şey gizli kalmayan, istediğini, istediği vakit bulan."
+  },
+  {
+    "mp": "064",
+    "name": "El-Macîd",
+    "arabic": "الْمَاجِد",
+    "turkish": "Kadri ve şanı büyük, keremi, ihsanı bol olan."
+  },
+  {
+    "mp": "065",
+    "name": "El-Vâhid",
+    "arabic": "الْوَاحِد",
+    "turkish": "Zat, sıfat ve fiillerinde benzeri ve ortağı olmayan, tek olan."
+  },
+  {
+    "mp": "066",
+    "name": "Es-Samed",
+    "arabic": "الصَّمَد",
+    "turkish": "Hiçbir şeye ihtiyacı olmayan, herkesin muhtaç olduğu."
+  },
+  {
+    "mp": "067",
+    "name": "El-Kâdir",
+    "arabic": "الْقَادِر",
+    "turkish": "Dilediğini dilediği gibi yaratmaya muktedir olan."
+  },
+  {
+    "mp": "068",
+    "name": "El-Muktedir",
+    "arabic": "الْمُقْتَدِر",
+    "turkish": "Dilediği gibi tasarruf eden, her şeyi kolayca yaratan kudret sahibi."
+  },
+  {
+    "mp": "069",
+    "name": "El-Mukaddim",
+    "arabic": "الْمُقَدِّم",
+    "turkish": "Dilediğini, öne alan, yükselten."
+  },
+  {
+    "mp": "070",
+    "name": "El-Muahhir",
+    "arabic": "الْمُؤَخِّر",
+    "turkish": "Dilediğini sona alan, erteleyen, alçaltan."
+  },
+  {
+    "mp": "071",
+    "name": "El-Evvel",
+    "arabic": "الْأَوَّل",
+    "turkish": "Ezeli olan, varlığının başlangıcı olmayan."
+  },
+  {
+    "mp": "072",
+    "name": "El-Âhir",
+    "arabic": "الْآخِر",
+    "turkish": "Varlığının sonu olmayan."
+  },
+  {
+    "mp": "073",
+    "name": "El-Zâhir",
+    "arabic": "الظَّاهِر",
+    "turkish": "Varlığı açık, aşikar olan, kesin delillerle bilinen."
+  },
+  {
+    "mp": "074",
+    "name": "El-Bâtın",
+    "arabic": "الْبَاطِن",
+    "turkish": "Akılların idrak edemeyeceği, yüceliği gizli olan."
+  },
+  {
+    "mp": "075",
+    "name": "El-Vâlî",
+    "arabic": "الْوَالِي",
+    "turkish": "Bütün kainatı idare eden."
+  },
+  {
+    "mp": "076",
+    "name": "El-Müteâlî",
+    "arabic": "الْمُتَعَالِي",
+    "turkish": "Son derece yüce olan."
+  },
+  {
+    "mp": "077",
+    "name": "El-Berr",
+    "arabic": "الْبَرُّ",
+    "turkish": "İyilik ve ihsanı bol, iyilik ve ihsan kaynağı."
+  },
+  {
+    "mp": "078",
+    "name": "Et-Tevvâb",
+    "arabic": "التَّوَّاب",
+    "turkish": "Tevbeleri kabul edip, günahları bağışlayan."
+  },
+  {
+    "mp": "079",
+    "name": "El-Müntekim",
+    "arabic": "الْمُنْتَقِم",
+    "turkish": "Zalimlerin cezasını veren, intikam alan."
+  },
+  {
+    "mp": "080",
+    "name": "El-Afüvv",
+    "arabic": "الْعَفُوّ",
+    "turkish": "Affı çok olan, günahları affetmeyi seven."
+  },
+  {
+    "mp": "081",
+    "name": "Er-Raûf",
+    "arabic": "الرَّؤُوف",
+    "turkish": "Çok merhametli, pek şefkatli."
+  },
+  {
+    "mp": "082",
+    "name": "Mâlik-ül Mülk",
+    "arabic": "مَالِكُ الْمُلْك",
+    "turkish": "Mülkün, her varlığın sahibi."
+  },
+  {
+    "mp": "083",
+    "name": "Zül-Celâli vel ikrâm",
+    "arabic": "ذُو الْجَلَالِ وَالْإِكْرَام",
+    "turkish": "Celal, azamet ve pek büyük ikram sahibi."
+  },
+  {
+    "mp": "084",
+    "name": "El-Muksit",
+    "arabic": "الْمُقْسِط",
+    "turkish": "Her işi birbirine uygun yapan."
+  },
+  {
+    "mp": "085",
+    "name": "El-Câmi",
+    "arabic": "الْجَامِع",
+    "turkish": "Mahşerde her mahlükatı bir araya toplayan."
+  },
+  {
+    "mp": "086",
+    "name": "El-Ganiyy",
+    "arabic": "الْغَنِيّ",
+    "turkish": "Her türlü zenginlik sahibi, ihtiyacı olmayan."
+  },
+  {
+    "mp": "087",
+    "name": "El-Mugnî",
+    "arabic": "الْمُغْنِي",
+    "turkish": "Müstağni kılan. ihtiyaç gideren, zengin eden."
+  },
+  {
+    "mp": "088",
+    "name": "El-Mâni",
+    "arabic": "الْمَانِع",
+    "turkish": "Dilemediği şeye mani olan, engelleyen."
+  },
+  {
+    "mp": "089",
+    "name": "Ed-Dârr",
+    "arabic": "الضَّارّ",
+    "turkish": "Elem, zarar verenleri yaratan."
+  },
+  {
+    "mp": "090",
+    "name": "En-Nâfi",
+    "arabic": "النَّافِع",
+    "turkish": "Fayda veren şeyleri yaratan."
+  },
+  {
+    "mp": "091",
+    "name": "En-Nûr",
+    "arabic": "النُّور",
+    "turkish": "Alemleri nurlandıran, dilediğine nur veren."
+  },
+  {
+    "mp": "092",
+    "name": "El-Hâdî",
+    "arabic": "الْهَادِي",
+    "turkish": "Hidayet veren."
+  },
+  {
+    "mp": "093",
+    "name": "El-Bedî",
+    "arabic": "الْبَدِيع",
+    "turkish": "Eşi ve benzeri olmayan güzellik sahibi, eşsiz yaratan."
+  },
+  {
+    "mp": "094",
+    "name": "El-Bâkî",
+    "arabic": "الْبَاقِي",
+    "turkish": "Daimi, ölümsüz, ebedi olan."
+  },
+  {
+    "mp": "095",
+    "name": "El-Vâris",
+    "arabic": "الْوَارِث",
+    "turkish": "Her şeyin asıl sahibi olan."
+  },
+  {
+    "mp": "096",
+    "name": "Er-Reşîd",
+    "arabic": "الرَّشِيد",
+    "turkish": "İrşada muhtaç olmayan, doğru yolu gösteren."
+  },
+  {
+    "mp": "097",
+    "name": "Es-Sabûr",
+    "arabic": "الصَّبُور",
+    "turkish": "Sabırlı olan, sabır veren. Ceza veya mükafat vermede acele etmeyen."
+  }
+]

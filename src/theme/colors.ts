@@ -1,0 +1,16 @@
+export const colors = {
+  bar: '#021734',
+  drawer: '#022042',
+  background: '#FBF5DD',
+  barBorder: '#031D38',
+  inputField: '#032A55',
+  cream: '#F5F0E6',
+  creamMuted: 'rgba(245, 240, 230, 0.6)',
+  textOnLight: '#021734',
+  textMutedOnLight: '#022042',
+  gold: '#C9A227',
+  goldMuted: '#5C4E2E',
+  send: '#F4DD92',
+  sendMuted: '#6B6540',
+  warning: '#FF9B7A',
+};

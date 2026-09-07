@@ -1,0 +1,1490 @@
+import type { EducationQuizMeta } from '../types/education';
+
+export type EducationLessonSeed = {
+  id: string;
+  title: string;
+  summary: string;
+};
+
+export type EducationModuleSeed = {
+  id: string;
+  title: string;
+  summary: string;
+  quiz: EducationQuizMeta | null;
+  lessons: EducationLessonSeed[];
+};
+
+export type EducationCategorySeed = {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  quiz: EducationQuizMeta | null;
+  modules: EducationModuleSeed[];
+};
+
+export const EDUCATION_CATALOG_VERSION = 5;
+
+export const EDUCATION_CATEGORIES: EducationCategorySeed[] = [
+  {
+    "id": "temel-egitimler",
+    "title": "Temel Eğitimler",
+    "subtitle": "İslam, iman ve temel ibadet bilgileri",
+    "icon": "school-outline",
+    "quiz": {
+      "id": "temel-egitimler-genel-quiz",
+      "title": "Temel Eğitimler Genel Quiz",
+      "type": "CATEGORY",
+      "questionCount": 40,
+      "passPercent": 70,
+      "achievementId": "temel-egitimler-master"
+    },
+    "modules": [
+      {
+        "id": "islama-giris",
+        "title": "İslam'a Giriş",
+        "summary": "İslam, Allah'ın insanlara peygamberleri aracılığıyla gönderdiği son ilahi dindir. \"İslam\" kelimesi Arapça kökenli olup teslim olmak, barış v…",
+        "quiz": {
+          "id": "islama-giris-mini-quiz",
+          "title": "İslam'a Giriş Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "islama-giris-complete"
+        },
+        "lessons": [
+          {
+            "id": "islama-giris-islam-nedir",
+            "title": "İslam Nedir?",
+            "summary": "İslam, Allah'ın insanlara peygamberleri aracılığıyla gönderdiği son ilahi dindir. \"İslam\" kelimesi Arapça kökenli olup teslim olmak, barış v…"
+          },
+          {
+            "id": "islama-giris-musluman-kimdir",
+            "title": "Müslüman Kimdir?",
+            "summary": "İslam'a göre iman, kişiye bazı sorumluluklar yükler. Müslüman, yalnızca kendisinden değil; çevresine karşı davranışlarından da sorumludur."
+          },
+          {
+            "id": "islama-giris-islamin-temel-kaynaklari",
+            "title": "İslam'ın Temel Kaynakları",
+            "summary": "İslam dini, insanların doğru yolu bulmaları ve hayatlarını Allah'ın rızasına uygun şekilde yaşayabilmeleri için güvenilir kaynaklara dayanır…"
+          },
+          {
+            "id": "islama-giris-temel-kavramlar",
+            "title": "Temel Kavramlar",
+            "summary": "İslam dinini daha iyi anlayabilmek için bazı temel kavramları bilmek gerekir. Bu kavramlar, Müslümanların inançlarını, ibadetlerini ve günlü…"
+          },
+          {
+            "id": "islama-giris-tevhid",
+            "title": "Tevhid",
+            "summary": "Tevhid, Allah'ın bir olduğuna, eşi, benzeri ve ortağı bulunmadığına gönülden inanmak ve yalnızca O'na ibadet etmektir. İslam inancının temel…"
+          },
+          {
+            "id": "islama-giris-iman",
+            "title": "İman",
+            "summary": "İman, Allah'ın ve Peygamberi aracılığıyla bildirdiği bütün gerçekleri gönülden kabul etmek ve bunların doğru olduğuna inanmaktır. İslam inan…"
+          },
+          {
+            "id": "islama-giris-ibadet",
+            "title": "İbadet",
+            "summary": "İbadet, Allah'ın rızasını kazanmak amacıyla yapılan her türlü söz, davranış ve ameldir. Müslüman, ibadetleri yerine getirerek Allah'a olan s…"
+          },
+          {
+            "id": "islama-giris-takva",
+            "title": "Takva",
+            "summary": "Takva, Allah'a karşı saygı ve sorumluluk bilinciyle yaşamak; O'nun emirlerini yerine getirmeye, yasaklarından kaçınmaya gayret etmektir."
+          },
+          {
+            "id": "islama-giris-ihlas",
+            "title": "İhlas",
+            "summary": "İhlas, yapılan ibadetleri ve bütün güzel işleri yalnızca Allah'ın rızasını kazanmak amacıyla yapmak; gösterişten, övgü beklentisinden ve çık…"
+          },
+          {
+            "id": "islama-giris-dua",
+            "title": "Dua",
+            "summary": "Dua, kulun Allah'a yönelerek O'ndan yardım istemesi, şükretmesi, bağışlanma dilemesi ve isteklerini samimiyetle arz etmesidir. İslam'da dua,…"
+          },
+          {
+            "id": "islama-giris-islamda-guzel-ahlak",
+            "title": "İslam'da Güzel Ahlak",
+            "summary": "Ahlak, insanın davranışlarını, tutumlarını ve diğer insanlarla olan ilişkilerini şekillendiren değerler bütünüdür. Güzel ahlak ise doğruluk,…"
+          }
+        ]
+      },
+      {
+        "id": "imanin-sartlari",
+        "title": "İmanın Şartları",
+        "summary": "İman, Allah'ın ve Peygamberi aracılığıyla bildirdiği bütün gerçekleri gönülden kabul etmek ve bunların doğru olduğuna inanmaktır. İman, Müsl…",
+        "quiz": {
+          "id": "imanin-sartlari-mini-quiz",
+          "title": "İmanın Şartları Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "imanin-sartlari-complete"
+        },
+        "lessons": [
+          {
+            "id": "imanin-sartlari-iman-nedir",
+            "title": "İman Nedir?",
+            "summary": "İman, Allah'ın ve Peygamberi aracılığıyla bildirdiği bütün gerçekleri gönülden kabul etmek ve bunların doğru olduğuna inanmaktır. İman, Müsl…"
+          },
+          {
+            "id": "imanin-sartlari-allaha-iman",
+            "title": "Allah'a İman",
+            "summary": "Allah'a iman, Allah'ın varlığına ve birliğine, eşi ve benzeri bulunmadığına, bütün kâinatın yaratıcısı ve yöneticisi olduğuna gönülden inanm…"
+          },
+          {
+            "id": "imanin-sartlari-meleklere-iman",
+            "title": "Meleklere İman",
+            "summary": "Meleklere İman Nedir?"
+          },
+          {
+            "id": "imanin-sartlari-kitaplara-iman",
+            "title": "Kitaplara İman",
+            "summary": "Kitaplara İman Nedir?"
+          },
+          {
+            "id": "imanin-sartlari-peygamberlere-iman",
+            "title": "Peygamberlere İman",
+            "summary": "Peygamberlere İman Nedir?"
+          },
+          {
+            "id": "imanin-sartlari-ahiret-gunune-iman",
+            "title": "Ahiret Gününe İman",
+            "summary": "Ahiret gününe iman, ölümden sonra insanların yeniden diriltileceğine, dünyada yaptıkları bütün davranışlardan Allah'ın huzurunda hesap verec…"
+          },
+          {
+            "id": "imanin-sartlari-kadere-iman",
+            "title": "Kadere İman",
+            "summary": "Kadere iman, Allah'ın olmuş, olmakta olan ve olacak her şeyi ezelî ilmiyle bildiğine, her şeyin O'nun bilgisi ve iradesi dâhilinde gerçekleş…"
+          }
+        ]
+      },
+      {
+        "id": "islamin-sartlari",
+        "title": "İslam'ın Şartları",
+        "summary": "İslam'ın şartları, Müslümanın yerine getirmesi gereken temel ibadet ve kulluk görevlerini ifade eder. Bu şartlar, Allah'a olan bağlılığın ve…",
+        "quiz": {
+          "id": "islamin-sartlari-mini-quiz",
+          "title": "İslam'ın Şartları Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "islamin-sartlari-complete"
+        },
+        "lessons": [
+          {
+            "id": "islamin-sartlari-islamin-sartlari-nedir",
+            "title": "İslam'ın Şartları Nedir?",
+            "summary": "İslam'ın şartları, Müslümanın yerine getirmesi gereken temel ibadet ve kulluk görevlerini ifade eder. Bu şartlar, Allah'a olan bağlılığın ve…"
+          },
+          {
+            "id": "islamin-sartlari-kelime-i-sehadet",
+            "title": "Kelime-i Şehadet",
+            "summary": "Kelime-i Şehadet, Allah'tan başka ilah olmadığına ve Hz. Muhammed'in (sav) Allah'ın kulu ve elçisi olduğuna inanıp bunu sözle ifade etmektir…"
+          },
+          {
+            "id": "islamin-sartlari-namaz",
+            "title": "Namaz",
+            "summary": "Namaz, Müslümanların belirli vakitlerde yerine getirdiği, Allah'a kulluğu ve bağlılığı ifade eden en önemli ibadetlerden biridir. İslam'ın b…"
+          },
+          {
+            "id": "islamin-sartlari-oruc",
+            "title": "Oruç",
+            "summary": "Oruç, Allah'ın rızasını kazanmak amacıyla, Ramazan ayında imsak vaktinden güneş batıncaya kadar yeme, içme ve orucu bozan davranışlardan uza…"
+          },
+          {
+            "id": "islamin-sartlari-zekat",
+            "title": "Zekât",
+            "summary": "Zekât, maddi durumu belirli bir seviyenin üzerinde olan Müslümanların, mallarının belirli bir kısmını Allah'ın rızasını kazanmak amacıyla ih…"
+          },
+          {
+            "id": "islamin-sartlari-hac",
+            "title": "Hac",
+            "summary": "Hac, maddi ve bedeni imkânı bulunan Müslümanların, ömürlerinde bir defa belirli zamanlarda Mekke'de bulunan Kâbe'yi ve diğer kutsal mekânlar…"
+          }
+        ]
+      },
+      {
+        "id": "abdest",
+        "title": "Abdest",
+        "summary": "Abdest, namaz başta olmak üzere bazı ibadetleri yerine getirebilmek için, dinimizin belirlediği şekilde bazı organların yıkanması ve meshedi…",
+        "quiz": {
+          "id": "abdest-mini-quiz",
+          "title": "Abdest Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "abdest-complete"
+        },
+        "lessons": [
+          {
+            "id": "abdest-abdest-nedir",
+            "title": "Abdest Nedir?",
+            "summary": "Abdest, namaz başta olmak üzere bazı ibadetleri yerine getirebilmek için, dinimizin belirlediği şekilde bazı organların yıkanması ve meshedi…"
+          },
+          {
+            "id": "abdest-abdestin-onemi",
+            "title": "Abdestin Önemi",
+            "summary": "Abdest, İslam'da temizliğin ve ibadete hazırlığın önemli bir göstergesidir. Müslüman, Allah'ın huzuruna çıkmadan önce bedenini dinimizin bel…"
+          },
+          {
+            "id": "abdest-abdestin-farzlari",
+            "title": "Abdestin Farzları",
+            "summary": "Farz, Allah'ın kesin olarak yapılmasını emrettiği davranıştır. Abdestin geçerli olabilmesi için yerine getirilmesi gereken farzlar vardır."
+          },
+          {
+            "id": "abdest-abdestin-sunnetleri",
+            "title": "Abdestin Sünnetleri",
+            "summary": "Sünnet, Hz. Muhammed'in (sav) yaptığı ve Müslümanlara tavsiye ettiği davranışlardır. Abdestin sünnetleri, abdesti daha güzel ve eksiksiz şek…"
+          },
+          {
+            "id": "abdest-abdest-nasil-alinir",
+            "title": "Abdest Nasıl Alınır?",
+            "summary": "Abdest almadan önce niyet edilir ve \"Bismillahirrahmanirrahim\" denilerek abdeste başlanır."
+          },
+          {
+            "id": "abdest-abdesti-bozan-durumlar",
+            "title": "Abdesti Bozan Durumlar",
+            "summary": "Abdest, bazı durumlarda bozulur ve yeniden alınması gerekir. Abdestin bozulması, kişinin namaz gibi abdest gerektiren ibadetleri yerine geti…"
+          },
+          {
+            "id": "abdest-sik-yapilan-hatalar",
+            "title": "Sık Yapılan Hatalar",
+            "summary": "Abdest alırken bazı hatalar, abdestin sevabını azaltabilir veya bazı durumlarda geçerli olmamasına neden olabilir. Bu nedenle abdest alırken…"
+          }
+        ]
+      },
+      {
+        "id": "gusul",
+        "title": "Gusül",
+        "summary": "Gusül, dinimizin belirlediği bazı durumlarda, bütün bedenin kuru yer kalmayacak şekilde yıkanmasıyla yapılan büyük temizliktir. Bu temizliğe…",
+        "quiz": {
+          "id": "gusul-mini-quiz",
+          "title": "Gusül Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "gusul-complete"
+        },
+        "lessons": [
+          {
+            "id": "gusul-gusul-nedir",
+            "title": "Gusül Nedir?",
+            "summary": "Gusül, dinimizin belirlediği bazı durumlarda, bütün bedenin kuru yer kalmayacak şekilde yıkanmasıyla yapılan büyük temizliktir. Bu temizliğe…"
+          },
+          {
+            "id": "gusul-guslun-onemi",
+            "title": "Guslün Önemi",
+            "summary": "Gusül, İslam'da hem bedensel hem de manevi temizliği sağlayan önemli bir ibadettir. Müslüman, dinimizin belirlediği durumlarda gusül alarak …"
+          },
+          {
+            "id": "gusul-guslun-farzlari",
+            "title": "Guslün Farzları",
+            "summary": "Farz, Allah'ın kesin olarak yapılmasını emrettiği davranıştır. Guslün geçerli olabilmesi için yerine getirilmesi gereken farzlar vardır."
+          },
+          {
+            "id": "gusul-gusul-nasil-alinir",
+            "title": "Gusül Nasıl Alınır?",
+            "summary": "Gusül almaya başlamadan önce kalben niyet edilir ve \"Bismillahirrahmanirrahim\" denilerek başlanır."
+          },
+          {
+            "id": "gusul-gusul-gerektiren-durumlar",
+            "title": "Gusül Gerektiren Durumlar",
+            "summary": "İslam'da bazı durumlarda gusül almak farz olur. Bu durumlarda kişi, gusül almadan namaz kılamaz ve gusül gerektiren diğer ibadetleri yerine …"
+          },
+          {
+            "id": "gusul-gusulde-dikkat-edilecek-hususlar",
+            "title": "Gusülde Dikkat Edilecek Hususlar",
+            "summary": "Guslün geçerli olabilmesi için, dinimizin belirlediği farzların eksiksiz yerine getirilmesi gerekir. Bunun yanında guslü daha güzel ve sünne…"
+          }
+        ]
+      },
+      {
+        "id": "namaz",
+        "title": "Namaz",
+        "summary": "Namaz, Müslümanların belirli vakitlerde Allah'ın emrini yerine getirmek amacıyla eda ettikleri en önemli ibadetlerden biridir. İslam'ın beş …",
+        "quiz": {
+          "id": "namaz-mini-quiz",
+          "title": "Namaz Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "namaz-complete"
+        },
+        "lessons": [
+          {
+            "id": "namaz-namaz-nedir",
+            "title": "Namaz Nedir?",
+            "summary": "Namaz, Müslümanların belirli vakitlerde Allah'ın emrini yerine getirmek amacıyla eda ettikleri en önemli ibadetlerden biridir. İslam'ın beş …"
+          },
+          {
+            "id": "namaz-namazin-onemi",
+            "title": "Namazın Önemi",
+            "summary": "Namaz, Müslümanın Allah ile olan bağını güçlendiren en önemli ibadetlerden biridir. Günün belirli vakitlerinde Allah'a yönelmeyi sağlayan na…"
+          },
+          {
+            "id": "namaz-namaz-kimlere-farzdir",
+            "title": "Namaz Kimlere Farzdır?",
+            "summary": "Namaz, İslam'ın beş şartından biridir ve dinimizin en önemli ibadetlerinden biridir."
+          },
+          {
+            "id": "namaz-bes-vakit-namaz",
+            "title": "Beş Vakit Namaz",
+            "summary": "İslam dininde, akıl sağlığı yerinde olan ve ergenlik çağına ulaşmış her Müslümana günde beş vakit namaz farz kılınmıştır."
+          },
+          {
+            "id": "namaz-namaza-hazirlik",
+            "title": "Namaza Hazırlık",
+            "summary": "Namaz, Allah'a yönelerek yerine getirilen en önemli ibadetlerden biridir. Bu nedenle namaza başlamadan önce hem bedensel hem de manevi hazır…"
+          },
+          {
+            "id": "namaz-namazin-sartlari",
+            "title": "Namazın Şartları",
+            "summary": "Şart, bir ibadetin geçerli olabilmesi için ibadete başlamadan önce yerine getirilmesi gereken zorunlu hükümdür."
+          },
+          {
+            "id": "namaz-namazin-farzlari",
+            "title": "Namazın Farzları",
+            "summary": "Farz, Allah'ın kesin olarak yapılmasını emrettiği davranıştır."
+          },
+          {
+            "id": "namaz-namazi-bozan-durumlar",
+            "title": "Namazı Bozan Durumlar",
+            "summary": "Namaz, belirli kurallar çerçevesinde yerine getirilen bir ibadettir. Namaz sırasında yapılan bazı davranışlar veya meydana gelen bazı duruml…"
+          },
+          {
+            "id": "namaz-cemaatle-namaz",
+            "title": "Cemaatle Namaz",
+            "summary": "Cemaatle namaz, bir imamın önderliğinde iki veya daha fazla Müslümanın birlikte namaz kılmasıdır."
+          },
+          {
+            "id": "namaz-cuma-namazi",
+            "title": "Cuma Namazı",
+            "summary": "Cuma namazı, Müslümanların haftada bir kez cuma günü öğle vakti cemaatle kıldıkları özel bir ibadettir."
+          },
+          {
+            "id": "namaz-bayram-namazi",
+            "title": "Bayram Namazı",
+            "summary": "Bayram namazı, Müslümanların Ramazan Bayramı ve Kurban Bayramı sabahında cemaatle kıldıkları özel bir namazdır."
+          }
+        ]
+      },
+      {
+        "id": "oruc",
+        "title": "Oruç",
+        "summary": "Oruç, İslam'ın beş şartından biri olan ve Allah'ın rızasını kazanmak amacıyla belirli kurallar çerçevesinde yerine getirilen önemli bir ibad…",
+        "quiz": {
+          "id": "oruc-mini-quiz",
+          "title": "Oruç Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "oruc-complete"
+        },
+        "lessons": [
+          {
+            "id": "oruc-oruc-nedir",
+            "title": "Oruç Nedir?",
+            "summary": "Oruç, İslam'ın beş şartından biri olan ve Allah'ın rızasını kazanmak amacıyla belirli kurallar çerçevesinde yerine getirilen önemli bir ibad…"
+          },
+          {
+            "id": "oruc-oruc-kimlere-farzdir",
+            "title": "Oruç Kimlere Farzdır?",
+            "summary": "Ramazan ayında oruç tutmak, İslam'ın beş şartından biridir ve belirli şartları taşıyan Müslümanlara farzdır."
+          },
+          {
+            "id": "oruc-oruc-cesitleri",
+            "title": "Oruç Çeşitleri",
+            "summary": "İslam dininde oruçlar, hüküm ve tutulma amaçlarına göre farklı türlere ayrılır."
+          },
+          {
+            "id": "oruc-oruc-nasil-tutulur",
+            "title": "Oruç Nasıl Tutulur?",
+            "summary": "Oruç, Allah'ın rızasını kazanmak amacıyla niyet edilerek tutulur. Ramazan ayında oruç tutan Müslüman, imsak vaktinden güneş batıncaya (iftar…"
+          },
+          {
+            "id": "oruc-orucu-bozan-durumlar",
+            "title": "Orucu Bozan Durumlar",
+            "summary": "Oruç, imsak vaktinden iftar vaktine kadar yeme, içme ve dinimizin orucu bozduğunu bildirdiği davranışlardan uzak durularak yerine getirilen …"
+          },
+          {
+            "id": "oruc-fidye-ve-kaza",
+            "title": "Fidye ve Kaza",
+            "summary": "İslam dini, ibadetlerde hem sorumluluğu hem de kolaylığı birlikte gözetir. Bazı durumlarda kişi orucunu zamanında tutamayabilir veya sağlık …"
+          },
+          {
+            "id": "oruc-ramazanin-onemi",
+            "title": "Ramazan'ın Önemi",
+            "summary": "Ramazan, Hicrî takvime göre yılın dokuzuncu ayıdır ve İslam dininde en faziletli aylardan biri kabul edilir."
+          }
+        ]
+      },
+      {
+        "id": "zekat",
+        "title": "Zekât",
+        "summary": "Zekât, İslam'ın beş şartından biri olan ve belirli şartları taşıyan Müslümanların, mallarının belirli bir kısmını ihtiyaç sahiplerine vermek…",
+        "quiz": {
+          "id": "zekat-mini-quiz",
+          "title": "Zekât Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "zekat-complete"
+        },
+        "lessons": [
+          {
+            "id": "zekat-zekat-nedir",
+            "title": "Zekât Nedir?",
+            "summary": "Zekât, İslam'ın beş şartından biri olan ve belirli şartları taşıyan Müslümanların, mallarının belirli bir kısmını ihtiyaç sahiplerine vermek…"
+          },
+          {
+            "id": "zekat-zekat-kimlere-farzdir",
+            "title": "Zekât Kimlere Farzdır?",
+            "summary": "Zekât, İslam'ın beş şartından biri olan mali bir ibadettir. Ancak her Müslüman zekât vermekle yükümlü değildir."
+          },
+          {
+            "id": "zekat-nisap-nedir",
+            "title": "Nisap Nedir?",
+            "summary": "Nisap, zekât ibadetinde kullanılan önemli bir kavramdır."
+          },
+          {
+            "id": "zekat-zekat-kimlere-verilir",
+            "title": "Zekât Kimlere Verilir?",
+            "summary": "Zekât, ihtiyaç sahibi olan belirli kimselere verilen mali bir ibadettir."
+          },
+          {
+            "id": "zekat-zekat-in-sadaka-ile-farki",
+            "title": "Zekât ‘ın Sadaka ile Farkı",
+            "summary": "Zekât ve sadaka, ihtiyaç sahiplerine yardım etmeyi amaçlayan ibadetlerdir. Ancak aynı ibadet değildir."
+          }
+        ]
+      },
+      {
+        "id": "hac",
+        "title": "Hac",
+        "summary": "Hac, İslam'ın beş şartından biri olan ve belirli şartları taşıyan Müslümanların ömürlerinde bir kez yerine getirmeleri gereken önemli bir ib…",
+        "quiz": {
+          "id": "hac-mini-quiz",
+          "title": "Hac Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "hac-complete"
+        },
+        "lessons": [
+          {
+            "id": "hac-hac-nedir",
+            "title": "Hac Nedir?",
+            "summary": "Hac, İslam'ın beş şartından biri olan ve belirli şartları taşıyan Müslümanların ömürlerinde bir kez yerine getirmeleri gereken önemli bir ib…"
+          },
+          {
+            "id": "hac-hac-kimlere-farzdir",
+            "title": "Hac Kimlere Farzdır?",
+            "summary": "Hac, İslam'ın beş şartından biridir. Ancak her Müslüman hac ibadetiyle yükümlü değildir."
+          },
+          {
+            "id": "hac-hac-ve-umre-arasindaki-fark",
+            "title": "Hac ve Umre Arasındaki Fark",
+            "summary": "Hac ve umre, Kâbe'yi ve kutsal mekânları ziyaret ederek yerine getirilen ibadetlerdir. Birçok yönleriyle birbirine benzeseler de hüküm, zama…"
+          },
+          {
+            "id": "hac-hac-ibadetinin-asamalari",
+            "title": "Hac İbadetinin Aşamaları",
+            "summary": "Hac ibadeti, İslam dininde belirlenen sıra ve kurallara uygun olarak yerine getirilir. Her aşamanın kendine özgü anlamı ve önemi vardır."
+          },
+          {
+            "id": "hac-ihram",
+            "title": "İhram",
+            "summary": "İhram, hac veya umre ibadetine başlamak isteyen kişinin, belirli bir niyetle bu ibadete girmesi ve ihram yasaklarına uymaya başlamasıdır."
+          },
+          {
+            "id": "hac-tavaf",
+            "title": "Tavaf",
+            "summary": "Tavaf, hac ve umre ibadetlerinin önemli uygulamalarından biridir. Tavaf, Kâbe'nin etrafında saat yönünün tersine yedi defa dönülerek yapılan…"
+          },
+          {
+            "id": "hac-say",
+            "title": "Sa'y",
+            "summary": "Sa'y, hac ve umre ibadetlerinin önemli uygulamalarından biridir. Safâ ve Merve tepeleri arasında yedi defa gidip gelerek yerine getirilen bi…"
+          },
+          {
+            "id": "hac-arafat",
+            "title": "Arafat",
+            "summary": "Arafat, Mekke'nin doğusunda bulunan ve hac ibadetinin en önemli rüknünün yerine getirildiği kutsal bölgedir."
+          },
+          {
+            "id": "hac-mina",
+            "title": "Mina",
+            "summary": "Mina, Mekke ile Müzdelife arasında bulunan ve hac ibadetinin önemli bölümlerinin yerine getirildiği kutsal bir bölgedir."
+          },
+          {
+            "id": "hac-seytan-taslama",
+            "title": "Şeytan Taşlama",
+            "summary": "Şeytan taşlama, hac ibadetinin önemli uygulamalarından biridir. Hacılar, Mina'da bulunan cemrelere belirli sayıda taş atarak bu ibadeti yeri…"
+          }
+        ]
+      },
+      {
+        "id": "dua",
+        "title": "Dua",
+        "summary": "Dua, kulun Allah'a yönelerek O'ndan istemesi, yardım dilemesi, şükretmesi ve O'na olan kulluğunu ifade etmesidir.",
+        "quiz": {
+          "id": "dua-mini-quiz",
+          "title": "Dua Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "dua-complete"
+        },
+        "lessons": [
+          {
+            "id": "dua-dua-nedir",
+            "title": "Dua Nedir?",
+            "summary": "Dua, kulun Allah'a yönelerek O'ndan istemesi, yardım dilemesi, şükretmesi ve O'na olan kulluğunu ifade etmesidir."
+          },
+          {
+            "id": "dua-duanin-onemi",
+            "title": "Duanın Önemi",
+            "summary": "Dua, kulun Allah ile doğrudan iletişim kurduğu en özel ibadetlerden biridir."
+          },
+          {
+            "id": "dua-dua-adabi",
+            "title": "Dua Adabı",
+            "summary": "Dua adabı, Allah'a dua ederken dikkat edilmesi tavsiye edilen güzel davranışlar ve edeplerdir."
+          },
+          {
+            "id": "dua-dua-kabulu-icin-dikkat-edilecek-hususlar",
+            "title": "Dua Kabulü İçin Dikkat Edilecek Hususlar",
+            "summary": "Müslüman, duasının kabul edileceğine inanarak Allah'a yönelir. Ancak duanın nasıl ve ne zaman karşılık bulacağını Allah'ın hikmeti belirler."
+          },
+          {
+            "id": "dua-gunluk-dualar",
+            "title": "Günlük Dualar",
+            "summary": "Müslüman, hayatının her anında Allah'ı hatırlamaya ve O'na yönelmeye gayret eder."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "kuran-egitimleri",
+    "title": "Kur'an Eğitimleri",
+    "subtitle": "Kur'an okuma, tecvid ve ezber",
+    "icon": "book-outline",
+    "quiz": {
+      "id": "kuran-egitimleri-genel-quiz",
+      "title": "Kur'an Eğitimleri Genel Quiz",
+      "type": "CATEGORY",
+      "questionCount": 40,
+      "passPercent": 70,
+      "achievementId": "kuran-egitimleri-master"
+    },
+    "modules": [
+      {
+        "id": "kurana-giris",
+        "title": "Kur'an'a Giriş",
+        "summary": "Kur'an-ı Kerim, Allah Teâlâ'nın insanlara doğru yolu göstermek için son peygamber Hz. Muhammed'e (sav) vahiy yoluyla gönderdiği son ilahi ki…",
+        "quiz": {
+          "id": "kurana-giris-mini-quiz",
+          "title": "Kur'an'a Giriş Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "kurana-giris-complete"
+        },
+        "lessons": [
+          {
+            "id": "kurana-giris-kuran-i-kerim-nedir",
+            "title": "Kur'an-ı Kerim Nedir?",
+            "summary": "Kur'an-ı Kerim, Allah Teâlâ'nın insanlara doğru yolu göstermek için son peygamber Hz. Muhammed'e (sav) vahiy yoluyla gönderdiği son ilahi ki…"
+          },
+          {
+            "id": "kurana-giris-kuranin-onemi",
+            "title": "Kur'an'ın Önemi",
+            "summary": "Kur'an-ı Kerim, Allah Teâlâ'nın insanlara gönderdiği son ilahi kitaptır."
+          },
+          {
+            "id": "kurana-giris-kuranin-ozellikleri",
+            "title": "Kur'an'ın Özellikleri",
+            "summary": "Kur'an-ı Kerim, Allah Teâlâ'nın Hz. Muhammed'e (sav) vahiy yoluyla indirdiği son ilahi kitaptır."
+          },
+          {
+            "id": "kurana-giris-kuranin-ana-konulari",
+            "title": "Kur'an'ın Ana Konuları",
+            "summary": "Kur'an-ı Kerim, insanlara doğru yolu göstermek için indirilmiş ilahi bir rehberdir."
+          },
+          {
+            "id": "kurana-giris-kurana-saygi-adabi",
+            "title": "Kur'an'a Saygı (Adabı)",
+            "summary": "Kur'an-ı Kerim, Allah Teâlâ'nın insanlığa gönderdiği son ilahi kitaptır."
+          },
+          {
+            "id": "kurana-giris-kuran-okumanin-fazileti",
+            "title": "Kur'an Okumanın Fazileti",
+            "summary": "Kur'an-ı Kerim okumak, Müslümanın yapabileceği en faziletli ibadetlerden biridir."
+          }
+        ]
+      },
+      {
+        "id": "elif-ba",
+        "title": "Elif-Ba",
+        "summary": "Kur'an-ı Kerim, Arapça olarak indirilmiştir. Bu nedenle Kur'an'ı aslından okuyabilmek için önce Arap alfabesini öğrenmek gerekir.",
+        "quiz": {
+          "id": "elif-ba-mini-quiz",
+          "title": "Elif-Ba Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "elif-ba-complete"
+        },
+        "lessons": [
+          {
+            "id": "elif-ba-arap-alfabesi",
+            "title": "Arap Alfabesi",
+            "summary": "Kur'an-ı Kerim, Arapça olarak indirilmiştir. Bu nedenle Kur'an'ı aslından okuyabilmek için önce Arap alfabesini öğrenmek gerekir."
+          },
+          {
+            "id": "elif-ba-harflerin-yazilisi",
+            "title": "Harflerin Yazılışı",
+            "summary": "Arap alfabesindeki harfler, kelime içinde bulundukları yere göre farklı şekillerde yazılabilir."
+          },
+          {
+            "id": "elif-ba-harflerin-okunusu",
+            "title": "Harflerin Okunuşu",
+            "summary": "Kur'an-ı Kerim'i doğru okuyabilmek için Arap harflerinin doğru telaffuzunu öğrenmek gerekir."
+          },
+          {
+            "id": "elif-ba-harflerin-mahrecleri",
+            "title": "Harflerin Mahreçleri",
+            "summary": "Mahreç, bir harfin ağız, boğaz, dil veya dudakların belirli bir noktasından çıkmasına verilen isimdir."
+          },
+          {
+            "id": "elif-ba-harf-egzersizleri",
+            "title": "Harf Egzersizleri",
+            "summary": "Harf egzersizleri, Arap alfabesini öğrenen kişilerin harfleri tanımasını, doğru telaffuz etmesini ve birbirinden ayırt etmesini sağlayan çal…"
+          }
+        ]
+      },
+      {
+        "id": "harekeler",
+        "title": "Harekeler",
+        "summary": "Üstün (Fetha), Arap alfabesinde harflerin nasıl okunacağını gösteren harekelerden biridir.",
+        "quiz": {
+          "id": "harekeler-mini-quiz",
+          "title": "Harekeler Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "harekeler-complete"
+        },
+        "lessons": [
+          {
+            "id": "harekeler-ustun-fetha",
+            "title": "Üstün (Fetha)",
+            "summary": "Üstün (Fetha), Arap alfabesinde harflerin nasıl okunacağını gösteren harekelerden biridir."
+          },
+          {
+            "id": "harekeler-esre-kesra",
+            "title": "Esre (Kesra)",
+            "summary": "Esre (Kesra), Arap alfabesinde harflerin nasıl okunacağını gösteren temel harekelerden biridir."
+          },
+          {
+            "id": "harekeler-otre-damme",
+            "title": "Ötre (Damme)",
+            "summary": "Ötre (Damme), Arap alfabesinde harflerin nasıl okunacağını gösteren temel harekelerden biridir."
+          },
+          {
+            "id": "harekeler-tenvin",
+            "title": "Tenvin",
+            "summary": "Tenvin, harekelerin çift olarak yazılmasıyla oluşan bir okuma işaretidir."
+          },
+          {
+            "id": "harekeler-cezm-sukun",
+            "title": "Cezm (Sükûn)",
+            "summary": "Cezm (Sükûn), Arap alfabesinde bir harfin harekesiz olduğunu gösteren okuma işaretidir."
+          },
+          {
+            "id": "harekeler-sedde",
+            "title": "Şedde",
+            "summary": "Şedde, Arap alfabesinde bir harfin iki defa okunacağını gösteren okuma işaretidir."
+          }
+        ]
+      },
+      {
+        "id": "kuran-okumaya-baslangic",
+        "title": "Kur'an Okumaya Başlangıç",
+        "summary": "Arapçada kelimeler, harflerin bir araya gelmesiyle oluşur. Bu nedenle Kur'an okumaya başlayabilmek için harflerin nasıl birleştirildiğini öğ…",
+        "quiz": {
+          "id": "kuran-okumaya-baslangic-mini-quiz",
+          "title": "Kur'an Okumaya Başlangıç Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "kuran-okumaya-baslangic-complete"
+        },
+        "lessons": [
+          {
+            "id": "kuran-okumaya-baslangic-harf-birlestirme",
+            "title": "Harf Birleştirme",
+            "summary": "Arapçada kelimeler, harflerin bir araya gelmesiyle oluşur. Bu nedenle Kur'an okumaya başlayabilmek için harflerin nasıl birleştirildiğini öğ…"
+          },
+          {
+            "id": "kuran-okumaya-baslangic-hece-okuma",
+            "title": "Hece Okuma",
+            "summary": "Hece okuma, Arap harflerini ve harekeleri bir araya getirerek heceler oluşturup doğru şekilde okumayı öğrenme aşamasıdır."
+          },
+          {
+            "id": "kuran-okumaya-baslangic-kelime-okuma",
+            "title": "Kelime Okuma",
+            "summary": "Kelime okuma, öğrenilen harfleri, harekeleri ve heceleri bir araya getirerek Arapça kelimeleri doğru şekilde okuyabilme becerisidir."
+          },
+          {
+            "id": "kuran-okumaya-baslangic-cumle-okuma",
+            "title": "Cümle Okuma",
+            "summary": "Cümle okuma, öğrenilen harfleri, harekeleri ve kelimeleri bir araya getirerek Arapça cümleleri doğru ve akıcı şekilde okuyabilme becerisidir…"
+          },
+          {
+            "id": "kuran-okumaya-baslangic-ayet-okuma",
+            "title": "Ayet Okuma",
+            "summary": "Ayet okuma, Kur'an-ı Kerim'deki ayetleri harf, hareke ve tecvid kurallarına uygun şekilde okumaktır."
+          },
+          {
+            "id": "kuran-okumaya-baslangic-akici-okuma-teknikleri",
+            "title": "Akıcı Okuma Teknikleri",
+            "summary": "Akıcı okuma, Kur'an-ı Kerim'i harfleri, harekeleri ve tecvid kurallarını doğru uygulayarak; duraksamadan, doğal bir ritim içinde okuyabilme …"
+          }
+        ]
+      },
+      {
+        "id": "tecvid",
+        "title": "Tecvid",
+        "summary": "Tecvid, Kur'an-ı Kerim'i harflerin çıkış yerlerine (mahreçlerine), sıfatlarına ve okuma kurallarına uygun şekilde okumayı öğreten ilimdir.",
+        "quiz": {
+          "id": "tecvid-mini-quiz",
+          "title": "Tecvid Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "tecvid-complete"
+        },
+        "lessons": [
+          {
+            "id": "tecvid-tecvid-nedir",
+            "title": "Tecvid Nedir?",
+            "summary": "Tecvid, Kur'an-ı Kerim'i harflerin çıkış yerlerine (mahreçlerine), sıfatlarına ve okuma kurallarına uygun şekilde okumayı öğreten ilimdir."
+          },
+          {
+            "id": "tecvid-tecvidin-onemi",
+            "title": "Tecvidin Önemi",
+            "summary": "Tecvid, Kur'an-ı Kerim'i Allah Teâlâ'nın indirdiği şekle en uygun biçimde okumaya gayret etmeyi sağlayan kurallar bütünüdür."
+          },
+          {
+            "id": "tecvid-med",
+            "title": "Med",
+            "summary": "Med, Kur'an-ı Kerim okunurken bazı harflerin belirli ölçüde uzatılarak okunmasına verilen isimdir."
+          },
+          {
+            "id": "tecvid-mahrec",
+            "title": "Mahreç",
+            "summary": "Mahreç, Arap harflerinin ağız, boğaz, dil, dudak veya geniz gibi konuşma organlarının belirli noktalarından çıkarılmasıdır."
+          },
+          {
+            "id": "tecvid-ihfa",
+            "title": "İhfa",
+            "summary": "İhfa, tecvid kurallarından biridir ve tenvin veya cezmli nûn (نْ) harfinden sonra belirli harflerden biri geldiğinde, \"n\" sesinin tam açık d…"
+          },
+          {
+            "id": "tecvid-idgam",
+            "title": "İdğam",
+            "summary": "İdğam, tecvid kurallarından biridir ve cezmli nûn (نْ) veya tenvinden sonra, belirli harflerden biri geldiğinde nûn sesinin kendisinden sonr…"
+          },
+          {
+            "id": "tecvid-iklab",
+            "title": "İklab",
+            "summary": "İklab, tecvid kurallarından biridir ve cezmli nûn (نْ) veya tenvinden sonra \"ب\" (Be) harfi geldiğinde, nûn sesinin \"m\" sesine dönüştürülerek…"
+          },
+          {
+            "id": "tecvid-izhar",
+            "title": "İzhar",
+            "summary": "İzhar, tecvid kurallarından biridir ve cezmli nûn (نْ) veya tenvinden sonra boğaz harflerinden biri geldiğinde, nûn sesinin açık ve belirgin…"
+          },
+          {
+            "id": "tecvid-kalkale",
+            "title": "Kalkale",
+            "summary": "Kalkale, tecvid kurallarından biridir ve kalkale harflerinden biri cezmli (sükûnlu) olduğunda veya vakıf (durma) sebebiyle cezmli hâle geldi…"
+          },
+          {
+            "id": "tecvid-gunne",
+            "title": "Gunne",
+            "summary": "Gunne, tecvid kurallarında genizden gelen hoş ve belirgin ses anlamına gelir."
+          },
+          {
+            "id": "tecvid-vakif-ve-ibtida",
+            "title": "Vakıf ve İbtidâ",
+            "summary": "Vakıf, Kur'an-ı Kerim okurken uygun bir yerde durmaya, ibtidâ ise durduktan sonra uygun yerden yeniden okumaya başlamaya denir."
+          }
+        ]
+      },
+      {
+        "id": "sure-ezberi",
+        "title": "Sure Ezberi",
+        "summary": "Nüzul Yeri: Mekke (Cumhurun görüşüne göre Mekkîdir.)",
+        "quiz": null,
+        "lessons": [
+          {
+            "id": "sure-ezberi-fatiha",
+            "title": "Fâtiha",
+            "summary": "Nüzul Yeri: Mekke (Cumhurun görüşüne göre Mekkîdir.)"
+          },
+          {
+            "id": "sure-ezberi-ihlas",
+            "title": "İhlâs",
+            "summary": "Nüzul Yeri: Mekke (Cumhurun görüşüne göre Mekkîdir.)"
+          },
+          {
+            "id": "sure-ezberi-felak",
+            "title": "Felak",
+            "summary": "Nüzul Yeri: Mekke (Cumhurun görüşüne göre Mekkîdir.)"
+          },
+          {
+            "id": "sure-ezberi-nas",
+            "title": "Nâs",
+            "summary": "Nüzul Yeri: Mekke (Cumhurun görüşüne göre Mekkîdir.)"
+          },
+          {
+            "id": "sure-ezberi-kevser",
+            "title": "Kevser",
+            "summary": "Kur'an'daki Yeri: 30. cüzde yer alır."
+          },
+          {
+            "id": "sure-ezberi-asr",
+            "title": "Asr",
+            "summary": "Kur'an'daki Yeri: 30. cüzde yer alır."
+          },
+          {
+            "id": "sure-ezberi-kureys",
+            "title": "Kureyş",
+            "summary": "Kur'an'daki Yeri: 30. cüzde yer alır."
+          },
+          {
+            "id": "sure-ezberi-maun",
+            "title": "Mâûn",
+            "summary": "Nüzul Yeri: Mekke (Cumhurun görüşüne göre Mekkîdir. Bazı âlimler son ayetlerin Medine'de indiğini söylemiştir.)"
+          },
+          {
+            "id": "sure-ezberi-fil",
+            "title": "Fîl",
+            "summary": "Kur'an'daki Yeri: 30. cüzde yer alır."
+          },
+          {
+            "id": "sure-ezberi-kafirun",
+            "title": "Kâfirûn",
+            "summary": "Kur'an'daki Yeri: 30. cüzde yer alır."
+          },
+          {
+            "id": "sure-ezberi-nasr",
+            "title": "Nasr",
+            "summary": "Kur'an'daki Yeri: 30. cüzde yer alır."
+          }
+        ]
+      },
+      {
+        "id": "kuranin-tarihi",
+        "title": "Kur'an'ın Tarihi",
+        "summary": "İlk vahiy, Allah Teâlâ'nın Cebrâil (a.s.) aracılığıyla Hz. Muhammed'e (sav) indirdiği ilk ilahi mesajdır. Bu olay, peygamberlik görevinin ba…",
+        "quiz": {
+          "id": "kuranin-tarihi-mini-quiz",
+          "title": "Kur'an'ın Tarihi Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "kuranin-tarihi-complete"
+        },
+        "lessons": [
+          {
+            "id": "kuranin-tarihi-ilk-vahiy",
+            "title": "İlk Vahiy",
+            "summary": "İlk vahiy, Allah Teâlâ'nın Cebrâil (a.s.) aracılığıyla Hz. Muhammed'e (sav) indirdiği ilk ilahi mesajdır. Bu olay, peygamberlik görevinin ba…"
+          },
+          {
+            "id": "kuranin-tarihi-vahyin-inisi",
+            "title": "Vahyin İnişi",
+            "summary": "Vahiy, Allah Teâlâ'nın peygamberlerine, dilediği hükümleri ve mesajları doğrudan veya melek aracılığıyla bildirmesidir."
+          },
+          {
+            "id": "kuranin-tarihi-kuranin-yaziya-gecirilmesi",
+            "title": "Kur'an'ın Yazıya Geçirilmesi",
+            "summary": "Kur'an-ı Kerim, indirildiği andan itibaren yalnızca ezberlenmemiş, aynı zamanda yazıya da geçirilmiştir."
+          },
+          {
+            "id": "kuranin-tarihi-mushaf-haline-getirilmesi",
+            "title": "Mushaf Hâline Getirilmesi",
+            "summary": "Mushaf, Kur'an-ı Kerim ayetlerinin ve surelerinin bir araya getirilerek kitap hâline getirilmiş yazılı nüshasına verilen isimdir."
+          },
+          {
+            "id": "kuranin-tarihi-hz-osman-doneminde-cogaltilmasi",
+            "title": "Hz. Osman Döneminde Çoğaltılması",
+            "summary": "Hz. Ebû Bekir (ra) döneminde Kur'an tek bir mushaf hâline getirilmiş ve güvenle muhafaza edilmişti. Ancak İslam'ın kısa sürede geniş coğrafy…"
+          },
+          {
+            "id": "kuranin-tarihi-gunumuze-ulasmasi",
+            "title": "Günümüze Ulaşması",
+            "summary": "Kur'an-ı Kerim, indirildiği günden günümüze kadar hiçbir değişikliğe uğramadan ulaşmıştır. Bu, hem Allah'ın koruması hem de Müslümanların gö…"
+          }
+        ]
+      },
+      {
+        "id": "kurani-anlama",
+        "title": "Kur'an'ı Anlama",
+        "summary": "Meal, Kur'an-ı Kerim ayetlerinin anlamının, başka bir dile mümkün olduğunca doğru ve anlaşılır şekilde aktarılmasıdır.",
+        "quiz": {
+          "id": "kurani-anlama-mini-quiz",
+          "title": "Kur'an'ı Anlama Mini Quiz",
+          "type": "MODULE",
+          "questionCount": 15,
+          "passPercent": 70,
+          "achievementId": "kurani-anlama-complete"
+        },
+        "lessons": [
+          {
+            "id": "kurani-anlama-meal-nedir",
+            "title": "Meal Nedir?",
+            "summary": "Meal, Kur'an-ı Kerim ayetlerinin anlamının, başka bir dile mümkün olduğunca doğru ve anlaşılır şekilde aktarılmasıdır."
+          },
+          {
+            "id": "kurani-anlama-tefsir-nedir",
+            "title": "Tefsir Nedir?",
+            "summary": "Tefsir, Kur'an-ı Kerim ayetlerinin anlamını ayrıntılı olarak açıklayan ilim dalıdır."
+          },
+          {
+            "id": "kurani-anlama-nuzul-sebepleri",
+            "title": "Nüzul Sebepleri",
+            "summary": "Nüzul sebepleri (Esbâb-ı Nüzûl), Kur'an-ı Kerim'deki bazı ayetlerin veya surelerin hangi olay, soru ya da durum üzerine indirildiğini ifade …"
+          },
+          {
+            "id": "kurani-anlama-muhkem-ve-mutesabih-ayetler",
+            "title": "Muhkem ve Müteşabih Ayetler",
+            "summary": "Kur'an-ı Kerim'deki ayetler, anlamlarının açıklığına göre genel olarak muhkem ve müteşabih olmak üzere iki gruba ayrılır."
+          },
+          {
+            "id": "kurani-anlama-kuran-ile-amel-etmek",
+            "title": "Kur'an ile Amel Etmek",
+            "summary": "Kur'an ile amel etmek, Kur'an-ı Kerim'in öğrettiği inanç, ibadet, ahlak ve yaşam ilkelerini günlük hayatta uygulamak demektir."
+          },
+          {
+            "id": "kurani-anlama-kurani-dogru-anlama-ilkeleri",
+            "title": "Kur'an'ı Doğru Anlama İlkeleri",
+            "summary": "Kur'an-ı Kerim, Allah'ın insanlara gönderdiği son ilahi kitaptır. Onun mesajını doğru anlamak, Müslümanların inançlarını, ibadetlerini ve gü…"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "siyer",
+    "title": "Siyer",
+    "subtitle": "Peygamber Efendimizin hayatı",
+    "icon": "walk-outline",
+    "quiz": {
+      "id": "siyer-genel-quiz",
+      "title": "Siyer Genel Quiz",
+      "type": "CATEGORY",
+      "questionCount": 20,
+      "passPercent": 70,
+      "achievementId": "siyer-master"
+    },
+    "modules": [
+      {
+        "id": "siyer",
+        "title": "Siyer",
+        "summary": "Siyer, Hz. Muhammed'in (sav) doğumundan vefatına kadar olan hayatını, ahlakını, yaşayışını, tebliğ faaliyetlerini, mücadelelerini ve örnek d…",
+        "quiz": null,
+        "lessons": [
+          {
+            "id": "siyer-siyer-nedir",
+            "title": "Siyer Nedir?",
+            "summary": "Siyer, Hz. Muhammed'in (sav) doğumundan vefatına kadar olan hayatını, ahlakını, yaşayışını, tebliğ faaliyetlerini, mücadelelerini ve örnek d…"
+          },
+          {
+            "id": "siyer-peygamber-efendimizin-soyu",
+            "title": "Peygamber Efendimizin Soyu",
+            "summary": "Hz. Muhammed'in (sav) soyu, Arap toplumunun en saygın kabilelerinden biri olan Kureyş Kabilesi'nin Hâşimoğulları koluna dayanır."
+          },
+          {
+            "id": "siyer-peygamber-efendimizin-dogumu",
+            "title": "Peygamber Efendimizin Doğumu",
+            "summary": "Hz. Muhammed (sav), 571 yılında, Arap Yarımadası'ndaki Mekke şehrinde dünyaya gelmiştir."
+          },
+          {
+            "id": "siyer-peygamber-efendimizin-cocuklugu",
+            "title": "Peygamber Efendimizin Çocukluğu",
+            "summary": "Hz. Muhammed (sav), küçük yaşlardan itibaren çeşitli zorluklarla karşılaşmış; ancak sabrı, dürüstlüğü ve güzel ahlakıyla çevresindeki insanl…"
+          },
+          {
+            "id": "siyer-peygamber-efendimizin-gencligi",
+            "title": "Peygamber Efendimizin Gençliği",
+            "summary": "Hz. Muhammed (sav), gençlik yıllarında dürüstlüğü, çalışkanlığı ve güzel ahlakıyla tanınmıştır. Çocukluğundan itibaren güvenilir bir kişiliğ…"
+          },
+          {
+            "id": "siyer-ilk-vahiy",
+            "title": "İlk Vahiy",
+            "summary": "İlk vahiy, Allah Teâlâ'nın Cebrâil (as) aracılığıyla Hz. Muhammed'e (sav) gönderdiği ilk ilahi mesajdır. Bu olay, Hz. Muhammed'in (sav) peyg…"
+          },
+          {
+            "id": "siyer-mekke-donemi",
+            "title": "Mekke Dönemi",
+            "summary": "Mekke Dönemi, Hz. Muhammed'in (sav) ilk vahyi almasıyla başlayıp Medine'ye hicret etmesine kadar geçen yaklaşık 13 yıllık dönemdir."
+          },
+          {
+            "id": "siyer-hicret",
+            "title": "Hicret",
+            "summary": "Hicret, Hz. Muhammed'in (sav) ve Müslümanların, Mekke'deki baskı ve zulümden kurtulmak amacıyla 622 yılında Mekke'den Medine'ye göç etmesidi…"
+          },
+          {
+            "id": "siyer-medine-donemi",
+            "title": "Medine Dönemi",
+            "summary": "Medine Dönemi, Hz. Muhammed'in (sav) 622 yılında Medine'ye hicret etmesiyle başlayan ve 632 yılında vefatına kadar devam eden yaklaşık 10 yı…"
+          },
+          {
+            "id": "siyer-gazveler",
+            "title": "Gazveler",
+            "summary": "Gazve, Hz. Muhammed'in (sav) bizzat katıldığı askerî seferlere verilen isimdir."
+          },
+          {
+            "id": "siyer-hudeybiye-antlasmasi",
+            "title": "Hudeybiye Antlaşması",
+            "summary": "Hudeybiye Antlaşması, Hz. Muhammed (sav) ile Mekke'deki Kureyşliler arasında 628 yılında (Hicretin 6. yılı) imzalanan barış antlaşmasıdır."
+          },
+          {
+            "id": "siyer-mekkenin-fethi",
+            "title": "Mekke'nin Fethi",
+            "summary": "Mekke'nin Fethi, Hz. Muhammed'in (sav) önderliğinde Müslümanların 630 yılında (Hicretin 8. yılı) Mekke'ye girmesi ve şehrin büyük ölçüde çat…"
+          },
+          {
+            "id": "siyer-veda-hutbesi",
+            "title": "Veda Hutbesi",
+            "summary": "Veda Hutbesi, Hz. Muhammed'in (sav), 632 yılında yaptığı Veda Haccı sırasında, Arafat'ta Müslümanlara hitaben yaptığı son kapsamlı konuşmadı…"
+          },
+          {
+            "id": "siyer-peygamber-efendimizin-vefati",
+            "title": "Peygamber Efendimizin Vefatı",
+            "summary": "Hz. Muhammed (sav), 632 yılında (Hicretin 11. yılı), Veda Haccı'ndan kısa bir süre sonra Medine'de vefat etmiştir."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "hadis",
+    "title": "Hadis",
+    "subtitle": "Hadis ve sünnet bilgileri",
+    "icon": "chatbubbles-outline",
+    "quiz": {
+      "id": "hadis-genel-quiz",
+      "title": "Hadis Genel Quiz",
+      "type": "CATEGORY",
+      "questionCount": 20,
+      "passPercent": 70,
+      "achievementId": "hadis-master"
+    },
+    "modules": [
+      {
+        "id": "hadis",
+        "title": "Hadis",
+        "summary": "Hadis, Hz. Muhammed'in (sav) sözlerini, davranışlarını, onaylarını (takrirlerini) ve bazı özelliklerini anlatan rivayetlerdir.",
+        "quiz": null,
+        "lessons": [
+          {
+            "id": "hadis-hadis-nedir",
+            "title": "Hadis Nedir?",
+            "summary": "Hadis, Hz. Muhammed'in (sav) sözlerini, davranışlarını, onaylarını (takrirlerini) ve bazı özelliklerini anlatan rivayetlerdir."
+          },
+          {
+            "id": "hadis-sunnet-nedir",
+            "title": "Sünnet Nedir?",
+            "summary": "Sünnet, Hz. Muhammed'in (sav) Kur'an-ı Kerim'e uygun olarak yaşadığı hayatı, davranışları, uygulamaları ve örnek yaşayışıdır."
+          },
+          {
+            "id": "hadis-hadis-cesitleri",
+            "title": "Hadis Çeşitleri",
+            "summary": "Hadisler, güvenilirliklerine ve kim tarafından rivayet edildiğine göre çeşitli gruplara ayrılır."
+          },
+          {
+            "id": "hadis-hadislerin-korunmasi",
+            "title": "Hadislerin Korunması",
+            "summary": "Hadislerin korunması, Hz. Muhammed'in (sav) sözlerinin, davranışlarının ve onaylarının doğru şekilde öğrenilip gelecek nesillere güvenilir o…"
+          },
+          {
+            "id": "hadis-40-hadis",
+            "title": "40 Hadis",
+            "summary": "40 Hadis, Hz. Muhammed'in (sav) dinin temel esaslarını, ibadetleri, güzel ahlakı ve günlük hayatı anlatan kırk önemli hadisinin bir araya ge…"
+          },
+          {
+            "id": "hadis-riyazus-salihinden-secmeler",
+            "title": "Riyâzü's-Sâlihîn'den Seçmeler",
+            "summary": "Riyâzü's-Sâlihîn, büyük İslam âlimi Yahya ibn Sharaf al-Nawawi tarafından hazırlanan, Hz. Muhammed'in (sav) güvenilir hadislerinden oluşan ö…"
+          },
+          {
+            "id": "hadis-gunluk-hadisler",
+            "title": "Günlük Hadisler",
+            "summary": "Günlük hadisler, Hz. Muhammed'in (sav) günlük hayatta uygulanabilecek öğütlerini içeren hadislerdir."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "fikih",
+    "title": "Fıkıh",
+    "subtitle": "İbadet ve günlük hayat hükümleri",
+    "icon": "scale-outline",
+    "quiz": {
+      "id": "fikih-genel-quiz",
+      "title": "Fıkıh Genel Quiz",
+      "type": "CATEGORY",
+      "questionCount": 20,
+      "passPercent": 70,
+      "achievementId": "fikih-master"
+    },
+    "modules": [
+      {
+        "id": "fikih",
+        "title": "Fıkıh",
+        "summary": "Fıkıh, İslam dininin ibadet, günlük yaşam, aile, ticaret ve insanlar arasındaki ilişkilerle ilgili hükümlerini Kur'an-ı Kerim ve sünnetten ç…",
+        "quiz": null,
+        "lessons": [
+          {
+            "id": "fikih-fikih-nedir",
+            "title": "Fıkıh Nedir?",
+            "summary": "Fıkıh, İslam dininin ibadet, günlük yaşam, aile, ticaret ve insanlar arasındaki ilişkilerle ilgili hükümlerini Kur'an-ı Kerim ve sünnetten ç…"
+          },
+          {
+            "id": "fikih-taharet",
+            "title": "Taharet",
+            "summary": "Taharet, İslam dininde maddi ve manevi temizliği ifade eden bir kavramdır."
+          },
+          {
+            "id": "fikih-namaz",
+            "title": "Namaz",
+            "summary": "Namaz, Allah'a kulluk etmek amacıyla belirli vakitlerde yerine getirilen, tekbir ile başlayıp selam ile sona eren en önemli ibadetlerden bir…"
+          },
+          {
+            "id": "fikih-oruc",
+            "title": "Oruç",
+            "summary": "Oruç, imsak vaktinden güneş batıncaya kadar yeme, içme ve orucu bozan davranışlardan niyet ederek uzak durmak suretiyle yerine getirilen bir…"
+          },
+          {
+            "id": "fikih-zekat",
+            "title": "Zekât",
+            "summary": "Zekât, dinen zengin sayılan Müslümanların, Allah'ın rızasını kazanmak amacıyla mallarının belirli bir kısmını, Kur'an-ı Kerim'de belirtilen …"
+          },
+          {
+            "id": "fikih-hac",
+            "title": "Hac",
+            "summary": "Hac, belirli bir zamanda, gerekli şartları taşıyan Müslümanların Kâbe'yi ve kutsal mekânları usulüne uygun şekilde ziyaret ederek yerine get…"
+          },
+          {
+            "id": "fikih-helal-haram",
+            "title": "Helal-Haram",
+            "summary": "Helal, İslam dinine göre yapılması, yenilmesi, içilmesi veya kullanılması dinen izin verilen şeylerdir."
+          },
+          {
+            "id": "fikih-ticaret",
+            "title": "Ticaret",
+            "summary": "Ticaret, insanların ihtiyaçlarını karşılamak amacıyla mal ve hizmetlerin alınıp satılması faaliyetidir."
+          },
+          {
+            "id": "fikih-aile-hukuku",
+            "title": "Aile Hukuku",
+            "summary": "Aile hukuku, aile bireylerinin hak ve sorumluluklarını düzenleyen fıkıh bölümüdür."
+          },
+          {
+            "id": "fikih-gunluk-hayat",
+            "title": "Günlük Hayat",
+            "summary": "Günlük hayat, insanların her gün yaptığı ibadetleri, davranışları, alışkanlıkları ve diğer insanlarla olan ilişkilerini kapsar."
+          },
+          {
+            "id": "fikih-yolculuk-hukumleri",
+            "title": "Yolculuk Hükümleri",
+            "summary": "Yolculuk hükümleri, İslam dininde yolculuk yapan Müslümanlara tanınan kolaylıkları ve bu durumdaki ibadetlerle ilgili hükümleri ifade eder."
+          },
+          {
+            "id": "fikih-hastalik-hukumleri",
+            "title": "Hastalık Hükümleri",
+            "summary": "Hastalık hükümleri, İslam dininde hastalık sebebiyle ibadetlerini normal şekilde yerine getiremeyen Müslümanlara tanınan kolaylıkları ifade …"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "akaid",
+    "title": "Akaid",
+    "subtitle": "İnanç esasları",
+    "icon": "shield-checkmark-outline",
+    "quiz": {
+      "id": "akaid-genel-quiz",
+      "title": "Akaid Genel Quiz",
+      "type": "CATEGORY",
+      "questionCount": 20,
+      "passPercent": 70,
+      "achievementId": "akaid-master"
+    },
+    "modules": [
+      {
+        "id": "akaid",
+        "title": "Akaid",
+        "summary": "Akaid, İslam dininin inanılması zorunlu olan temel inanç esaslarını inceleyen ilim dalıdır.",
+        "quiz": null,
+        "lessons": [
+          {
+            "id": "akaid-akaid-nedir",
+            "title": "Akaid Nedir?",
+            "summary": "Akaid, İslam dininin inanılması zorunlu olan temel inanç esaslarını inceleyen ilim dalıdır."
+          },
+          {
+            "id": "akaid-allahin-isim-ve-sifatlari",
+            "title": "Allah'ın İsim ve Sıfatları",
+            "summary": "İslam inancına göre Allah Teâlâ, en yüce ve eksiksiz varlıktır. O'nu daha doğru tanıyabilmek için Kur'an-ı Kerim ve sahih hadislerde bildiri…"
+          },
+          {
+            "id": "akaid-tevhid",
+            "title": "Tevhid",
+            "summary": "Tevhid, Allah'ın bir ve tek olduğuna, hiçbir ortağı bulunmadığına ve ibadete yalnızca O'nun layık olduğuna inanmak demektir."
+          },
+          {
+            "id": "akaid-sirk",
+            "title": "Şirk",
+            "summary": "Şirk, Allah'a ait olan ilahlık, ibadet veya O'na özgü özelliklerde başka varlıkları ortak kabul etmek ya da onlara Allah'a ait yetkiler verm…"
+          },
+          {
+            "id": "akaid-peygamberlik",
+            "title": "Peygamberlik",
+            "summary": "Peygamberlik (Nübüvvet), Allah Teâlâ'nın insanlar arasından seçtiği elçiler aracılığıyla vahyini insanlara bildirmesi ve onları doğru yola d…"
+          },
+          {
+            "id": "akaid-melekler",
+            "title": "Melekler",
+            "summary": "Melekler, Allah Teâlâ'nın nurdan yarattığı, O'nun emirlerini eksiksiz yerine getiren, gözle görülmeyen varlıklardır."
+          },
+          {
+            "id": "akaid-cinler",
+            "title": "Cinler",
+            "summary": "Cinler, Allah Teâlâ'nın dumansız ateşten yarattığı, insanlar gibi akıl ve irade sahibi olan, gözle görülmeyen varlıklardır."
+          },
+          {
+            "id": "akaid-ahiret",
+            "title": "Ahiret",
+            "summary": "Ahiret, dünya hayatının sona ermesinden sonra başlayacak olan ebedî (sonsuz) hayattır."
+          },
+          {
+            "id": "akaid-kiyamet-alametleri",
+            "title": "Kıyamet Alametleri",
+            "summary": "Kıyamet alametleri, kıyametin yaklaşacağını bildiren ve Kur'an-ı Kerim ile sahih hadislerde haber verilen olaylardır."
+          },
+          {
+            "id": "akaid-cennet",
+            "title": "Cennet",
+            "summary": "Cennet, Allah Teâlâ'nın iman edip salih amel işleyen kulları için hazırladığı ebedî mutluluk ve nimet yurdudur."
+          },
+          {
+            "id": "akaid-cehennem",
+            "title": "Cehennem",
+            "summary": "Cehennem, Allah Teâlâ'nın inkâr edenler ve hak ettikleri takdirde günahkâr kullar için hazırladığı ceza yurdudur."
+          },
+          {
+            "id": "akaid-kader",
+            "title": "Kader",
+            "summary": "Kader, Allah Teâlâ'nın olmuş, olmakta olan ve olacak her şeyi ezelî ilmiyle bilmesi, belirli bir ölçü ve düzene göre takdir etmesidir."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "islam-tarihi",
+    "title": "İslam Tarihi",
+    "subtitle": "İslam medeniyeti ve tarih",
+    "icon": "time-outline",
+    "quiz": {
+      "id": "islam-tarihi-genel-quiz",
+      "title": "İslam Tarihi Genel Quiz",
+      "type": "CATEGORY",
+      "questionCount": 20,
+      "passPercent": 70,
+      "achievementId": "islam-tarihi-master"
+    },
+    "modules": [
+      {
+        "id": "islam-tarihi",
+        "title": "İslam Tarihi",
+        "summary": "Asr-ı Saadet, Hz. Muhammed'in (sav) peygamber olarak gönderildiği dönemden başlayıp onun vefatına kadar geçen döneme verilen isimdir.",
+        "quiz": null,
+        "lessons": [
+          {
+            "id": "islam-tarihi-asr-i-saadet",
+            "title": "Asr-ı Saadet",
+            "summary": "Asr-ı Saadet, Hz. Muhammed'in (sav) peygamber olarak gönderildiği dönemden başlayıp onun vefatına kadar geçen döneme verilen isimdir."
+          },
+          {
+            "id": "islam-tarihi-dort-halife",
+            "title": "Dört Halife",
+            "summary": "Dört Halife, Hz. Muhammed'in (sav) vefatından sonra Müslümanlara liderlik eden ilk dört halifedir."
+          },
+          {
+            "id": "islam-tarihi-emeviler",
+            "title": "Emeviler",
+            "summary": "Emevîler, Hz. Ali'nin (ra) vefatından sonra 661 yılında kurulan ve 750 yılına kadar İslam Devleti'ni yöneten ilk İslam hanedanıdır."
+          },
+          {
+            "id": "islam-tarihi-abbasiler",
+            "title": "Abbasiler",
+            "summary": "Abbâsîler, Emevî Devleti'nin yıkılmasının ardından 750 yılında kurulan ve 1258 yılına kadar İslam dünyasının büyük bölümünü yöneten hanedand…"
+          },
+          {
+            "id": "islam-tarihi-endulus",
+            "title": "Endülüs",
+            "summary": "Endülüs, günümüzde büyük ölçüde İspanya ve Portekiz'in bulunduğu İber Yarımadası'nda, Müslümanların yaklaşık 711-1492 yılları arasında hüküm…"
+          },
+          {
+            "id": "islam-tarihi-buyuk-selcuklu",
+            "title": "Büyük Selçuklu",
+            "summary": "Büyük Selçuklu Devleti, 1040 yılında kurulmuş ve Türklerin İslam dünyasında büyük bir güç hâline gelmesini sağlayan önemli bir Türk-İslam de…"
+          },
+          {
+            "id": "islam-tarihi-anadolu-selcuklu",
+            "title": "Anadolu Selçuklu",
+            "summary": "Anadolu Selçuklu Devleti (Türkiye Selçuklu Devleti), 1077 yılında Anadolu'da kurulmuş önemli bir Türk-İslam devletidir."
+          },
+          {
+            "id": "islam-tarihi-osmanli-devleti",
+            "title": "Osmanlı Devleti",
+            "summary": "Osmanlı Devleti, 1299 yılında Osman Gazi tarafından kurulan ve yaklaşık 623 yıl hüküm süren büyük bir Türk-İslam devletidir."
+          },
+          {
+            "id": "islam-tarihi-yakin-donem-islam-dunyasi",
+            "title": "Yakın Dönem İslam Dünyası",
+            "summary": "Yakın Dönem İslam Dünyası, yaklaşık 18. yüzyıldan günümüze kadar Müslüman toplumların yaşadığı siyasi, sosyal, ekonomik ve kültürel gelişmel…"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "islam-ahlaki",
+    "title": "İslam Ahlakı",
+    "subtitle": "Güzel ahlak ve erdemler",
+    "icon": "heart-outline",
+    "quiz": {
+      "id": "islam-ahlaki-genel-quiz",
+      "title": "İslam Ahlakı Genel Quiz",
+      "type": "CATEGORY",
+      "questionCount": 20,
+      "passPercent": 70,
+      "achievementId": "islam-ahlaki-master"
+    },
+    "modules": [
+      {
+        "id": "islam-ahlaki",
+        "title": "İslam Ahlakı",
+        "summary": "Ahlak, insanın iyi ve doğru davranışlar sergilemesini sağlayan güzel huylar ve davranışların bütünüdür.",
+        "quiz": null,
+        "lessons": [
+          {
+            "id": "islam-ahlaki-ahlak-nedir",
+            "title": "Ahlak Nedir?",
+            "summary": "Ahlak, insanın iyi ve doğru davranışlar sergilemesini sağlayan güzel huylar ve davranışların bütünüdür."
+          },
+          {
+            "id": "islam-ahlaki-dogruluk",
+            "title": "Doğruluk",
+            "summary": "Doğruluk, söz, davranış ve niyette gerçeğe uygun hareket etmek, yalandan ve hileden uzak durmaktır."
+          },
+          {
+            "id": "islam-ahlaki-emanet",
+            "title": "Emanet",
+            "summary": "Emanet, bir kimsenin korunması veya yerine getirilmesi için kendisine bırakılan mal, bilgi, görev, sır veya sorumluluktur."
+          },
+          {
+            "id": "islam-ahlaki-sabir",
+            "title": "Sabır",
+            "summary": "Sabır, karşılaşılan zorluk, sıkıntı ve musibetler karşısında Allah'a güvenerek metanet göstermek, isyan etmeden dayanmak ve doğru olanda kar…"
+          },
+          {
+            "id": "islam-ahlaki-sukur",
+            "title": "Şükür",
+            "summary": "Şükür, Allah Teâlâ'nın verdiği nimetleri fark etmek, bunlar için O'na teşekkür etmek ve bu nimetleri O'nun razı olacağı şekilde kullanmaktır…"
+          },
+          {
+            "id": "islam-ahlaki-tevbe",
+            "title": "Tevbe",
+            "summary": "Tevbe, kişinin işlediği günahlardan dolayı samimiyetle pişman olması, Allah'tan bağışlanma dilemesi ve bir daha o günahı işlememeye karar ve…"
+          },
+          {
+            "id": "islam-ahlaki-ihlas",
+            "title": "İhlas",
+            "summary": "İhlas, yapılan ibadet ve iyi davranışları yalnızca Allah'ın rızasını kazanmak amacıyla yapmak, gösterişten, çıkar beklentisinden ve övülme i…"
+          },
+          {
+            "id": "islam-ahlaki-takva",
+            "title": "Takva",
+            "summary": "Takva, Allah'a karşı saygı ve sorumluluk bilinciyle hareket etmek, O'nun emirlerine uymak ve yasaklarından sakınmaktır."
+          },
+          {
+            "id": "islam-ahlaki-anne-baba-hakki",
+            "title": "Anne Baba Hakkı",
+            "summary": "Anne-baba hakkı, anne ve babaya sevgi, saygı, itaat (meşru konularda), yardım ve güzel davranmayı ifade eder."
+          },
+          {
+            "id": "islam-ahlaki-komsuluk",
+            "title": "Komşuluk",
+            "summary": "Komşuluk, yakın çevrede yaşayan insanlar arasında sevgi, saygı, yardımlaşma ve iyi ilişkiler kurmayı ifade eder."
+          },
+          {
+            "id": "islam-ahlaki-kul-hakki",
+            "title": "Kul Hakkı",
+            "summary": "Kul hakkı, bir insanın başka bir insan üzerindeki maddi veya manevi haklarıdır."
+          },
+          {
+            "id": "islam-ahlaki-giybet",
+            "title": "Gıybet",
+            "summary": "Gıybet, bir kimsenin arkasından, o kişi duyduğu takdirde hoşlanmayacağı doğru bir şeyi söylemektir."
+          },
+          {
+            "id": "islam-ahlaki-haset",
+            "title": "Haset",
+            "summary": "Haset, Allah'ın bir başkasına verdiği nimetin, başarının veya imkânın ondan gitmesini istemek ya da bundan rahatsız olmaktır."
+          },
+          {
+            "id": "islam-ahlaki-kibir",
+            "title": "Kibir",
+            "summary": "Kibir, kişinin kendisini başkalarından üstün görmesi, onları küçümsemesi ve büyüklük taslamasıdır."
+          },
+          {
+            "id": "islam-ahlaki-affetmek",
+            "title": "Affetmek",
+            "summary": "Affetmek, kendisine karşı yapılan bir hata veya haksızlıktan dolayı kin ve intikam duygusuyla hareket etmeyip, bağışlayıcı davranmaktır."
+          },
+          {
+            "id": "islam-ahlaki-merhamet",
+            "title": "Merhamet",
+            "summary": "Merhamet, başkalarının sıkıntılarını anlamak, onlara acımak ve imkân ölçüsünde yardım etmeye çalışmaktır."
+          }
+        ]
+      }
+    ]
+  }
+];
+
+export function getEducationLesson(lessonId: string) {
+  for (const category of EDUCATION_CATEGORIES) {
+    for (const module of category.modules) {
+      const lesson = module.lessons.find((item) => item.id === lessonId);
+      if (lesson) {
+        return { category, module, lesson };
+      }
+    }
+  }
+  return null;
+}
