@@ -15,6 +15,13 @@ export function isNativeAdsAvailable(): boolean {
   return isNativeModulesAvailable();
 }
 
+/**
+ * Mağaza derlemesinde bile test reklamı gösterir.
+ * Kapalı test sürümünde açık tutulur; testçiler reklama tıklasa bile
+ * AdMob "geçersiz trafik" ihlali oluşmaz.
+ */
+const forceTestAds = process.env.EXPO_PUBLIC_ADMOB_FORCE_TEST_ADS === 'true';
+
 function hasProductionBannerIds(): boolean {
   const ios = process.env.EXPO_PUBLIC_ADMOB_BANNER_IOS?.trim();
   const android = process.env.EXPO_PUBLIC_ADMOB_BANNER_ANDROID?.trim();
@@ -22,7 +29,7 @@ function hasProductionBannerIds(): boolean {
 }
 
 export function getBannerAdUnitId(): string {
-  if (__DEV__ || !hasProductionBannerIds()) {
+  if (__DEV__ || forceTestAds || !hasProductionBannerIds()) {
     return TEST_ADAPTIVE_BANNER;
   }
 

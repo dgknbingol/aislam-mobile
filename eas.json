@@ -19,6 +19,13 @@
         "credentialsSource": "remote"
       }
     },
+    "closedtest": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_RAG_API_URL": "https://api.e-islam.net",
+        "EXPO_PUBLIC_ADMOB_FORCE_TEST_ADS": "true"
+      }
+    },
     "production": {
       "autoIncrement": true,
       "env": {
