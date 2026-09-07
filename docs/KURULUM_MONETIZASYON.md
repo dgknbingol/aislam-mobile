@@ -1,4 +1,4 @@
-# e-İslam — Monetizasyon Kurulum Rehberi
+﻿# e-İslam — Monetizasyon Kurulum Rehberi
 
 Bu rehber **EAS development build**, **RevenueCat (Premium)** ve **AdMob (reklam)** kurulumunu sırayla anlatır.
 
@@ -6,8 +6,8 @@ Bu rehber **EAS development build**, **RevenueCat (Premium)** ve **AdMob (reklam
 
 | Platform | Kimlik |
 |----------|--------|
-| Android package | `com.eislam` |
-| iOS bundle ID | `com.eislam` |
+| Android package | `net.eislam.app` |
+| iOS bundle ID | `net.eislam.app` |
 | RevenueCat entitlement | `premium` |
 | Mağaza ürün ID | `premium_monthly`, `premium_yearly` |
 
@@ -68,7 +68,7 @@ npm run start:dev-client
 ### B1. Uygulama oluştur
 
 1. [play.google.com/console](https://play.google.com/console)
-2. **Create app** → ad: **e-İslam**, package: **`com.eislam`**
+2. **Create app** → ad: **e-İslam**, package: **`net.eislam.app`**
 3. Store listing ve politika formlarını ilerleyin (test için draft yeterli)
 
 ### B2. Abonelik ürünleri
@@ -106,7 +106,7 @@ RevenueCat dashboard'da (Bölüm C) Android app eklerken **Service credentials J
 
 1. [appstoreconnect.apple.com](https://appstoreconnect.apple.com)
 2. **My Apps → +** → **New App**
-3. Bundle ID: **`com.eislam`** (Certificates, Identifiers'ta önce oluşturun)
+3. Bundle ID: **`net.eislam.app`** (Certificates, Identifiers'ta önce oluşturun)
 4. SKU: `e-islam-mobile`
 
 ### C2. Subscription Group
@@ -148,12 +148,12 @@ RevenueCat iOS app eklerken **App-Specific Shared Secret** veya **In-App Purchas
 
 **iOS app:**
 - App name: `e-İslam iOS`
-- Bundle ID: `com.eislam`
+- Bundle ID: `net.eislam.app`
 - App Store Connect API key / shared secret ekleyin
 
 **Android app:**
 - App name: `e-İslam Android`
-- Package name: `com.eislam`
+- Package name: `net.eislam.app`
 - Google Play service account JSON yükleyin
 
 ### D3. Products (Mağaza ürünlerini içe aktar)
@@ -237,8 +237,8 @@ Webhook gelmezse:
 
 | Platform | AdMob app name | Package / Bundle |
 |----------|----------------|------------------|
-| Android | e-İslam | `com.eislam` |
-| iOS | e-İslam | `com.eislam` |
+| Android | e-İslam | `net.eislam.app` |
+| iOS | e-İslam | `net.eislam.app` |
 
 Her biri için **App ID** alın (`ca-app-pub-XXXX~YYYY` formatında).
 

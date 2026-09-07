@@ -1,4 +1,4 @@
-# e-İslam — AdMob & Mağaza Listeleme Metinleri
+﻿# e-İslam — AdMob & Mağaza Listeleme Metinleri
 
 Onay beklerken hazırlayın; Play / App Store formlarına doğrudan yapıştırın.
 
@@ -7,8 +7,8 @@ Onay beklerken hazırlayın; Play / App Store formlarına doğrudan yapıştır�
 | Alan | Değer |
 |------|-------|
 | Uygulama adı | e-İslam |
-| Android package | `com.eislam` |
-| iOS bundle ID | `com.eislam` |
+| Android package | `net.eislam.app` |
+| iOS bundle ID | `net.eislam.app` |
 | Gizlilik | https://e-islam.net/gizlilik |
 | Koşullar | https://e-islam.net/kosullar |
 | İletişim | info@e-islam.net |

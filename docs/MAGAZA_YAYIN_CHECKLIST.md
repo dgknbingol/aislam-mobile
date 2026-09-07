@@ -1,11 +1,11 @@
-# e-İslam — Yeni Apple / Google hesabı yayın checklist
+﻿# e-İslam — Yeni Apple / Google hesabı yayın checklist
 
 Uygulama kimlikleri (**değiştirme** — kod ile birebir aynı olmalı):
 
 | Platform | Kimlik |
 |----------|--------|
-| Android package | `com.eislam` |
-| iOS bundle ID | `com.eislam` |
+| Android package | `net.eislam.app` |
+| iOS bundle ID | `net.eislam.app` |
 | Mağaza ürün ID | `premium_monthly`, `premium_yearly` |
 | RevenueCat entitlement | `premium` |
 
@@ -48,7 +48,7 @@ npx eas-cli credentials -p android
 ## 2. Google Play Console
 
 1. [play.google.com/console](https://play.google.com/console) → **Create app**
-2. Ad: **e-İslam** · Package: **`com.eislam`** (manuel oluşturuyorsan bu ID)
+2. Ad: **e-İslam** · Package: **`net.eislam.app`** (manuel oluşturuyorsan bu ID)
 3. Store listing (kısa/uzun açıklama, ikon 512, feature graphic, ekran görüntüleri)
 4. Privacy policy URL
 5. Content rating, hedef kitle, veri güvenliği formu
@@ -68,10 +68,10 @@ npx eas-cli credentials -p android
 
 ## 3. Apple / App Store Connect
 
-1. [developer.apple.com](https://developer.apple.com) → **Identifiers** → App ID: **`com.eislam`**
+1. [developer.apple.com](https://developer.apple.com) → **Identifiers** → App ID: **`net.eislam.app`**
    - Capabilities: Push Notifications (bildirim kullanıyorsan), In-App Purchase
 2. [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → **New App**
-   - Bundle ID: `com.eislam`
+   - Bundle ID: `net.eislam.app`
    - SKU: `e-islam-mobile`
 3. Store bilgileri, ekran görüntüleri, privacy URL, App Privacy formu
 
@@ -97,8 +97,8 @@ npx eas-cli credentials -p ios
 
 | Platform | Package / Bundle |
 |----------|------------------|
-| Android | `com.eislam` |
-| iOS | `com.eislam` |
+| Android | `net.eislam.app` |
+| iOS | `net.eislam.app` |
 
 - [ ] App ID’leri al
 - [ ] Banner ad unit’leri oluştur
@@ -118,7 +118,7 @@ Store build’de **test App ID bırakma**.
 ## 5. RevenueCat
 
 1. [app.revenuecat.com](https://app.revenuecat.com) → proje
-2. Apps: iOS + Android → bundle/package = `com.eislam`
+2. Apps: iOS + Android → bundle/package = `net.eislam.app`
 3. Play service account JSON + App Store Connect API key / shared secret
 4. Products: `premium_monthly`, `premium_yearly`
 5. Entitlement: `premium` → ürünlere bağla

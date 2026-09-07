@@ -46,13 +46,13 @@ const config: ExpoConfig = {
   },
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'com.eislam',
+    bundleIdentifier: 'net.eislam.app',
     infoPlist: {
       LSApplicationQueriesSchemes: ['comgooglemaps', 'maps'],
     },
   },
   android: {
-    package: 'com.eislam',
+    package: 'net.eislam.app',
     adaptiveIcon: {
       backgroundColor: '#0B1A33',
       foregroundImage: './assets/android-icon-foreground.png',
