@@ -118,7 +118,9 @@ const config: ExpoConfig = {
     revenueCatAndroidApiKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ?? '',
     adMobAndroidAppId: androidAdMobAppId,
     adMobIosAppId: iosAdMobAppId,
-    // extra.eas.projectId → `npx eas-cli init` tarafından yazılır.
+    eas: {
+      projectId: 'b6932e07-6669-4ab0-813e-3c407c02827d',
+    },
   },
 };
 
