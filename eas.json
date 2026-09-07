@@ -20,7 +20,12 @@
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_RAG_API_URL": "https://api.e-islam.net",
+        "EXPO_PUBLIC_ADMOB_ANDROID_APP_ID": "ca-app-pub-2773163727464440~4538295161",
+        "EXPO_PUBLIC_ADMOB_BANNER_ANDROID": "ca-app-pub-2773163727464440/6255691195"
+      }
     }
   },
   "submit": {
