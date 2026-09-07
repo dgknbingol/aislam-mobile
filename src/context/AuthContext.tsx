@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import type { UserProfile } from '../services/authApi';
-import { login, register, updateDisplayName } from '../services/authApi';
+import { login, register, updateDisplayName as requestDisplayNameUpdate } from '../services/authApi';
 import { clearAuth, getStoredAuthToken, getStoredAuthUser, saveAuth, type StoredAuthUser } from '../services/authStorage';
 
 import { clearCachedQuizPlayer } from '../services/playerStorage';
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateDisplayName = useCallback(
     async (displayName: string) => {
       if (!token) throw new Error('Kullanıcı oturumu yok.');
-      const updated = await updateDisplayName(token, displayName);
+      const updated = await requestDisplayNameUpdate(token, displayName);
       const storedUser = toStoredUser(updated);
       setUser(storedUser);
       await saveAuth(token, storedUser);
