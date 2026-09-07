@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SettingsLinkRow } from '../../components/settings/SettingsRows';
 import SettingsHeader from '../../components/settings/SettingsHeader';
+import { PREMIUM_UI_ENABLED } from '../../constants/subscription';
 import { useLocationContext } from '../../context/LocationContext';
 import type { SettingsStackParamList } from '../../navigation/types';
 import { colors } from '../../theme/colors';
@@ -35,12 +36,14 @@ export default function SettingsScreen() {
         </Pressable>
 
         <View style={styles.listCard}>
-          <SettingsLinkRow
-            label="Premium"
-            value={undefined}
-            icon="diamond-outline"
-            onPress={() => navigation.navigate('PremiumSettings')}
-          />
+          {PREMIUM_UI_ENABLED ? (
+            <SettingsLinkRow
+              label="Premium"
+              value={undefined}
+              icon="diamond-outline"
+              onPress={() => navigation.navigate('PremiumSettings')}
+            />
+          ) : null}
           <SettingsLinkRow
             label="Konum Ayarları"
             value={locationLabel ?? 'Seçilmedi'}

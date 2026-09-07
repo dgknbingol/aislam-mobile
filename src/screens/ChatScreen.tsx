@@ -2,9 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -19,6 +20,7 @@ import ChatInput from '../components/ChatInput';
 import PressableScale from '../components/PressableScale';
 import PremiumPaywallModal from '../components/subscription/PremiumPaywallModal';
 import { APP_NAME } from '../constants/app';
+import { PREMIUM_UI_ENABLED } from '../constants/subscription';
 import { useChat } from '../context/ChatContext';
 import { useSubscription } from '../context/SubscriptionContext';
 import type { RootStackParamList } from '../navigation/types';
@@ -50,19 +52,27 @@ export default function ChatScreen() {
     }
   }, [messages.length, isLoading]);
 
+  const showQuotaLimit = useCallback(() => {
+    if (PREMIUM_UI_ENABLED) {
+      setPaywallVisible(true);
+      return;
+    }
+    Alert.alert(
+      'Günlük soru hakkın doldu',
+      'Yarın yeniden soru sorabilirsin.',
+      [{ text: 'Tamam' }],
+    );
+  }, []);
+
   useEffect(() => {
     if (!quotaExceeded) return;
-    setPaywallVisible(true);
+    showQuotaLimit();
     clearQuotaExceeded();
-  }, [quotaExceeded, clearQuotaExceeded]);
-
-  const openPaywall = () => {
-    setPaywallVisible(true);
-  };
+  }, [quotaExceeded, clearQuotaExceeded, showQuotaLimit]);
 
   const handleSend = async (text: string) => {
     if (isQuotaExhausted) {
-      openPaywall();
+      showQuotaLimit();
       return false;
     }
 
@@ -102,8 +112,8 @@ export default function ChatScreen() {
           <Text style={styles.quotaText}>
             {quota.premium ? 'Premium' : 'Ücretsiz'} · Bugün {quota.remaining}/{quota.limit} soru
           </Text>
-          {!quota.premium ? (
-            <Pressable onPress={openPaywall}>
+          {PREMIUM_UI_ENABLED && !quota.premium ? (
+            <Pressable onPress={() => setPaywallVisible(true)}>
               <Text style={styles.quotaLink}>Premium</Text>
             </Pressable>
           ) : null}
@@ -144,7 +154,9 @@ export default function ChatScreen() {
       <AdBanner />
       <ChatInput onSend={handleSend} disabled={isLoading} />
 
-      <PremiumPaywallModal visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      {PREMIUM_UI_ENABLED ? (
+        <PremiumPaywallModal visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      ) : null}
     </View>
   );
 }

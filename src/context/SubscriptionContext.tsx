@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 
+import { PREMIUM_UI_ENABLED } from '../constants/subscription';
 import type { ChatQuota } from '../services/chatApi';
 import { fetchChatQuota } from '../services/chatApi';
 import {
@@ -40,7 +41,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [monthlyPackage, setMonthlyPackage] = useState<StorePackage | null>(null);
   const [yearlyPackage, setYearlyPackage] = useState<StorePackage | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const isStoreConfigured = isRevenueCatConfigured();
+  const isStoreConfigured = PREMIUM_UI_ENABLED && isRevenueCatConfigured();
 
   const refreshQuota = useCallback(async (): Promise<ChatQuota | null> => {
     try {

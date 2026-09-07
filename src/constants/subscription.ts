@@ -1,3 +1,14 @@
+/**
+ * Premium (abonelik) arayüzü açık mı?
+ *
+ * İlk Play sürümü reklamlı/ücretsiz çıkıyor; mağaza ürünleri ve RevenueCat
+ * offering'i hazır olduğunda `true` yapıp yeni sürüm gönder.
+ *
+ * Kapalıyken: Ayarlar'daki Premium satırı, sohbet paywall'ı ve Premium linki gizlenir.
+ * Backend'den gelen `quota.premium` yine de geçerlidir (satın almış kullanıcı korunur).
+ */
+export const PREMIUM_UI_ENABLED = false;
+
 export const PREMIUM_ENTITLEMENT_ID = 'premium';
 
 /** RevenueCat / mağaza ürün kimlikleri — dashboard ile eşleşmeli */
