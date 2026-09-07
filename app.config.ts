@@ -34,6 +34,8 @@ const bundledNotificationSounds = NOTIFICATION_SOUND_ASSET_PATHS.filter((relativ
 const config: ExpoConfig = {
   name: 'e-İslam',
   slug: 'e-islam',
+  /** Yanlış Expo hesabına build/submit yapılmasını engeller. */
+  owner: 'ahmetbingol',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
@@ -116,9 +118,7 @@ const config: ExpoConfig = {
     revenueCatAndroidApiKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ?? '',
     adMobAndroidAppId: androidAdMobAppId,
     adMobIosAppId: iosAdMobAppId,
-    eas: {
-      projectId: '8241bc06-736d-49a7-a5dc-03fb465a9264',
-    },
+    // extra.eas.projectId → `npx eas-cli init` tarafından yazılır.
   },
 };
 
