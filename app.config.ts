@@ -75,6 +75,7 @@ const config: ExpoConfig = {
       },
     ],
     './plugins/withForcePlayServicesAds',
+    './plugins/withFixMainPackage',
     [
       'expo-font',
       {
