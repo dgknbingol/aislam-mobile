@@ -17,7 +17,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { APP_NAME } from '../constants/app';
 import { getAsmaOfDay } from '../constants/asmaUlHusna';
 import DailyContentCard from '../components/DailyContentCard';
-import HomeBottomNav from '../components/HomeBottomNav';
+import HomeBottomNav, { HOME_BOTTOM_NAV_CONTENT_PAD } from '../components/HomeBottomNav';
+import AdBanner from '../components/ads/AdBanner';
 import HomeCompetitionSection from '../components/quiz/HomeCompetitionSection';
 import HomeScoreStatusSection from '../components/quiz/HomeScoreStatusSection';
 import NextPrayerCard from '../components/NextPrayerCard';
@@ -202,7 +203,7 @@ export default function HomeScreen() {
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: 100 + insets.bottom },
+          { paddingBottom: HOME_BOTTOM_NAV_CONTENT_PAD },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -311,6 +312,8 @@ export default function HomeScreen() {
             })
           }
         />
+
+        <AdBanner inline />
 
         <HomeCompetitionSection />
         <HomeScoreStatusSection />

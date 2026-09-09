@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 9999,
     elevation: 9999,
+    backgroundColor: '#021734',
   },
   image: {
     flex: 1,

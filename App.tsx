@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -17,6 +17,9 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { navigationRef, flushPendingNotificationNavigation } from './src/navigation/rootNavigation';
 import { initPrayerNotifications } from './src/services/prayerNotificationScheduler';
 import { initAdMob } from './src/services/adMob';
+import { preloadFullscreenAds } from './src/services/fullscreenAds';
+import AppOpenAdLifecycle from './src/components/ads/AppOpenAdLifecycle';
+import GlobalAdBannerHost from './src/components/ads/GlobalAdBannerHost';
 
 const SPLASH_MIN_MS = 2500;
 
@@ -32,7 +35,9 @@ export default function App() {
 
   useEffect(() => {
     initPrayerNotifications();
-    void initAdMob();
+    void initAdMob().then(() => {
+      preloadFullscreenAds();
+    });
     void preloadSplashImage().catch(() => {});
     void preloadPrayerBannerImages().catch(() => {});
   }, []);
@@ -65,15 +70,21 @@ export default function App() {
           <AuthProvider>
             <SubscriptionProvider>
               <ChatProvider>
-                <NavigationContainer
-                  ref={navigationRef}
-                  onReady={() => {
-                    flushPendingNotificationNavigation();
-                  }}
-                >
-                  <RootNavigator />
-                </NavigationContainer>
+                <View style={styles.shell}>
+                  <View style={styles.navArea}>
+                    <NavigationContainer
+                      ref={navigationRef}
+                      onReady={() => {
+                        flushPendingNotificationNavigation();
+                      }}
+                    >
+                      <RootNavigator />
+                    </NavigationContainer>
+                  </View>
+                  {!showSplash ? <GlobalAdBannerHost /> : null}
+                </View>
                 <StatusBar style="light" />
+                <AppOpenAdLifecycle splashVisible={showSplash} />
               </ChatProvider>
             </SubscriptionProvider>
           </AuthProvider>
@@ -87,6 +98,12 @@ export default function App() {
 
 const styles = StyleSheet.create({
   root: {
+    flex: 1,
+  },
+  shell: {
+    flex: 1,
+  },
+  navArea: {
     flex: 1,
   },
 });

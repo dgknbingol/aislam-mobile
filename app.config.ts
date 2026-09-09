@@ -43,6 +43,7 @@ const config: ExpoConfig = {
   splash: {
     image: './assets/splash-screen.png',
     resizeMode: 'cover',
+    backgroundColor: '#021734',
   },
   ios: {
     supportsTablet: true,
@@ -87,8 +88,12 @@ const config: ExpoConfig = {
     [
       'expo-splash-screen',
       {
-        image: './assets/splash-screen.png',
-        resizeMode: 'cover',
+        // Android 12+: sistem splash beyaz + küçük ikon flash'ını koyu zemin + logo ile giderir.
+        // Tam ekran görsel JS SplashOverlay'de gösterilir.
+        backgroundColor: '#021734',
+        image: './assets/splash-icon.png',
+        imageWidth: 220,
+        resizeMode: 'contain',
       },
     ],
     [
@@ -114,7 +119,7 @@ const config: ExpoConfig = {
     ],
   ],
   extra: {
-    ragApiUrl: process.env.EXPO_PUBLIC_RAG_API_URL ?? 'http://localhost:8080',
+    ragApiUrl: process.env.EXPO_PUBLIC_RAG_API_URL ?? 'https://api.e-islam.net',
     revenueCatIosApiKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ?? '',
     revenueCatAndroidApiKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ?? '',
     adMobAndroidAppId: androidAdMobAppId,

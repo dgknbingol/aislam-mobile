@@ -5,7 +5,11 @@ import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { getBannerAdUnitId } from '../../constants/ads';
 import { colors } from '../../theme/colors';
 
-export default function AdBannerNative() {
+interface AdBannerNativeProps {
+  inline?: boolean;
+}
+
+export default function AdBannerNative({ inline = false }: AdBannerNativeProps) {
   const [failed, setFailed] = useState(false);
 
   if (failed) {
@@ -13,10 +17,17 @@ export default function AdBannerNative() {
   }
 
   return (
-    <View style={styles.container} accessibilityLabel="Reklam alanı">
+    <View
+      style={[styles.container, inline && styles.containerInline]}
+      accessibilityLabel="Reklam alanı"
+    >
       <BannerAd
         unitId={getBannerAdUnitId()}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+        size={
+          inline
+            ? BannerAdSize.INLINE_ADAPTIVE_BANNER
+            : BannerAdSize.ANCHORED_ADAPTIVE_BANNER
+        }
         requestOptions={{ requestNonPersonalizedAdsOnly: true }}
         onAdFailedToLoad={() => setFailed(true)}
       />
@@ -31,5 +42,12 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.barBorder,
     paddingVertical: 4,
+  },
+  containerInline: {
+    marginBottom: 14,
+    borderTopWidth: 0,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: colors.background,
   },
 });

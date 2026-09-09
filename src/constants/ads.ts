@@ -8,8 +8,10 @@ export const ADMOB_TEST_APP_IDS = {
   ios: 'ca-app-pub-3940256099942544~1458002511',
 } as const;
 
-/** Google test adaptive banner unit ID */
+/** Google test unit ID'leri */
 const TEST_ADAPTIVE_BANNER = 'ca-app-pub-3940256099942544/9214589741';
+const TEST_INTERSTITIAL = 'ca-app-pub-3940256099942544/1033173712';
+const TEST_APP_OPEN = 'ca-app-pub-3940256099942544/9257395921';
 
 export function isNativeAdsAvailable(): boolean {
   return isNativeModulesAvailable();
@@ -22,18 +24,43 @@ export function isNativeAdsAvailable(): boolean {
  */
 const forceTestAds = process.env.EXPO_PUBLIC_ADMOB_FORCE_TEST_ADS === 'true';
 
-function hasProductionBannerIds(): boolean {
-  const ios = process.env.EXPO_PUBLIC_ADMOB_BANNER_IOS?.trim();
-  const android = process.env.EXPO_PUBLIC_ADMOB_BANNER_ANDROID?.trim();
-  return Platform.OS === 'ios' ? Boolean(ios) : Boolean(android);
+function useTestAdUnits(): boolean {
+  return __DEV__ || forceTestAds;
+}
+
+function platformEnv(androidKey: string, iosKey: string): string | undefined {
+  const value =
+    Platform.OS === 'ios' ? process.env[iosKey]?.trim() : process.env[androidKey]?.trim();
+  return value || undefined;
+}
+
+function resolveUnitId(testId: string, androidKey: string, iosKey: string): string {
+  if (useTestAdUnits()) {
+    return testId;
+  }
+  return platformEnv(androidKey, iosKey) ?? testId;
 }
 
 export function getBannerAdUnitId(): string {
-  if (__DEV__ || forceTestAds || !hasProductionBannerIds()) {
-    return TEST_ADAPTIVE_BANNER;
-  }
+  return resolveUnitId(
+    TEST_ADAPTIVE_BANNER,
+    'EXPO_PUBLIC_ADMOB_BANNER_ANDROID',
+    'EXPO_PUBLIC_ADMOB_BANNER_IOS',
+  );
+}
 
-  return Platform.OS === 'ios'
-    ? process.env.EXPO_PUBLIC_ADMOB_BANNER_IOS!
-    : process.env.EXPO_PUBLIC_ADMOB_BANNER_ANDROID!;
+export function getInterstitialAdUnitId(): string {
+  return resolveUnitId(
+    TEST_INTERSTITIAL,
+    'EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID',
+    'EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS',
+  );
+}
+
+export function getAppOpenAdUnitId(): string {
+  return resolveUnitId(
+    TEST_APP_OPEN,
+    'EXPO_PUBLIC_ADMOB_APP_OPEN_ANDROID',
+    'EXPO_PUBLIC_ADMOB_APP_OPEN_IOS',
+  );
 }

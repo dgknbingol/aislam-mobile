@@ -3,9 +3,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import PressableScale from './PressableScale';
+import { useSubscription } from '../context/SubscriptionContext';
 import { colors } from '../theme/colors';
 
 export type HomeTabId = 'home' | 'quran' | 'chat' | 'quiz' | 'tesbih';
+
+/** Alt menü için içerik padding (global banner App kabuğunda; burada yok). */
+export const HOME_BOTTOM_NAV_CONTENT_PAD = 100;
 
 interface HomeBottomNavProps {
   activeTab: HomeTabId;
@@ -28,9 +32,12 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function HomeBottomNav({ activeTab, onTabPress }: HomeBottomNavProps) {
   const insets = useSafeAreaInsets();
+  const { quota } = useSubscription();
+  // Global banner varken safe-area orada; premium'da banner yok → menüde bırak.
+  const paddingBottom = quota?.premium ? Math.max(insets.bottom, 10) : 10;
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+    <View style={[styles.container, { paddingBottom }]}>
       {NAV_ITEMS.map((item) => {
         const isActive = activeTab === item.id;
         const isChat = item.id === 'chat';

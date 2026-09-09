@@ -14,7 +14,6 @@ import {
 import { Pressable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import AdBanner from '../components/ads/AdBanner';
 import ChatBubble from '../components/ChatBubble';
 import ChatInput from '../components/ChatInput';
 import PressableScale from '../components/PressableScale';
@@ -24,6 +23,7 @@ import { PREMIUM_UI_ENABLED } from '../constants/subscription';
 import { useChat } from '../context/ChatContext';
 import { useSubscription } from '../context/SubscriptionContext';
 import type { RootStackParamList } from '../navigation/types';
+import { showInterstitialIfEligible } from '../services/fullscreenAds';
 import { colors } from '../theme/colors';
 import type { Message } from '../types/chat';
 
@@ -41,6 +41,13 @@ export default function ChatScreen() {
 
   const messages = activeConversation?.messages ?? [];
   const isQuotaExhausted = quota != null && !quota.premium && quota.remaining <= 0;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
+      void showInterstitialIfEligible({ isPremium: quota?.premium === true });
+    });
+    return unsubscribe;
+  }, [navigation, quota?.premium]);
 
   useEffect(() => {
     void refreshQuota();
@@ -151,7 +158,6 @@ export default function ChatScreen() {
         }
       />
 
-      <AdBanner />
       <ChatInput onSend={handleSend} disabled={isLoading} />
 
       {PREMIUM_UI_ENABLED ? (

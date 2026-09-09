@@ -11,7 +11,7 @@ import {
 import { Pressable as GHPressable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import HomeBottomNav from '../components/HomeBottomNav';
+import HomeBottomNav, { HOME_BOTTOM_NAV_CONTENT_PAD } from '../components/HomeBottomNav';
 import TesbihProgressRing from '../components/TesbihProgressRing';
 import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
 import { colors } from '../theme/colors';
@@ -124,7 +124,14 @@ export default function TesbihScreen() {
         <Text style={styles.headerTitle}>Tesbih</Text>
       </View>
 
-      <View style={styles.content}>
+      <View
+        style={[
+          styles.content,
+          {
+            paddingBottom: HOME_BOTTOM_NAV_CONTENT_PAD,
+          },
+        ]}
+      >
         <View style={styles.presetRow}>
           {PRESETS.map((item) => {
             const isActive = !useCustomTarget && preset === item.id;
@@ -231,8 +238,8 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 100,
+    paddingTop: 16,
+    justifyContent: 'space-between',
   },
   presetRow: {
     flexDirection: 'row',

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import HomeBottomNav from '../components/HomeBottomNav';
+import HomeBottomNav, { HOME_BOTTOM_NAV_CONTENT_PAD } from '../components/HomeBottomNav';
 import { useLocationContext } from '../context/LocationContext';
 import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
 import type { PrayerDay } from '../services/prayerTimesApi';
@@ -127,7 +127,9 @@ export default function PrayerTimesScreen() {
         <ScrollView
           style={styles.tableScrollVertical}
           ref={verticalScrollRef}
-          contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+          contentContainerStyle={{
+            paddingBottom: HOME_BOTTOM_NAV_CONTENT_PAD,
+          }}
           showsVerticalScrollIndicator
         >
           <ScrollView

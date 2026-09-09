@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useSubscription } from '../context/SubscriptionContext';
 import { colors } from '../theme/colors';
 
 const MAX_MESSAGE_LENGTH = 100;
@@ -23,8 +24,10 @@ interface ChatInputProps {
 export default function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   const [text, setText] = useState('');
   const insets = useSafeAreaInsets();
+  const { quota } = useSubscription();
   const canSend = text.trim().length > 0 && !disabled;
   const remaining = MAX_MESSAGE_LENGTH - text.length;
+  const paddingBottom = quota?.premium ? Math.max(insets.bottom, 8) : 8;
 
   const handleSend = async () => {
     if (!canSend) return;
@@ -41,7 +44,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
     >
-      <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+      <View style={[styles.container, { paddingBottom }]}>
         <View style={styles.inputRow}>
           <View style={styles.inputWrapper}>
             <TextInput

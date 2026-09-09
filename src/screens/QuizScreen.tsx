@@ -130,7 +130,7 @@ export default function QuizScreen() {
             currentUser={currentUser}
             rankOffset={showPodium ? 4 : 1}
             showCurrentUserFooter={!isUserVisible}
-            contentPaddingBottom={insets.bottom + 24}
+            contentPaddingBottom={24}
             educationLevelXp={totalXp}
           />
         )
@@ -140,7 +140,7 @@ export default function QuizScreen() {
         style={[styles.tabPanel, activeView !== 'achievements' && styles.tabPanelHidden]}
         pointerEvents={activeView === 'achievements' ? 'auto' : 'none'}
       >
-        <QuizAchievementsSection contentPaddingBottom={insets.bottom + 24} />
+        <QuizAchievementsSection contentPaddingBottom={24} />
       </View>
     </View>
   );

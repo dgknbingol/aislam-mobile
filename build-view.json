@@ -1,0 +1,46 @@
+﻿{
+  "id": "4cb0866f-a93c-4580-949f-842351f37e78",
+  "status": "ERRORED",
+  "platform": "ANDROID",
+  "error": {
+    "errorCode": "UNKNOWN_ERROR",
+    "message": "Unknown error. See logs of the Bundle JavaScript build phase for more information."
+  },
+  "artifacts": {},
+  "fingerprint": {
+    "id": "01a0885f-dc22-76b7-9d6e-d5e6ffa2f414",
+    "hash": "2a3e475affd82da21de7a35a78f3a43da2350be4"
+  },
+  "initiatingActor": {
+    "id": "8b6b7ea9-5f98-48a3-8a57-454a4ce314b8",
+    "displayName": "ahmetbingol"
+  },
+  "logFiles": [
+    "https://storage.googleapis.com/eas-workflows-production/logs/b6932e07-6669-4ab0-813e-3c407c02827d/4cb0866f-a93c-4580-949f-842351f37e78/2026-09-09T22%3A53%3A02Z-249ae7f6-ad17-4a56-9c73-28053a125fe4.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260909%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260909T225319Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=63ef488345b06cdbda9b4dd79d05b6380e0ec56271fb00897df84e6b4dbb6dbbf2e74de65039c3f99cea80a05a01c87e4c131443e2c09b88640a854ee72ee614a11cded8a77a77b81739ea637727e9c925a42823e78af3761fc7c870e1c1e0c7d3009d1df0b81cd60e1dd1e14cd4b72e8cdb7372f690edd9434845ce13294cd44bae5c649201e6295b1da89267e7fc30c5379ed48ea173e3dc0c92d11332a0f09812a84c84a313ebed8ae306129df8f4baf958340bae1b1272706dc1bb165ea871eb29858086dbbc7365a256f618c3883f657c6e21aae1cea8f633a9c98fcaf3b886f60d38d4924639dc0168adff01b6fe6531deff8d95850362acb119505c40"
+  ],
+  "project": {
+    "id": "b6932e07-6669-4ab0-813e-3c407c02827d",
+    "name": "e-islam",
+    "slug": "e-islam",
+    "ownerAccount": {
+      "id": "b42757a6-d96f-49c6-9367-888f6d33b02c",
+      "name": "ahmetbingol"
+    }
+  },
+  "distribution": "INTERNAL",
+  "buildProfile": "preview",
+  "sdkVersion": "54.0.0",
+  "appVersion": "1.0.0",
+  "appBuildVersion": "6",
+  "priority": "NORMAL",
+  "createdAt": "2026-09-09T22:52:58.724Z",
+  "updatedAt": "2026-09-09T22:54:07.443Z",
+  "completedAt": "2026-09-09T22:54:07.261Z",
+  "expirationDate": "2026-09-23T22:52:58.775Z",
+  "isForIosSimulator": false,
+  "metrics": {
+    "buildWaitTime": 3392,
+    "buildQueueTime": 4963,
+    "buildDuration": 60182
+  }
+}

@@ -26,6 +26,8 @@ import {
 } from '../services/competitionParticipationStorage';
 import { ensureQuizPlayer } from '../services/playerStorage';
 import { fetchMonthlyLeaderboard, submitQuizAttempt } from '../services/quizStatsApi';
+import { showInterstitialIfEligible } from '../services/fullscreenAds';
+import { useSubscription } from '../context/SubscriptionContext';
 import { colors } from '../theme/colors';
 import type { QuizAnswerRecord } from '../types/quiz';
 import { QUIZ_QUESTION_TIME_MS, QUIZ_SESSION_SIZE } from '../utils/quizScoring';
@@ -70,6 +72,7 @@ export default function QuizPlayScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizPlay'>>();
   const insets = useSafeAreaInsets();
+  const { quota } = useSubscription();
   const period = route.params.period;
   const eventId = route.params.eventId;
 
@@ -209,6 +212,14 @@ export default function QuizPlayScreen() {
       }
     })();
   }, [answerRecords, eventId, isFinished, period, questions.length, score]);
+
+  const leaveFinishWithAd = useCallback(
+    async (target: 'Quiz' | 'Home') => {
+      await showInterstitialIfEligible({ isPremium: quota?.premium === true });
+      navigation.navigate(target);
+    },
+    [navigation, quota?.premium],
+  );
 
   const loadQuestions = useCallback(async () => {
     setIsLoading(true);
@@ -369,7 +380,7 @@ export default function QuizPlayScreen() {
               <View style={styles.finishActions}>
                 <Pressable
                   style={({ pressed }) => [styles.finishPrimaryButton, pressed && styles.finishButtonPressed]}
-                  onPress={() => navigation.navigate('Quiz')}
+                  onPress={() => void leaveFinishWithAd('Quiz')}
                 >
                   <Ionicons name="podium-outline" size={20} color={colors.cream} />
                   <Text style={styles.finishPrimaryButtonText}>Sıralamayı Gör</Text>
@@ -377,7 +388,7 @@ export default function QuizPlayScreen() {
 
                 <Pressable
                   style={({ pressed }) => [styles.finishSecondaryButton, pressed && styles.finishButtonPressed]}
-                  onPress={() => navigation.navigate('Home')}
+                  onPress={() => void leaveFinishWithAd('Home')}
                 >
                   <Ionicons name="home-outline" size={18} color={colors.textOnLight} />
                   <Text style={styles.finishSecondaryButtonText}>Ana Sayfaya Dön</Text>
