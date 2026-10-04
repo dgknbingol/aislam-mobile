@@ -27,7 +27,7 @@
 
 ## 3) Backend
 
-`app.push.enabled: true` ve credential’lar dolu olmalı. Scheduler ~30 sn’de due ezanları **500’lük FCM batch** ile gönderir.
+`app.push.enabled: true` ve credential’lar dolu olmalı. Scheduler ~5 sn’de bir bakar; **erken göndermez** (`lookahead=0`), vakit geldikten sonra en fazla birkaç sn içinde **500’lük FCM batch** ile gönderir.
 
 k8s secret örneği: `rag-api-server/deploy/k8s/secret.example.yaml`
 

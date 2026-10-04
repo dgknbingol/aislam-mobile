@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "415198635831",
+    "project_id": "e-islam-41f1a",
+    "storage_bucket": "e-islam-41f1a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:415198635831:android:9ff4a479d7bce3a1f31cb2",
+        "android_client_info": {
+          "package_name": "net.eislam.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUZFlVqqk4QWyXY1WQLg8Ny-aOJNpwnzA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
