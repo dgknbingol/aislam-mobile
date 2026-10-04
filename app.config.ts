@@ -57,6 +57,7 @@ const config: ExpoConfig = {
   android: {
     package: 'net.eislam.app',
     adaptiveIcon: {
+      // Köşe dolgusu launcher maskesini (squircle) gösterir; full-bleed foreground daire gibi görünürdü.
       backgroundColor: '#0B1A33',
       foregroundImage: './assets/android-icon-foreground.png',
       backgroundImage: './assets/android-icon-background.png',
