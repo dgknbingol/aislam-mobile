@@ -13,6 +13,7 @@ import {
   formatClock,
 } from '../../constants/dailyContentNotifications';
 import type { SettingsStackParamList } from '../../navigation/types';
+import { requestServerTestPush } from '../../services/devicePushRegistration';
 import {
   ensureNotificationPermissions,
   getNotificationPermissionStatus,
@@ -29,6 +30,7 @@ export default function NotificationSettingsScreen() {
   const [permissionGranted, setPermissionGranted] = useState(true);
   const [testMessage, setTestMessage] = useState<string | null>(null);
   const [dailyTestMessage, setDailyTestMessage] = useState<string | null>(null);
+  const [pushTestMessage, setPushTestMessage] = useState<string | null>(null);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
 
   const refreshPermission = useCallback(async () => {
@@ -77,6 +79,16 @@ export default function NotificationSettingsScreen() {
     await refreshPermission();
   };
 
+  const runServerPushTest = async () => {
+    setPushTestMessage(null);
+    const ok = await requestServerTestPush();
+    setPushTestMessage(
+      ok
+        ? 'Sunucu test push gönderildi. Uygulamayı arka plana alın; birkaç saniye içinde gelmeli.'
+        : 'Sunucu push başarısız. İnternet, bildirim izni ve API erişimini kontrol edin.',
+    );
+  };
+
   return (
     <View style={styles.container}>
       <SettingsHeader title="Bildirim Ayarları" />
@@ -99,8 +111,10 @@ export default function NotificationSettingsScreen() {
         ) : (
           <>
             <Text style={styles.hint}>
-              Vakit bildirimleri önümüzdeki 5 gün için planlanır. Günlük içerik ve günlük yarışma
-              bildirimleri tekrarlayan programla ayarlanır. Uygulama açıldığında yenilenir.
+              Ezan bildirimleri sunucudan FCM/APNs ile gelir (Expo Push yok); tutarlı saat için
+              internet gerekir. Pil kısıtlamasını (Samsung: uygulama → pil → kısıtlama yok)
+              kapatmanız önerilir. Yerelde yalnızca sonraki 1–2 ezan yedek kalır. Günlük içerik ve
+              yarışma hâlâ yerel planlanır.
               {pendingCount != null ? ` Planlı: ${pendingCount}` : ''}
             </Text>
 
@@ -113,6 +127,13 @@ export default function NotificationSettingsScreen() {
                 <Text style={styles.testButtonText}>10 sn sonra test bildirimi</Text>
               </Pressable>
               {testMessage ? <Text style={styles.testResult}>{testMessage}</Text> : null}
+              <Pressable
+                style={[styles.testButton, styles.testButtonSecondary]}
+                onPress={() => void runServerPushTest()}
+              >
+                <Text style={styles.testButtonText}>Sunucu ezan push testi</Text>
+              </Pressable>
+              {pushTestMessage ? <Text style={styles.testResult}>{pushTestMessage}</Text> : null}
               <Pressable
                 style={[styles.testButton, styles.testButtonSecondary]}
                 onPress={() => void runDailyContentTest()}

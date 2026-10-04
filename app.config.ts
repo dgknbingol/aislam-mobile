@@ -30,6 +30,8 @@ const projectRoot = __dirname;
 const bundledNotificationSounds = NOTIFICATION_SOUND_ASSET_PATHS.filter((relativePath) =>
   fs.existsSync(path.join(projectRoot, relativePath)),
 );
+const androidGoogleServicesPath = path.join(projectRoot, 'google-services.json');
+const hasAndroidGoogleServices = fs.existsSync(androidGoogleServicesPath);
 
 const config: ExpoConfig = {
   name: 'e-İslam',
@@ -61,6 +63,8 @@ const config: ExpoConfig = {
       monochromeImage: './assets/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
+    /** Native FCM token için zorunlu (Firebase Console → google-services.json). */
+    ...(hasAndroidGoogleServices ? { googleServicesFile: './google-services.json' } : {}),
   },
   web: {
     favicon: './assets/favicon.png',

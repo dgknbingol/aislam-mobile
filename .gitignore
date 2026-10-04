@@ -38,6 +38,11 @@ yarn-error.*
 # EAS Build signing credentials (secret)
 credentials.json
 
+# Firebase / APNs local secrets
+google-services.json
+GoogleService-Info.plist
+*-firebase-adminsdk-*.json
+
 # typescript
 *.tsbuildinfo
 

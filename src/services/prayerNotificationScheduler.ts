@@ -30,6 +30,9 @@ import {
   type CompetitionKind,
 } from '../utils/competitionSchedule';
 import { fetchDailyContent, getCachedDailyContent } from './dailyApi';
+import {
+  registerDeviceForPrayerPush,
+} from './devicePushRegistration';
 import { getLatestHutbe } from './hutbeStorage';
 import {
   loadAllCompetitionNotificationSettings,
@@ -41,7 +44,9 @@ import { getVerseOfDay } from './verseOfDay';
 
 /** iOS ~64 pending limit; diğer platformlarda daha yüksek tavan. */
 const MAX_PENDING_NOTIFICATIONS = Platform.OS === 'ios' ? 58 : 120;
-const SCHEDULE_DAYS = 5;
+/** Ezan asıl sunucu push; yerelde yalnızca kısa offline yedek. */
+const LOCAL_PRAYER_FALLBACK_COUNT = 2;
+const LOOKAHEAD_DAYS = 3;
 
 let prayerDays: PrayerDay[] = [];
 let syncInFlight: Promise<void> | null = null;
@@ -80,6 +85,7 @@ function handleNotificationResponse(
   }
 
   if (
+    data.type === 'prayer' ||
     data.type === 'daily-content' ||
     data.type === 'test-daily' ||
     data.openHome === true ||
@@ -177,7 +183,7 @@ function getUpcomingDays(days: PrayerDay[]): PrayerDay[] {
       const date = buildDateTime(day.date, '00:00');
       return date != null && date.getTime() >= today.getTime();
     })
-    .slice(0, SCHEDULE_DAYS);
+    .slice(0, LOOKAHEAD_DAYS);
 }
 
 function getChannelId(melodyIndex: number): string {
@@ -370,7 +376,14 @@ async function schedulePrayerOne(params: {
       title,
       body,
       sound: getNotificationSoundName(melodyIndex),
-      data: { prayerId, kind, dateKey, sound: getNotificationSoundOption(melodyIndex).label },
+      data: {
+        type: 'prayer',
+        prayerId,
+        kind,
+        dateKey,
+        openHome: true,
+        sound: getNotificationSoundOption(melodyIndex).label,
+      },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -461,20 +474,28 @@ function getCompetitionWeekdays(_config: CompetitionConfig): number[] {
   return [0, 1, 2, 3, 4, 5, 6];
 }
 
+type UpcomingPrayerEvent = {
+  prayerId: PrayerBannerId;
+  prayerLabel: string;
+  kind: NotificationKind;
+  fireAt: Date;
+  melodyIndex: number;
+  dateKey: string;
+};
+
 async function schedulePrayerNotifications(): Promise<void> {
   if (prayerDays.length === 0) return;
 
   const settingsByPrayer = await loadAllPrayerNotificationSettings();
   const upcomingDays = getUpcomingDays(prayerDays);
   const now = Date.now();
+  const candidates: UpcomingPrayerEvent[] = [];
 
   for (const day of upcomingDays) {
     const dayDate = buildDateTime(day.date, '00:00');
     if (!dayDate) continue;
 
     for (const banner of PRAYER_BANNERS) {
-      if (scheduledInPass >= MAX_PENDING_NOTIFICATIONS) return;
-
       const settings = settingsByPrayer[banner.id];
       if (!shouldScheduleDay(settings, dayDate)) continue;
 
@@ -482,8 +503,8 @@ async function schedulePrayerNotifications(): Promise<void> {
       const atTimeDate = buildDateTime(day.date, prayerTime);
       if (!atTimeDate) continue;
 
-      if (settings.atTime.enabled) {
-        await schedulePrayerOne({
+      if (settings.atTime.enabled && atTimeDate.getTime() > now) {
+        candidates.push({
           prayerId: banner.id,
           prayerLabel: banner.label,
           kind: 'atTime',
@@ -498,7 +519,7 @@ async function schedulePrayerNotifications(): Promise<void> {
           atTimeDate.getTime() - settings.before.minutesBefore * 60_000,
         );
         if (beforeDate.getTime() > now) {
-          await schedulePrayerOne({
+          candidates.push({
             prayerId: banner.id,
             prayerLabel: banner.label,
             kind: 'before',
@@ -510,6 +531,13 @@ async function schedulePrayerNotifications(): Promise<void> {
       }
     }
   }
+
+  candidates.sort((a, b) => a.fireAt.getTime() - b.fireAt.getTime());
+
+  for (const event of candidates.slice(0, LOCAL_PRAYER_FALLBACK_COUNT)) {
+    if (scheduledInPass >= MAX_PENDING_NOTIFICATIONS) return;
+    await schedulePrayerOne(event);
+  }
 }
 
 export async function syncAllNotifications(): Promise<void> {
@@ -520,15 +548,21 @@ export async function syncAllNotifications(): Promise<void> {
 
   syncInFlight = (async () => {
     const granted = await ensureNotificationPermissions();
-    if (!granted) return;
+    if (!granted) {
+      void registerDeviceForPrayerPush();
+      return;
+    }
 
     await cancelAislamNotifications();
     scheduledInPass = 0;
 
-    // Öncelik: yarışma (az) → ezan (zaman kritik) → günlük içerik
+    // Öncelik: yarışma (az) → ezan yedek (1–2) → günlük içerik
     await scheduleCompetitionNotifications();
     await schedulePrayerNotifications();
     await scheduleDailyContentNotifications();
+
+    // Ezan asıl: sunucu Expo Push
+    void registerDeviceForPrayerPush();
   })();
 
   try {
