@@ -1,13 +1,23 @@
 import * as Location from 'expo-location';
 import { useEffect, useRef, useState } from 'react';
+import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 
 import { getMagneticDeclination } from '../utils/magneticDeclination';
+
+const SMOOTH_ALPHA = 0.32;
+/** expo-location: 0=none, 1=low, 2=medium, 3=high — kalibre edilmemişi atla. */
+const MIN_HEADING_ACCURACY = 1;
+const UI_UPDATE_MS = 120;
 
 function resolveTrueHeading(
   data: Location.LocationHeadingObject,
   latitude: number | null,
   longitude: number | null,
 ): number | null {
+  if (typeof data.accuracy === 'number' && data.accuracy < MIN_HEADING_ACCURACY) {
+    return null;
+  }
+
   if (data.trueHeading >= 0) {
     return data.trueHeading;
   }
@@ -21,24 +31,31 @@ function resolveTrueHeading(
   return data.magHeading;
 }
 
-function smoothHeading(previous: number | null, next: number, alpha = 0.15): number {
-  if (previous == null) return next;
-  let delta = next - previous;
+function shortestDelta(from: number, to: number): number {
+  let delta = to - from;
   if (delta > 180) delta -= 360;
   if (delta < -180) delta += 360;
-  const smoothed = previous + alpha * delta;
-  return (smoothed + 360) % 360;
+  return delta;
 }
 
 export function useCompassHeading(
   active: boolean,
   latitude: number | null = null,
   longitude: number | null = null,
-) {
+): {
+  /** Metin / bilgi kartı (throttle). */
+  heading: number | null;
+  /** Kadran animasyonu — UI thread. */
+  headingSV: SharedValue<number>;
+  isAvailable: boolean;
+  usesTrueNorth: boolean;
+} {
   const [heading, setHeading] = useState<number | null>(null);
   const [isAvailable, setIsAvailable] = useState(true);
   const [usesTrueNorth, setUsesTrueNorth] = useState(false);
+  const headingSV = useSharedValue(0);
   const smoothedRef = useRef<number | null>(null);
+  const lastUiAtRef = useRef(0);
 
   useEffect(() => {
     if (!active) return;
@@ -61,8 +78,20 @@ export function useCompassHeading(
           if (resolved == null) return;
 
           setUsesTrueNorth(data.trueHeading >= 0);
-          smoothedRef.current = smoothHeading(smoothedRef.current, resolved);
-          setHeading(smoothedRef.current);
+
+          const previous = smoothedRef.current;
+          const next =
+            previous == null
+              ? resolved
+              : (previous + SMOOTH_ALPHA * shortestDelta(previous, resolved) + 360) % 360;
+          smoothedRef.current = next;
+          headingSV.value = next;
+
+          const now = Date.now();
+          if (now - lastUiAtRef.current >= UI_UPDATE_MS) {
+            lastUiAtRef.current = now;
+            setHeading(next);
+          }
         });
         if (!cancelled) {
           setIsAvailable(true);
@@ -82,7 +111,7 @@ export function useCompassHeading(
       smoothedRef.current = null;
       setHeading(null);
     };
-  }, [active, latitude, longitude]);
+  }, [active, headingSV, latitude, longitude]);
 
-  return { heading, isAvailable, usesTrueNorth };
+  return { heading, headingSV, isAvailable, usesTrueNorth };
 }

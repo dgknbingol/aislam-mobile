@@ -1,9 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -22,15 +24,35 @@ import {
   formatQiblaDirection,
 } from '../utils/qibla';
 
+const CALIBRATION_TIP_KEY = '@aislam/qibla-calibration-tip-seen';
+
 export default function QiblaScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
   const { latitude, longitude, isLoadingLocation, permissionDenied } = useLocationContext();
-  const { heading, isAvailable, usesTrueNorth } = useCompassHeading(
+  const { heading, headingSV, isAvailable, usesTrueNorth } = useCompassHeading(
     true,
     latitude,
     longitude,
   );
+  const [showCalibrationTip, setShowCalibrationTip] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void AsyncStorage.getItem(CALIBRATION_TIP_KEY).then((value) => {
+      if (!cancelled && value !== '1') {
+        setShowCalibrationTip(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const dismissCalibrationTip = useCallback(async () => {
+    setShowCalibrationTip(false);
+    await AsyncStorage.setItem(CALIBRATION_TIP_KEY, '1');
+  }, []);
 
   const goBack = useCallback(() => {
     navigation.goBack();
@@ -44,6 +66,31 @@ export default function QiblaScreen() {
 
   return (
     <View style={styles.container}>
+      <Modal
+        visible={showCalibrationTip}
+        transparent
+        animationType="fade"
+        onRequestClose={() => void dismissCalibrationTip()}
+      >
+        <View style={styles.tipBackdrop}>
+          <View style={styles.tipCard}>
+            <Text style={styles.tipTitle}>Pusulayı kalibre edin</Text>
+            <Text style={styles.tipBody}>
+              Daha doğru sonuç için telefonu yatay tutun ve havada yavaşça{' '}
+              <Text style={styles.tipEmphasis}>8 şeklinde</Text> hareket ettirin. Mıknatıslı
+              kılıf ve metal yüzeylerden uzak tutun.
+            </Text>
+            <Pressable
+              style={styles.tipButton}
+              onPress={() => void dismissCalibrationTip()}
+              accessibilityRole="button"
+            >
+              <Text style={styles.tipButtonText}>Anladım</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={goBack} style={styles.backButton} accessibilityLabel="Geri">
           <Ionicons name="chevron-back" size={24} color={colors.cream} />
@@ -67,7 +114,11 @@ export default function QiblaScreen() {
           </View>
         ) : (
           <>
-            <QiblaCompass qiblaBearing={qiblaBearing} deviceHeading={heading} />
+            <QiblaCompass
+              qiblaBearing={qiblaBearing}
+              headingSV={headingSV}
+              hasHeading={heading != null}
+            />
 
             <View style={styles.infoCard}>
               <View style={styles.infoRow}>
@@ -105,8 +156,9 @@ export default function QiblaScreen() {
             </View>
 
             <Text style={styles.instruction}>
-              Telefonu yatay tutun ve yavaşça döndürün. Kadran döner; 🕋 işareti üstteki
-              sabit ok ile aynı hizada olana kadar dönün — o yön kıbledir.
+              Telefonu yatay tutun, manyetik nesnelerden (kılıf magı, metal masa) uzak tutun.
+              İlk kullanımda 8 şeklinde yavaşça hareket ettirerek kalibre edin. Kadran döner; 🕋
+              üstteki ok ile hizalanınca o yön kıbledir.
             </Text>
 
             {permissionDenied ? (
@@ -224,5 +276,46 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: colors.warning,
     textAlign: 'center',
+  },
+  tipBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(2, 23, 52, 0.55)',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+  },
+  tipCard: {
+    backgroundColor: '#FFFDF6',
+    borderRadius: 16,
+    paddingHorizontal: 22,
+    paddingTop: 22,
+    paddingBottom: 18,
+  },
+  tipTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.textOnLight,
+    marginBottom: 10,
+  },
+  tipBody: {
+    fontSize: 15,
+    lineHeight: 23,
+    color: colors.textMutedOnLight,
+  },
+  tipEmphasis: {
+    fontWeight: '700',
+    color: colors.textOnLight,
+  },
+  tipButton: {
+    marginTop: 20,
+    alignSelf: 'flex-end',
+    backgroundColor: colors.bar,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  tipButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.cream,
   },
 });

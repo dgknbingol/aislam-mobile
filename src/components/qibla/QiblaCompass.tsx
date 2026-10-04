@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 
 import { colors } from '../../theme/colors';
@@ -9,27 +10,35 @@ const RADIUS = SIZE / 2 - 20;
 
 interface QiblaCompassProps {
   qiblaBearing: number;
-  deviceHeading: number | null;
+  headingSV: SharedValue<number>;
+  hasHeading: boolean;
 }
 
 function bearingToRad(bearing: number): number {
   return ((bearing - 90) * Math.PI) / 180;
 }
 
-export default function QiblaCompass({ qiblaBearing, deviceHeading }: QiblaCompassProps) {
-  const heading = deviceHeading ?? 0;
-  // Kadran manyetik kuzeyle birlikte döner.
-  const dialRotation = -heading;
+export default function QiblaCompass({
+  qiblaBearing,
+  headingSV,
+  hasHeading,
+}: QiblaCompassProps) {
+  const dialStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${-headingSV.value}deg` }],
+  }));
+
+  const kaabaUprightStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${headingSV.value - qiblaBearing}deg` }],
+  }));
 
   return (
     <View style={styles.wrapper}>
       <View style={[styles.compass, { width: SIZE, height: SIZE }]}>
-        {/* Telefonun baktığı yön — sabit, dönmüyor */}
         <View style={styles.topPointer} pointerEvents="none">
           <View style={styles.topPointerTriangle} />
         </View>
 
-        <View style={[styles.dial, { transform: [{ rotate: `${dialRotation}deg` }] }]}>
+        <Animated.View style={[styles.dial, dialStyle]}>
           <Svg width={SIZE} height={SIZE}>
             <Circle
               cx={CENTER}
@@ -89,28 +98,22 @@ export default function QiblaCompass({ qiblaBearing, deviceHeading }: QiblaCompa
             <Circle cx={CENTER} cy={CENTER} r={3} fill={colors.gold} />
           </Svg>
 
-          {/* Kıble yönü — kadran üzerinde sabit açıda */}
           <View
             style={[styles.qiblaArm, { transform: [{ rotate: `${qiblaBearing}deg` }] }]}
             pointerEvents="none"
           >
             <View style={styles.qiblaMarker}>
-              <Text
-                style={[
-                  styles.qiblaEmoji,
-                  { transform: [{ rotate: `${heading - qiblaBearing}deg` }] },
-                ]}
-              >
-                🕋
-              </Text>
+              <Animated.Text style={[styles.qiblaEmoji, kaabaUprightStyle]}>🕋</Animated.Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
       </View>
 
       <View style={styles.kaabaBadge}>
         <Text style={styles.kaabaEmoji}>🕋</Text>
-        <Text style={styles.kaabaLabel}>Üst işaret ile hizalayın</Text>
+        <Text style={styles.kaabaLabel}>
+          {hasHeading ? 'Üst işaret ile hizalayın' : 'Pusula kalibre ediliyor…'}
+        </Text>
       </View>
     </View>
   );
