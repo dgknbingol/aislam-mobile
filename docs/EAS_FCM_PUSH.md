@@ -1,6 +1,6 @@
 # Doğrudan FCM + APNs (Expo Push yok)
 
-Ezan bildirimleri sunucudan **Firebase Cloud Messaging (Android)** ve **Apple APNs (iOS)** ile gider. Expo Push servisi (`exp.host`) kullanılmaz; Expo yalnızca mobil SDK / EAS build içindir.
+**Ezan, günlük içerik ve yarışma** bildirimleri internet varken sunucudan **FCM/APNs** ile gider. Offline iken yalnızca sonraki **1–2 ezan** yerel yedek planlanır. Expo Push servisi kullanılmaz.
 
 ## 1) Firebase (Android — öncelik)
 

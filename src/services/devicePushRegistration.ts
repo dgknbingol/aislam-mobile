@@ -4,7 +4,11 @@ import { Platform } from 'react-native';
 
 import { AI_CONFIG } from '../config/ai';
 import { ensureAppUserId } from './appUserStorage';
-import { loadAllPrayerNotificationSettings } from './notificationSettingsStorage';
+import {
+  loadAllCompetitionNotificationSettings,
+  loadAllDailyContentNotificationSettings,
+  loadAllPrayerNotificationSettings,
+} from './notificationSettingsStorage';
 
 const LOCATION_STORAGE_KEY = '@aislam/location';
 
@@ -46,7 +50,7 @@ async function getNativePushToken(): Promise<string | null> {
   }
 }
 
-/** İzin + konum + ezan ayarlarını backend’e kaydeder (sunucu ezan push). */
+/** Tüm bildirim prefs + token → sunucu (ezan / günlük / yarışma). */
 export async function registerDeviceForPrayerPush(): Promise<void> {
   if (registerInFlight) {
     await registerInFlight;
@@ -67,7 +71,11 @@ export async function registerDeviceForPrayerPush(): Promise<void> {
     if (!pushToken) return;
 
     const deviceId = await ensureAppUserId();
-    const prayers = await loadAllPrayerNotificationSettings();
+    const [prayers, daily, competition] = await Promise.all([
+      loadAllPrayerNotificationSettings(),
+      loadAllDailyContentNotificationSettings(),
+      loadAllCompetitionNotificationSettings(),
+    ]);
 
     const response = await fetch(`${AI_CONFIG.ragBaseUrl}/api/notifications/register`, {
       method: 'POST',
@@ -82,6 +90,8 @@ export async function registerDeviceForPrayerPush(): Promise<void> {
         latitude: location.latitude,
         longitude: location.longitude,
         prayers,
+        daily,
+        competition,
         timezone: 'Europe/Istanbul',
       }),
     });
@@ -128,7 +138,7 @@ export async function requestServerTestPush(): Promise<boolean> {
       body: JSON.stringify({
         deviceId,
         title: 'e-İslam test push',
-        body: 'Sunucu ezan push çalışıyor (FCM/APNs).',
+        body: 'Sunucu push çalışıyor (FCM/APNs).',
       }),
     });
     if (!response.ok) return false;

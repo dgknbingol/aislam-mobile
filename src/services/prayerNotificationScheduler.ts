@@ -29,6 +29,7 @@ import {
   type CompetitionConfig,
   type CompetitionKind,
 } from '../utils/competitionSchedule';
+import { AI_CONFIG } from '../config/ai';
 import { fetchDailyContent, getCachedDailyContent } from './dailyApi';
 import {
   registerDeviceForPrayerPush,
@@ -44,9 +45,25 @@ import { getVerseOfDay } from './verseOfDay';
 
 /** iOS ~64 pending limit; diğer platformlarda daha yüksek tavan. */
 const MAX_PENDING_NOTIFICATIONS = Platform.OS === 'ios' ? 58 : 120;
-/** Ezan asıl sunucu push; yerelde yalnızca kısa offline yedek. */
+/** Offline iken yerel ezan yedeği; online iken 0 (sunucu FCM). */
 const LOCAL_PRAYER_FALLBACK_COUNT = 2;
 const LOOKAHEAD_DAYS = 3;
+
+async function isOnlineForPush(): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 3000);
+    const response = await fetch(`${AI_CONFIG.ragBaseUrl}/api/health`, {
+      method: 'GET',
+      signal: controller.signal,
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+    });
+    clearTimeout(timer);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
 
 let prayerDays: PrayerDay[] = [];
 let syncInFlight: Promise<void> | null = null;
@@ -65,7 +82,7 @@ function handleNotificationResponse(
   const data = response.notification.request.content.data as
     | {
         type?: string;
-        openHome?: boolean;
+        openHome?: boolean | string;
         dailyKind?: string;
         catalogIndex?: number;
         competitionKind?: string;
@@ -84,11 +101,15 @@ function handleNotificationResponse(
     return;
   }
 
+  const openHome =
+    data.openHome === true || data.openHome === 'true' || data.openHome === '1';
+
   if (
     data.type === 'prayer' ||
     data.type === 'daily-content' ||
+    data.type === 'competition' ||
     data.type === 'test-daily' ||
-    data.openHome === true ||
+    openHome ||
     typeof data.competitionKind === 'string'
   ) {
     navigateToHomeFromNotification();
@@ -483,8 +504,8 @@ type UpcomingPrayerEvent = {
   dateKey: string;
 };
 
-async function schedulePrayerNotifications(): Promise<void> {
-  if (prayerDays.length === 0) return;
+async function schedulePrayerNotifications(fallbackCount: number): Promise<void> {
+  if (fallbackCount <= 0 || prayerDays.length === 0) return;
 
   const settingsByPrayer = await loadAllPrayerNotificationSettings();
   const upcomingDays = getUpcomingDays(prayerDays);
@@ -534,7 +555,7 @@ async function schedulePrayerNotifications(): Promise<void> {
 
   candidates.sort((a, b) => a.fireAt.getTime() - b.fireAt.getTime());
 
-  for (const event of candidates.slice(0, LOCAL_PRAYER_FALLBACK_COUNT)) {
+  for (const event of candidates.slice(0, fallbackCount)) {
     if (scheduledInPass >= MAX_PENDING_NOTIFICATIONS) return;
     await schedulePrayerOne(event);
   }
@@ -556,13 +577,14 @@ export async function syncAllNotifications(): Promise<void> {
     await cancelAislamNotifications();
     scheduledInPass = 0;
 
-    // Öncelik: yarışma (az) → ezan yedek (1–2) → günlük içerik
-    await scheduleCompetitionNotifications();
-    await schedulePrayerNotifications();
-    await scheduleDailyContentNotifications();
-
-    // Ezan asıl: sunucu Expo Push
-    void registerDeviceForPrayerPush();
+    const online = await isOnlineForPush();
+    if (online) {
+      // Asıl kanal: sunucu. Yerel ezan kurma.
+      void registerDeviceForPrayerPush();
+    } else {
+      // Offline: sonraki 1–2 ezan yerel yedek (telefon saati / cache vakitleri).
+      await schedulePrayerNotifications(LOCAL_PRAYER_FALLBACK_COUNT);
+    }
   })();
 
   try {

@@ -111,10 +111,9 @@ export default function NotificationSettingsScreen() {
         ) : (
           <>
             <Text style={styles.hint}>
-              Ezan bildirimleri sunucudan FCM/APNs ile gelir (Expo Push yok); tutarlı saat için
-              internet gerekir. Pil kısıtlamasını (Samsung: uygulama → pil → kısıtlama yok)
-              kapatmanız önerilir. Yerelde yalnızca sonraki 1–2 ezan yedek kalır. Günlük içerik ve
-              yarışma hâlâ yerel planlanır.
+              İnternet varken tüm bildirimler sunucudan FCM/APNs ile gelir (saat sunucuya göre).
+              İnternet yokken yalnızca sonraki 1–2 ezan yerel yedek olarak planlanır. Pil
+              kısıtlamasını (Samsung: uygulama → pil → kısıtlama yok) kapatmanız önerilir.
               {pendingCount != null ? ` Planlı: ${pendingCount}` : ''}
             </Text>
 

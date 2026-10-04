@@ -14,7 +14,7 @@
 | 2 | Ayarlar → **Sunucu ezan push testi** | FCM/APNs bildirimi; tap → ana sayfa |
 | 3 | Uygulama kapalı + vakit ±1 dk | Sunucu push |
 | 4 | Doze / uzun süre kullanılmamış | Push gelir |
-| 5 | İnternet yok | Yerel 1–2 yedek DATE |
+| 5 | İnternet yok (app sync anında) | Sonraki 1–2 ezan yerel yedek planlanır |
 | 6 | Vakit prefs kapalı | Push yok |
 | 7 | İzin reddedildi | `enabled=false` |
 
