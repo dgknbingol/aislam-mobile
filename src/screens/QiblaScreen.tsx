@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -13,29 +14,29 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import QiblaCompass from '../components/qibla/QiblaCompass';
+import QiblaCompass, { type TurnHint } from '../components/qibla/QiblaCompass';
 import { useLocationContext } from '../context/LocationContext';
 import { useCompassHeading } from '../hooks/useCompassHeading';
 import type { RootStackParamList } from '../navigation/types';
-import { colors } from '../theme/colors';
+import {
+  angleDifference,
+  QIBLA_ALIGN_THRESHOLD_DEG,
+} from '../utils/compassHeading';
 import {
   calculateDistanceToKaaba,
   calculateQiblaBearing,
-  formatQiblaDirection,
 } from '../utils/qibla';
 
 const CALIBRATION_TIP_KEY = '@aislam/qibla-calibration-tip-seen';
+const BG = '#0A0E14';
 
 export default function QiblaScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
   const { latitude, longitude, isLoadingLocation, permissionDenied } = useLocationContext();
-  const { heading, headingSV, isAvailable, usesTrueNorth } = useCompassHeading(
-    true,
-    latitude,
-    longitude,
-  );
+  const { heading, headingSV, isAvailable } = useCompassHeading(true, latitude, longitude);
   const [showCalibrationTip, setShowCalibrationTip] = useState(false);
+  const wasAlignedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,8 +62,24 @@ export default function QiblaScreen() {
   const hasLocation = latitude != null && longitude != null;
   const qiblaBearing = hasLocation ? calculateQiblaBearing(latitude, longitude) : 0;
   const distanceKm = hasLocation ? calculateDistanceToKaaba(latitude, longitude) : null;
-  const relativeQibla =
-    heading != null ? (qiblaBearing - heading + 360) % 360 : null;
+  const isAligned =
+    heading != null &&
+    angleDifference(heading, qiblaBearing) <= QIBLA_ALIGN_THRESHOLD_DEG;
+
+  const turnHint: TurnHint = useMemo(() => {
+    if (heading == null) return 'calibrating';
+    if (isAligned) return 'aligned';
+    const relative = (qiblaBearing - heading + 360) % 360;
+    return relative <= 180 ? 'right' : 'left';
+  }, [heading, isAligned, qiblaBearing]);
+
+  useEffect(() => {
+    // Yalnızca tam kıbleye ilk girişte titreş
+    if (isAligned && !wasAlignedRef.current) {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    wasAlignedRef.current = isAligned;
+  }, [isAligned]);
 
   return (
     <View style={styles.container}>
@@ -91,22 +108,19 @@ export default function QiblaScreen() {
         </View>
       </Modal>
 
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable onPress={goBack} style={styles.backButton} accessibilityLabel="Geri">
-          <Ionicons name="chevron-back" size={24} color={colors.cream} />
+          <Ionicons name="chevron-back" size={26} color="#F5F0E6" />
         </Pressable>
-        <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>Kıble Pusulası</Text>
-          <Text style={styles.headerSubtitle}>Kabe yönünü gösterir</Text>
-        </View>
+        <Text style={styles.headerTitle}>Kıble Pusulası</Text>
         <View style={styles.backPlaceholder} />
       </View>
 
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingBottom: insets.bottom + 12 }]}>
         {isLoadingLocation ? (
           <View style={styles.centered}>
-            <ActivityIndicator size="large" color={colors.bar} />
-            <Text style={styles.hintText}>Konum alınıyor...</Text>
+            <ActivityIndicator size="large" color="#1FA8A0" />
+            <Text style={styles.statusText}>Konum alınıyor...</Text>
           </View>
         ) : !hasLocation ? (
           <View style={styles.centered}>
@@ -117,53 +131,15 @@ export default function QiblaScreen() {
             <QiblaCompass
               qiblaBearing={qiblaBearing}
               headingSV={headingSV}
-              hasHeading={heading != null}
+              heading={heading}
+              isAligned={isAligned}
+              turnHint={turnHint}
+              distanceKm={distanceKm}
             />
-
-            <View style={styles.infoCard}>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Kıble açısı</Text>
-                <Text style={styles.infoValue}>{formatQiblaDirection(qiblaBearing)}</Text>
-              </View>
-              {distanceKm != null ? (
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Kabe mesafesi</Text>
-                  <Text style={styles.infoValue}>
-                    {distanceKm >= 100
-                      ? `${Math.round(distanceKm).toLocaleString('tr-TR')} km`
-                      : `${distanceKm.toFixed(1)} km`}
-                  </Text>
-                </View>
-              ) : null}
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Pusula</Text>
-                <Text style={styles.infoValue}>
-                  {heading != null
-                    ? `${Math.round(heading)}°${usesTrueNorth ? '' : ' (düzeltildi)'}`
-                    : 'Hazırlanıyor...'}
-                </Text>
-              </View>
-              {relativeQibla != null ? (
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Kıbleye dönüş</Text>
-                  <Text style={styles.infoValue}>
-                    {relativeQibla <= 180
-                      ? `${Math.round(relativeQibla)}° sağa`
-                      : `${Math.round(360 - relativeQibla)}° sola`}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-
-            <Text style={styles.instruction}>
-              Telefonu yatay tutun, manyetik nesnelerden (kılıf magı, metal masa) uzak tutun.
-              İlk kullanımda 8 şeklinde yavaşça hareket ettirerek kalibre edin. Kadran döner; 🕋
-              üstteki ok ile hizalanınca o yön kıbledir.
-            </Text>
 
             {permissionDenied ? (
               <Text style={styles.warning}>
-                Konum izni kapalı; ezan vakitleri için kayıtlı veya varsayılan konum kullanılıyor.
+                Konum izni kapalı; kayıtlı veya varsayılan konum kullanılıyor.
               </Text>
             ) : null}
 
@@ -182,16 +158,13 @@ export default function QiblaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: BG,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingBottom: 14,
-    backgroundColor: colors.bar,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.barBorder,
+    paddingHorizontal: 4,
+    paddingBottom: 8,
   },
   backButton: {
     width: 44,
@@ -203,25 +176,16 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
   },
-  headerText: {
-    flex: 1,
-    alignItems: 'center',
-  },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.cream,
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: colors.creamMuted,
-    marginTop: 2,
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#F5F0E6',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 28,
-    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   centered: {
     flex: 1,
@@ -229,86 +193,56 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
   },
-  hintText: {
+  statusText: {
     fontSize: 15,
-    color: colors.textMutedOnLight,
+    color: 'rgba(245, 240, 230, 0.7)',
   },
   errorText: {
     fontSize: 15,
-    color: colors.warning,
+    color: '#FF9B7A',
     textAlign: 'center',
-  },
-  infoCard: {
-    width: '100%',
-    backgroundColor: '#FFFDF6',
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 28,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(2, 23, 52, 0.08)',
-    gap: 12,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: colors.textMutedOnLight,
-  },
-  infoValue: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.textOnLight,
-  },
-  instruction: {
-    marginTop: 16,
-    fontSize: 14,
-    lineHeight: 22,
-    color: colors.textMutedOnLight,
-    textAlign: 'center',
-    paddingHorizontal: 8,
   },
   warning: {
-    marginTop: 12,
-    fontSize: 13,
-    lineHeight: 20,
-    color: colors.warning,
+    marginTop: 8,
+    fontSize: 12,
+    lineHeight: 18,
+    color: '#FF9B7A',
     textAlign: 'center',
   },
   tipBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(2, 23, 52, 0.55)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'center',
     paddingHorizontal: 28,
   },
   tipCard: {
-    backgroundColor: '#FFFDF6',
+    backgroundColor: '#151A22',
     borderRadius: 16,
     paddingHorizontal: 22,
     paddingTop: 22,
     paddingBottom: 18,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(245, 240, 230, 0.12)',
   },
   tipTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.textOnLight,
+    color: '#F5F0E6',
     marginBottom: 10,
   },
   tipBody: {
     fontSize: 15,
     lineHeight: 23,
-    color: colors.textMutedOnLight,
+    color: 'rgba(245, 240, 230, 0.75)',
   },
   tipEmphasis: {
     fontWeight: '700',
-    color: colors.textOnLight,
+    color: '#F5F0E6',
   },
   tipButton: {
     marginTop: 20,
     alignSelf: 'flex-end',
-    backgroundColor: colors.bar,
+    backgroundColor: '#1FA8A0',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 10,
@@ -316,6 +250,6 @@ const styles = StyleSheet.create({
   tipButtonText: {
     fontSize: 15,
     fontWeight: '700',
-    color: colors.cream,
+    color: '#FFFFFF',
   },
 });

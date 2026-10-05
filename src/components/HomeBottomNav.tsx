@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PressableScale from './PressableScale';
 import { useSubscription } from '../context/SubscriptionContext';
 import { colors } from '../theme/colors';
+import { COMPACT_MAX_FONT_MULTIPLIER } from '../theme/fontScale';
 
 export type HomeTabId = 'home' | 'quran' | 'chat' | 'quiz' | 'tesbih';
 
@@ -71,7 +72,13 @@ export default function HomeBottomNav({ activeTab, onTabPress }: HomeBottomNavPr
               size={22}
               color={isActive ? colors.gold : colors.creamMuted}
             />
-            <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+            <Text
+              style={[styles.tabLabel, isActive && styles.tabLabelActive]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+              maxFontSizeMultiplier={COMPACT_MAX_FONT_MULTIPLIER}
+            >
               {item.label}
             </Text>
           </PressableScale>

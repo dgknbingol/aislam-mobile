@@ -9,6 +9,8 @@ import type { DailyContentKind } from '../types/notificationSettings';
 
 export type RootStackParamList = {
 
+  Onboarding: undefined;
+
   Home: undefined;
 
   Chat: undefined;

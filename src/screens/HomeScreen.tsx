@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { APP_NAME } from '../constants/app';
 import { getAsmaOfDay } from '../constants/asmaUlHusna';
 import DailyContentCard from '../components/DailyContentCard';
 import HomeBottomNav, { HOME_BOTTOM_NAV_CONTENT_PAD } from '../components/HomeBottomNav';
@@ -54,7 +53,12 @@ export default function HomeScreen() {
   >();
   const insets = useSafeAreaInsets();
   const handleTabPress = useHomeTabNavigation();
-  const { todayPrayerDay, monthlyPrayerTimes, isLoadingPrayerTimes } = useLocationContext();
+  const {
+    todayPrayerDay,
+    monthlyPrayerTimes,
+    isLoadingPrayerTimes,
+    locationLabel,
+  } = useLocationContext();
   const [now, setNow] = useState(() => new Date());
   const [dailyContent, setDailyContent] = useState<DailyContentResponse | null>(null);
   const [isLoadingDaily, setIsLoadingDaily] = useState(true);
@@ -178,8 +182,8 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>{APP_NAME}</Text>
-          <Text style={styles.headerDate}>Bugün: {formatTodayDate()}</Text>
+          <Text style={styles.headerTitle}>{locationLabel ?? 'Konum seçilmedi'}</Text>
+          <Text style={styles.headerDate}>{formatTodayDate()}</Text>
         </View>
         <View style={styles.headerActions}>
           <Pressable

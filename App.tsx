@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -20,10 +20,24 @@ import { initAdMob } from './src/services/adMob';
 import { preloadFullscreenAds } from './src/services/fullscreenAds';
 import AppOpenAdLifecycle from './src/components/ads/AppOpenAdLifecycle';
 import GlobalAdBannerHost from './src/components/ads/GlobalAdBannerHost';
+import { APP_MAX_FONT_MULTIPLIER } from './src/theme/fontScale';
 
 const SPLASH_MIN_MS = 2500;
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+/** Sistem font büyütmesinde layout patlamasını sınırla (erişilebilirlik tavanı). */
+const textDefaults = (Text as unknown as { defaultProps?: Record<string, unknown> }).defaultProps ?? {};
+(Text as unknown as { defaultProps: Record<string, unknown> }).defaultProps = {
+  ...textDefaults,
+  maxFontSizeMultiplier: APP_MAX_FONT_MULTIPLIER,
+};
+const inputDefaults =
+  (TextInput as unknown as { defaultProps?: Record<string, unknown> }).defaultProps ?? {};
+(TextInput as unknown as { defaultProps: Record<string, unknown> }).defaultProps = {
+  ...inputDefaults,
+  maxFontSizeMultiplier: APP_MAX_FONT_MULTIPLIER,
+};
 
 export default function App() {
   useFonts({

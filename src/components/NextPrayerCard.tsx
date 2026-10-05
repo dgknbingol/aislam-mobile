@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
+import { APP_MAX_FONT_MULTIPLIER } from '../theme/fontScale';
 import NextPrayerVectorIcon from './prayer-banners/NextPrayerVectorIcon';
 import type { PrayerBannerId } from './prayer-banners/shared';
 
@@ -20,11 +21,19 @@ export default function NextPrayerCard({
   return (
     <View style={styles.card}>
       <View style={styles.textBlock}>
-        <Text style={styles.label}>Bir Sonraki Ezan</Text>
-        <Text style={styles.time}>
+        <Text style={styles.label} maxFontSizeMultiplier={APP_MAX_FONT_MULTIPLIER}>
+          Bir Sonraki Ezan
+        </Text>
+        <Text
+          style={styles.time}
+          numberOfLines={2}
+          maxFontSizeMultiplier={APP_MAX_FONT_MULTIPLIER}
+        >
           {prayerName} — {prayerTime}
         </Text>
-        <Text style={styles.remaining}>{remainingText}</Text>
+        <Text style={styles.remaining} maxFontSizeMultiplier={APP_MAX_FONT_MULTIPLIER}>
+          {remainingText}
+        </Text>
       </View>
 
       <View style={styles.iconWrap}>

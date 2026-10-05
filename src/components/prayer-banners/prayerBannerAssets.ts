@@ -21,8 +21,11 @@ export const PRAYER_BANNER_ASPECTS: Record<PrayerBannerId, number> = {
   yatsi: 1024 / 114,
 };
 
+/** En kısa banner yüksekliği (büyük fontta taşmayı keser). */
+const MAX_BANNER_ASPECT = 1024 / 148;
+
 export function getPrayerBannerAspect(id: PrayerBannerId): number {
-  return PRAYER_BANNER_ASPECTS[id];
+  return Math.min(PRAYER_BANNER_ASPECTS[id], MAX_BANNER_ASPECT);
 }
 
 export async function preloadPrayerBannerImages(): Promise<void> {

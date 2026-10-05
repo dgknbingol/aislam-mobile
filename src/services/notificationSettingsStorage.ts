@@ -158,6 +158,18 @@ export async function savePrayerNotificationSettings(
   void syncAllNotifications();
 }
 
+export async function saveAllPrayerNotificationSettings(
+  all: AllPrayerNotificationSettings,
+): Promise<void> {
+  const normalized = PRAYER_BANNERS.reduce<AllPrayerNotificationSettings>((acc, banner) => {
+    acc[banner.id] = normalizeTimedSettings(all[banner.id] ?? createDefaultPrayerNotificationSettings());
+    return acc;
+  }, {} as AllPrayerNotificationSettings);
+  memoryCache = normalized;
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+  void syncAllNotifications();
+}
+
 export async function loadAllCompetitionNotificationSettings(): Promise<AllCompetitionNotificationSettings> {
   if (competitionMemoryCache) return competitionMemoryCache;
 

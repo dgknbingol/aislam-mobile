@@ -1,27 +1,72 @@
+import { Ionicons } from '@expo/vector-icons';
+import { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
-import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Line } from 'react-native-svg';
 
-import { colors } from '../../theme/colors';
-
-const SIZE = 280;
+const SIZE = 320;
 const CENTER = SIZE / 2;
-const RADIUS = SIZE / 2 - 20;
+const RADIUS = SIZE / 2 - 12;
+const TICK_OUTER = RADIUS;
+const LABEL_R = RADIUS - 34;
+const DEGREE_R = RADIUS - 56;
+
+export type TurnHint = 'left' | 'right' | 'aligned' | 'calibrating';
 
 interface QiblaCompassProps {
   qiblaBearing: number;
   headingSV: SharedValue<number>;
-  hasHeading: boolean;
+  heading: number | null;
+  isAligned: boolean;
+  turnHint: TurnHint;
+  distanceKm: number | null;
 }
 
 function bearingToRad(bearing: number): number {
   return ((bearing - 90) * Math.PI) / 180;
 }
 
-export default function QiblaCompass({
+/** Pusula üzerinde durur; yazı her zaman dik (ters dönmez). */
+function UprightLabel({
+  bearing,
+  headingSV,
+  radius,
+  children,
+  fontSize,
+  color,
+  fontWeight,
+}: {
+  bearing: number;
+  headingSV: SharedValue<number>;
+  radius: number;
+  children: string;
+  fontSize: number;
+  color: string;
+  fontWeight: '600' | '700';
+}) {
+  const style = useAnimatedStyle(() => {
+    const angleRad = ((bearing - headingSV.value) * Math.PI) / 180;
+    const x = Math.sin(angleRad) * radius;
+    const y = -Math.cos(angleRad) * radius;
+    return {
+      transform: [{ translateX: x }, { translateY: y }],
+    };
+  });
+
+  return (
+    <Animated.View style={[styles.labelAnchor, style]} pointerEvents="none">
+      <Text style={{ fontSize, color, fontWeight, textAlign: 'center' }}>{children}</Text>
+    </Animated.View>
+  );
+}
+
+function QiblaCompass({
   qiblaBearing,
   headingSV,
-  hasHeading,
+  heading,
+  isAligned,
+  turnHint,
+  distanceKm,
 }: QiblaCompassProps) {
   const dialStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${-headingSV.value}deg` }],
@@ -31,97 +76,159 @@ export default function QiblaCompass({
     transform: [{ rotate: `${headingSV.value - qiblaBearing}deg` }],
   }));
 
+  const ticks = useMemo(() => {
+    const items: { angle: number; major: boolean }[] = [];
+    for (let angle = 0; angle < 360; angle += 5) {
+      items.push({ angle, major: angle % 30 === 0 });
+    }
+    return items;
+  }, []);
+
+  const degreeLabels = [30, 60, 120, 150, 210, 240, 300, 330];
+  const cardinals = [
+    { bearing: 0, label: 'N' },
+    { bearing: 90, label: 'E' },
+    { bearing: 180, label: 'S' },
+    { bearing: 270, label: 'W' },
+  ] as const;
+
   return (
     <View style={styles.wrapper}>
       <View style={[styles.compass, { width: SIZE, height: SIZE }]}>
         <View style={styles.topPointer} pointerEvents="none">
-          <View style={styles.topPointerTriangle} />
+          <View style={styles.topPointerLine} />
         </View>
 
-        <Animated.View style={[styles.dial, dialStyle]}>
+        {/* Sadece çizgiler + Kabe döner */}
+        <Animated.View
+          style={[styles.dial, dialStyle]}
+          shouldRasterizeIOS
+          renderToHardwareTextureAndroid
+        >
           <Svg width={SIZE} height={SIZE}>
             <Circle
               cx={CENTER}
               cy={CENTER}
               r={RADIUS}
-              stroke={colors.barBorder}
-              strokeWidth={3}
-              fill="#FFFDF6"
-            />
-            <Circle
-              cx={CENTER}
-              cy={CENTER}
-              r={RADIUS - 14}
-              stroke="rgba(2, 23, 52, 0.08)"
-              strokeWidth={1}
+              stroke="rgba(245, 240, 230, 0.22)"
+              strokeWidth={1.5}
               fill="transparent"
             />
 
-            {(['K', 'D', 'G', 'B'] as const).map((label, index) => {
-              const angle = index * 90;
+            {ticks.map(({ angle, major }) => {
               const rad = bearingToRad(angle);
-              const x = CENTER + (RADIUS - 28) * Math.cos(rad);
-              const y = CENTER + (RADIUS - 28) * Math.sin(rad);
-              return (
-                <SvgText
-                  key={label}
-                  x={x}
-                  y={y + 5}
-                  fill={label === 'K' ? colors.gold : colors.textMutedOnLight}
-                  fontSize={label === 'K' ? 18 : 14}
-                  fontWeight="700"
-                  textAnchor="middle"
-                >
-                  {label}
-                </SvgText>
-              );
-            })}
-
-            {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => {
-              const rad = bearingToRad(angle);
-              const inner = RADIUS - (angle % 90 === 0 ? 18 : 10);
-              const outer = RADIUS - 4;
+              const inner = major ? TICK_OUTER - 16 : TICK_OUTER - 9;
               return (
                 <Line
                   key={angle}
                   x1={CENTER + inner * Math.cos(rad)}
                   y1={CENTER + inner * Math.sin(rad)}
-                  x2={CENTER + outer * Math.cos(rad)}
-                  y2={CENTER + outer * Math.sin(rad)}
-                  stroke="rgba(2, 23, 52, 0.2)"
-                  strokeWidth={angle % 90 === 0 ? 2 : 1}
+                  x2={CENTER + TICK_OUTER * Math.cos(rad)}
+                  y2={CENTER + TICK_OUTER * Math.sin(rad)}
+                  stroke="rgba(245, 240, 230, 0.75)"
+                  strokeWidth={major ? 2 : 1}
                 />
               );
             })}
-
-            <Circle cx={CENTER} cy={CENTER} r={8} fill={colors.bar} />
-            <Circle cx={CENTER} cy={CENTER} r={3} fill={colors.gold} />
           </Svg>
 
           <View
             style={[styles.qiblaArm, { transform: [{ rotate: `${qiblaBearing}deg` }] }]}
             pointerEvents="none"
           >
-            <View style={styles.qiblaMarker}>
-              <Animated.Text style={[styles.qiblaEmoji, kaabaUprightStyle]}>🕋</Animated.Text>
+            <View style={styles.qiblaOuter}>
+              <View style={styles.qiblaRedTip} />
+              <View style={styles.qiblaBadge}>
+                <Animated.Text style={[styles.qiblaEmoji, kaabaUprightStyle]}>🕋</Animated.Text>
+              </View>
             </View>
           </View>
         </Animated.View>
+
+        {/* Yazılar ayrı katman — her zaman düz */}
+        <View style={styles.labelsLayer} pointerEvents="none">
+          {cardinals.map(({ bearing, label }) => (
+            <UprightLabel
+              key={label}
+              bearing={bearing}
+              headingSV={headingSV}
+              radius={LABEL_R}
+              fontSize={20}
+              color="#F5F0E6"
+              fontWeight="700"
+            >
+              {label}
+            </UprightLabel>
+          ))}
+          {degreeLabels.map((angle) => (
+            <UprightLabel
+              key={angle}
+              bearing={angle}
+              headingSV={headingSV}
+              radius={DEGREE_R}
+              fontSize={11}
+              color="rgba(245, 240, 230, 0.55)"
+              fontWeight="600"
+            >
+              {String(angle)}
+            </UprightLabel>
+          ))}
+        </View>
+
+        <View style={styles.centerGuide} pointerEvents="none">
+          {isAligned || turnHint === 'aligned' ? (
+            <View style={styles.checkCircle}>
+              <Ionicons name="checkmark" size={36} color="#FFFFFF" />
+            </View>
+          ) : turnHint === 'calibrating' ? (
+            <View style={styles.hintCircle}>
+              <Ionicons name="compass-outline" size={28} color="#FFFFFF" />
+            </View>
+          ) : (
+            <>
+              <View style={styles.hintCircle}>
+                <Ionicons
+                  name={turnHint === 'right' ? 'arrow-forward' : 'arrow-back'}
+                  size={28}
+                  color="#FFFFFF"
+                />
+              </View>
+              <Text style={styles.hintText}>
+                {turnHint === 'right' ? 'Sağa Dön' : 'Sola Dön'}
+              </Text>
+            </>
+          )}
+        </View>
       </View>
 
-      <View style={styles.kaabaBadge}>
-        <Text style={styles.kaabaEmoji}>🕋</Text>
-        <Text style={styles.kaabaLabel}>
-          {hasHeading ? 'Üst işaret ile hizalayın' : 'Pusula kalibre ediliyor…'}
+      <View style={styles.footer}>
+        <Text style={styles.headingHuge} numberOfLines={1}>
+          {heading != null ? `${Math.round(heading)}°` : '—°'}
         </Text>
+        <View style={styles.footerMeta}>
+          <Text style={styles.metaLine}>Kıble Açısı : {Math.round(qiblaBearing)}°</Text>
+          {distanceKm != null ? (
+            <Text style={styles.metaLine}>
+              Uzaklık :{' '}
+              {distanceKm >= 100
+                ? `${Math.round(distanceKm).toLocaleString('tr-TR')} km`
+                : `${distanceKm.toFixed(1)} km`}
+            </Text>
+          ) : null}
+        </View>
       </View>
     </View>
   );
 }
 
+export default memo(QiblaCompass);
+
 const styles = StyleSheet.create({
   wrapper: {
+    width: '100%',
     alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
   },
   compass: {
     alignItems: 'center',
@@ -129,60 +236,129 @@ const styles = StyleSheet.create({
   },
   topPointer: {
     position: 'absolute',
-    top: 4,
+    top: 0,
     left: 0,
     right: 0,
     alignItems: 'center',
-    zIndex: 2,
+    zIndex: 4,
   },
-  topPointerTriangle: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 9,
-    borderRightWidth: 9,
-    borderBottomWidth: 14,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: colors.bar,
+  topPointerLine: {
+    width: 3,
+    height: 28,
+    backgroundColor: '#E53935',
+    borderRadius: 2,
   },
   dial: {
     position: 'absolute',
     width: SIZE,
     height: SIZE,
   },
+  labelsLayer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  labelAnchor: {
+    position: 'absolute',
+    left: CENTER - 20,
+    top: CENTER - 12,
+    width: 40,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   qiblaArm: {
     position: 'absolute',
     width: SIZE,
     height: SIZE,
   },
-  qiblaMarker: {
+  qiblaOuter: {
     position: 'absolute',
-    top: 16,
+    top: 4,
     left: 0,
     right: 0,
     alignItems: 'center',
   },
-  qiblaEmoji: {
-    fontSize: 28,
+  qiblaRedTip: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderTopWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#E53935',
+    marginBottom: 2,
   },
-  kaabaBadge: {
-    flexDirection: 'row',
+  qiblaBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: '#FFFDF6',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(2, 23, 52, 0.1)',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(229, 57, 53, 0.35)',
   },
-  kaabaEmoji: {
+  qiblaEmoji: {
     fontSize: 20,
   },
-  kaabaLabel: {
-    fontSize: 15,
+  centerGuide: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 3,
+  },
+  hintCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#1FA8A0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#7CB342',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hintText: {
+    marginTop: 10,
+    fontSize: 16,
     fontWeight: '600',
-    color: colors.textOnLight,
+    color: '#F5F0E6',
+  },
+  footer: {
+    width: '100%',
+    marginTop: 24,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  headingHuge: {
+    flexShrink: 0,
+    fontSize: 48,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: -1,
+    lineHeight: 52,
+  },
+  footerMeta: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    paddingBottom: 4,
+    gap: 4,
+  },
+  metaLine: {
+    fontSize: 14,
+    color: 'rgba(245, 240, 230, 0.85)',
+    textAlign: 'right',
   },
 });

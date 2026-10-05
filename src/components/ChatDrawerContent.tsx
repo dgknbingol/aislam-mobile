@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { Image } from 'expo-image';
 import { Alert, Pressable as RNPressable, StyleSheet, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import Animated, {
@@ -15,11 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
-import { APP_NAME } from '../constants/app';
 import { colors } from '../theme/colors';
 import type { Conversation } from '../types/chat';
-
-const brandWordmark = require('../../assets/brand-wordmark.png');
 
 interface ChatListItemProps {
   conversation: Conversation;
@@ -136,7 +132,7 @@ export default function ChatDrawerContent(props: DrawerContentComponentProps) {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>{APP_NAME}</Text>
+        <Text style={styles.title}>Sohbetler</Text>
         <RNPressable style={styles.newChatButton} onPress={handleNewChat}>
           <Ionicons name="create-outline" size={18} color={colors.gold} />
           <Text style={styles.newChatText}>Yeni sohbet</Text>
@@ -169,14 +165,6 @@ export default function ChatDrawerContent(props: DrawerContentComponentProps) {
           <Ionicons name="person-outline" size={18} color={colors.gold} />
           <Text style={styles.homeMenuText}>{user ? 'Hesabım' : 'Giriş yap'}</Text>
         </RNPressable>
-        <Image
-          source={brandWordmark}
-          style={styles.brandWordmark}
-          contentFit="contain"
-          cachePolicy="memory-disk"
-          transition={0}
-          accessibilityLabel={APP_NAME}
-        />
       </View>
     </View>
   );
@@ -282,10 +270,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.cream,
-  },
-  brandWordmark: {
-    width: 180,
-    height: 52,
-    backgroundColor: 'transparent',
   },
 });
