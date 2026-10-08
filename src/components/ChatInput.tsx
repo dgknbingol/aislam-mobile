@@ -1,14 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSubscription } from '../context/SubscriptionContext';
@@ -27,7 +19,13 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   const { quota } = useSubscription();
   const canSend = text.trim().length > 0 && !disabled;
   const remaining = MAX_MESSAGE_LENGTH - text.length;
-  const paddingBottom = quota?.premium ? Math.max(insets.bottom, 8) : 8;
+  // Android: softwareKeyboardLayoutMode=resize — alt boşluk klavye açıkken gerekmez.
+  const paddingBottom =
+    Platform.OS === 'android'
+      ? 8
+      : quota?.premium
+        ? Math.max(insets.bottom, 8)
+        : 8;
 
   const handleSend = async () => {
     if (!canSend) return;
@@ -40,45 +38,46 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
-    >
-      <View style={[styles.container, { paddingBottom }]}>
-        <View style={styles.inputRow}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={styles.input}
-              value={text}
-              onChangeText={setText}
-              placeholder={disabled ? 'Yanıt bekleniyor...' : 'Mesaj'}
-              placeholderTextColor={colors.creamMuted}
-              multiline
-              editable={!disabled}
-              maxLength={MAX_MESSAGE_LENGTH}
-              returnKeyType="default"
-              blurOnSubmit={false}
-            />
-            <Text style={[styles.counter, remaining <= 10 && styles.counterWarning]}>
-              {text.length}/{MAX_MESSAGE_LENGTH}
-            </Text>
-          </View>
-          <Pressable
-            style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
-            onPress={handleSend}
-            disabled={!canSend}
-            accessibilityRole="button"
-            accessibilityLabel="Gönder"
-          >
-            <Ionicons
-              name="arrow-up"
-              size={20}
-              color={canSend ? colors.bar : colors.creamMuted}
-            />
-          </Pressable>
+    <View style={[styles.container, { paddingBottom }]}>
+      <View style={styles.inputRow}>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.input}
+            value={text}
+            onChangeText={setText}
+            placeholder={disabled ? 'Yanıt bekleniyor...' : 'Mesaj'}
+            placeholderTextColor={colors.creamMuted}
+            editable={!disabled}
+            maxLength={MAX_MESSAGE_LENGTH}
+            returnKeyType="send"
+            submitBehavior="submit"
+            blurOnSubmit
+            onSubmitEditing={() => {
+              void handleSend();
+            }}
+            enablesReturnKeyAutomatically
+          />
+          <Text style={[styles.counter, remaining <= 10 && styles.counterWarning]}>
+            {text.length}/{MAX_MESSAGE_LENGTH}
+          </Text>
         </View>
+        <Pressable
+          style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
+          onPress={() => {
+            void handleSend();
+          }}
+          disabled={!canSend}
+          accessibilityRole="button"
+          accessibilityLabel="Gönder"
+        >
+          <Ionicons
+            name="arrow-up"
+            size={20}
+            color={canSend ? colors.bar : colors.creamMuted}
+          />
+        </Pressable>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -98,14 +97,12 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flex: 1,
     minHeight: 44,
-    maxHeight: 120,
     borderRadius: 22,
     backgroundColor: colors.inputField,
     position: 'relative',
   },
   input: {
     minHeight: 44,
-    maxHeight: 120,
     paddingHorizontal: 16,
     paddingVertical: 10,
     paddingRight: 52,

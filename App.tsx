@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
+import { useKeepAwake } from 'expo-keep-awake';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
@@ -40,6 +41,8 @@ const inputDefaults =
 };
 
 export default function App() {
+  /** Uygulama açıkken sistem ekran zaman aşımını engelle (karanlık / kilit olmasın). */
+  useKeepAwake();
   useFonts({
     AmiriBold: require('./assets/fonts/AmiriBold.ttf'),
   });

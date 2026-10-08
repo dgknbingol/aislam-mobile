@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -10,7 +10,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useLocationContext } from '../context/LocationContext';
@@ -20,13 +19,17 @@ import { colors } from '../theme/colors';
 import { formatDistanceKm } from '../utils/geo';
 import { openDirectionsTo } from '../utils/openDirections';
 
+/**
+ * MapView (react-native-maps) Android'de Google Maps API key olmadan native crash verir.
+ * Harita yerine liste + yol tarifi (Google Maps / Apple Maps uygulaması) kullanıyoruz.
+ */
 export default function NearbyMosquesScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
-  const mapRef = useRef<MapView>(null);
   const {
     latitude,
     longitude,
+    locationLabel,
     isLoadingLocation,
     permissionDenied,
     refreshCurrentLocation,
@@ -36,19 +39,8 @@ export default function NearbyMosquesScreen() {
   const [mosques, setMosques] = useState<NearbyMosque[]>([]);
   const [isLoadingMosques, setIsLoadingMosques] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const hasLocation = latitude != null && longitude != null;
-
-  const initialRegion = useMemo(() => {
-    if (!hasLocation) return undefined;
-    return {
-      latitude,
-      longitude,
-      latitudeDelta: 0.05,
-      longitudeDelta: 0.05,
-    };
-  }, [hasLocation, latitude, longitude]);
 
   const loadMosques = useCallback(async () => {
     if (!hasLocation || latitude == null || longitude == null) return;
@@ -59,12 +51,10 @@ export default function NearbyMosquesScreen() {
     try {
       const results = await fetchNearbyMosques(latitude, longitude);
       setMosques(results);
-      setSelectedId(results[0]?.id ?? null);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Yakın camiler yüklenemedi.';
       setError(message);
       setMosques([]);
-      setSelectedId(null);
     } finally {
       setIsLoadingMosques(false);
     }
@@ -76,46 +66,39 @@ export default function NearbyMosquesScreen() {
     }
   }, [hasLocation, loadMosques]);
 
-  const focusMosque = useCallback((mosque: NearbyMosque) => {
-    setSelectedId(mosque.id);
-    mapRef.current?.animateToRegion(
-      {
-        latitude: mosque.latitude,
-        longitude: mosque.longitude,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02,
-      },
-      350,
-    );
-  }, []);
-
   const handleDirections = useCallback((mosque: NearbyMosque) => {
     openDirectionsTo(mosque.latitude, mosque.longitude, mosque.name);
   }, []);
 
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  const selectedMosque = mosques.find((item) => item.id === selectedId) ?? null;
-
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Pressable onPress={goBack} style={styles.backButton} accessibilityLabel="Geri">
+        <Pressable
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          accessibilityLabel="Geri"
+        >
           <Ionicons name="chevron-back" size={24} color={colors.cream} />
         </Pressable>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Yakın Camiler</Text>
-          <Text style={styles.headerSubtitle}>Konumunuza en yakın camiler</Text>
+          <Text style={styles.headerSubtitle}>
+            {locationLabel ? `${locationLabel} çevresi` : 'Konumunuza en yakın camiler'}
+          </Text>
         </View>
         <Pressable
-          onPress={() => void refreshCurrentLocation()}
+          onPress={() => {
+            void refreshCurrentLocation().then(() => loadMosques());
+          }}
           style={styles.refreshButton}
           accessibilityLabel="Konumu yenile"
-          disabled={isUpdatingLocation}
+          disabled={isUpdatingLocation || isLoadingMosques}
         >
-          <Ionicons name="locate-outline" size={22} color={colors.cream} />
+          {isUpdatingLocation || isLoadingMosques ? (
+            <ActivityIndicator size="small" color={colors.cream} />
+          ) : (
+            <Ionicons name="locate-outline" size={22} color={colors.cream} />
+          )}
         </Pressable>
       </View>
 
@@ -140,42 +123,7 @@ export default function NearbyMosquesScreen() {
           </Pressable>
         </View>
       ) : (
-        <>
-          <View style={styles.mapWrap}>
-            {initialRegion ? (
-              <MapView
-                ref={mapRef}
-                style={styles.map}
-                initialRegion={initialRegion}
-                showsUserLocation
-                showsMyLocationButton={false}
-                toolbarEnabled={false}
-              >
-                {mosques.map((mosque) => (
-                  <Marker
-                    key={mosque.id}
-                    coordinate={{
-                      latitude: mosque.latitude,
-                      longitude: mosque.longitude,
-                    }}
-                    title={mosque.name}
-                    description={formatDistanceKm(mosque.distanceKm)}
-                    pinColor={selectedId === mosque.id ? colors.gold : colors.bar}
-                    onPress={() => focusMosque(mosque)}
-                    onCalloutPress={() => handleDirections(mosque)}
-                  />
-                ))}
-              </MapView>
-            ) : null}
-
-            {isLoadingMosques ? (
-              <View style={styles.mapOverlay}>
-                <ActivityIndicator size="small" color={colors.bar} />
-                <Text style={styles.mapOverlayText}>Camiler aranıyor...</Text>
-              </View>
-            ) : null}
-          </View>
-
+        <View style={styles.listSection}>
           {error ? (
             <View style={styles.errorBanner}>
               <Text style={styles.errorBannerText}>{error}</Text>
@@ -185,69 +133,57 @@ export default function NearbyMosquesScreen() {
             </View>
           ) : null}
 
-          {selectedMosque ? (
-            <View style={[styles.selectedCard, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-              <View style={styles.selectedInfo}>
-                <Text style={styles.selectedName}>{selectedMosque.name}</Text>
-                <Text style={styles.selectedDistance}>
-                  {formatDistanceKm(selectedMosque.distanceKm)} uzaklıkta
-                </Text>
-              </View>
-              <Pressable
-                style={({ pressed }) => [styles.directionsButton, pressed && styles.directionsButtonPressed]}
-                onPress={() => handleDirections(selectedMosque)}
-              >
-                <Ionicons name="navigate-outline" size={18} color={colors.bar} />
-                <Text style={styles.directionsButtonText}>Yol tarifi</Text>
-              </Pressable>
+          {isLoadingMosques && mosques.length === 0 ? (
+            <View style={styles.centeredFlex}>
+              <ActivityIndicator size="large" color={colors.bar} />
+              <Text style={styles.hintText}>Camiler aranıyor...</Text>
             </View>
-          ) : null}
-
-          <View style={styles.listSection}>
-            <Text style={styles.listTitle}>
-              {mosques.length > 0 ? `${mosques.length} cami bulundu` : 'Yakında cami bulunamadı'}
-            </Text>
+          ) : (
             <FlatList
               data={mosques}
               keyExtractor={(item) => item.id}
               style={styles.list}
-              contentContainerStyle={{ paddingBottom: selectedMosque ? 8 : Math.max(insets.bottom, 16) }}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => {
-                const isSelected = item.id === selectedId;
-                return (
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.listItem,
-                      isSelected && styles.listItemSelected,
-                      pressed && styles.listItemPressed,
-                    ]}
-                    onPress={() => focusMosque(item)}
-                  >
-                    <View style={styles.listItemIcon}>
-                      <Ionicons name="business-outline" size={18} color={colors.gold} />
-                    </View>
-                    <View style={styles.listItemText}>
-                      <Text style={styles.listItemName} numberOfLines={1}>
-                        {item.name}
-                      </Text>
-                      <Text style={styles.listItemDistance}>
-                        {formatDistanceKm(item.distanceKm)}
-                      </Text>
-                    </View>
-                    <Pressable
-                      style={styles.listDirections}
-                      onPress={() => handleDirections(item)}
-                      hitSlop={8}
-                    >
-                      <Ionicons name="navigate-outline" size={20} color={colors.bar} />
-                    </Pressable>
-                  </Pressable>
-                );
+              contentContainerStyle={{
+                paddingBottom: Math.max(insets.bottom, 16),
+                paddingTop: 4,
               }}
+              showsVerticalScrollIndicator={false}
+              ListHeaderComponent={
+                <Text style={styles.listTitle}>
+                  {mosques.length > 0
+                    ? `${mosques.length} cami bulundu`
+                    : 'Yakında cami bulunamadı'}
+                </Text>
+              }
+              renderItem={({ item, index }) => (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.listItem,
+                    index === 0 && styles.listItemNearest,
+                    pressed && styles.listItemPressed,
+                  ]}
+                  onPress={() => handleDirections(item)}
+                >
+                  <View style={styles.listItemIcon}>
+                    <Ionicons name="business-outline" size={18} color={colors.gold} />
+                  </View>
+                  <View style={styles.listItemText}>
+                    <Text style={styles.listItemName} numberOfLines={2}>
+                      {item.name}
+                    </Text>
+                    <Text style={styles.listItemDistance}>
+                      {formatDistanceKm(item.distanceKm)}
+                      {index === 0 ? ' · En yakın' : ''}
+                    </Text>
+                  </View>
+                  <View style={styles.listDirections}>
+                    <Ionicons name="navigate-outline" size={20} color={colors.bar} />
+                  </View>
+                </Pressable>
+              )}
             />
-          </View>
-        </>
+          )}
+        </View>
       )}
     </View>
   );
@@ -300,6 +236,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     gap: 12,
   },
+  centeredFlex: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
   hintText: {
     fontSize: 14,
     color: colors.textMutedOnLight,
@@ -325,32 +267,26 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 14,
   },
-  mapWrap: {
-    height: 280,
-    backgroundColor: colors.inputField,
-  },
-  map: {
+  listSection: {
     flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 12,
   },
-  mapOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(251, 245, 221, 0.72)',
-    gap: 8,
-  },
-  mapOverlayText: {
+  listTitle: {
     fontSize: 13,
-    color: colors.textOnLight,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: colors.textMutedOnLight,
+    marginBottom: 8,
+  },
+  list: {
+    flex: 1,
   },
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
-    marginHorizontal: 16,
-    marginTop: 10,
+    marginBottom: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 12,
@@ -366,62 +302,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.bar,
   },
-  selectedCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginHorizontal: 16,
-    marginTop: 10,
-    padding: 14,
-    borderRadius: 16,
-    backgroundColor: colors.bar,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.barBorder,
-  },
-  selectedInfo: {
-    flex: 1,
-  },
-  selectedName: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.cream,
-  },
-  selectedDistance: {
-    fontSize: 13,
-    color: colors.creamMuted,
-    marginTop: 2,
-  },
-  directionsButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.gold,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  directionsButtonPressed: {
-    opacity: 0.85,
-  },
-  directionsButtonText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: colors.bar,
-  },
-  listSection: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  listTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.textMutedOnLight,
-    marginBottom: 8,
-  },
-  list: {
-    flex: 1,
-  },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -434,7 +314,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.barBorder,
   },
-  listItemSelected: {
+  listItemNearest: {
     borderColor: colors.gold,
     backgroundColor: '#FFFDF6',
   },

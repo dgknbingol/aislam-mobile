@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   View,
@@ -87,7 +89,11 @@ export default function ChatScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+    >
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable
           style={styles.iconButton}
@@ -163,7 +169,7 @@ export default function ChatScreen() {
       {PREMIUM_UI_ENABLED ? (
         <PremiumPaywallModal visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
       ) : null}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
