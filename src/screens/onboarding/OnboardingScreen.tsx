@@ -39,8 +39,12 @@ type PrayerToggleState = Record<
 const ACCENT = '#1FA8A0';
 
 function createInitialToggles(): PrayerToggleState {
+  // Varsayılan: vaktinde açık (Güneş hariç); öncesi kapalı — kullanıcı isterse açar.
   return PRAYER_BANNERS.reduce((acc, banner) => {
-    acc[banner.id] = { atTime: false, before: false };
+    acc[banner.id] = {
+      atTime: banner.id !== 'gunes',
+      before: false,
+    };
     return acc;
   }, {} as PrayerToggleState);
 }
