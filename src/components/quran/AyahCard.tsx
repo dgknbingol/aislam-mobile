@@ -7,15 +7,19 @@ import type { AyahWithTranslation } from '../../types/quran';
 interface AyahCardProps {
   ayah: AyahWithTranslation;
   isActive: boolean;
+  isFavorite: boolean;
   translationLabel: string;
   onPlayPress: () => void;
+  onToggleFavorite: () => void;
 }
 
 export default function AyahCard({
   ayah,
   isActive,
+  isFavorite,
   translationLabel,
   onPlayPress,
+  onToggleFavorite,
 }: AyahCardProps) {
   return (
     <View style={[styles.card, isActive && styles.cardActive]}>
@@ -23,9 +27,24 @@ export default function AyahCard({
         <View style={styles.badge}>
           <Text style={styles.badgeText}>{ayah.numberInSurah}</Text>
         </View>
-        <Text style={styles.meta}>
-          Cüz {ayah.juz} · Sayfa {ayah.page}
-        </Text>
+        <View style={styles.headerRight}>
+          <Text style={styles.meta}>
+            Cüz {ayah.juz} · Sayfa {ayah.page}
+          </Text>
+          <Pressable
+            onPress={onToggleFavorite}
+            style={styles.favoriteButton}
+            accessibilityRole="button"
+            accessibilityLabel={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+            hitSlop={8}
+          >
+            <Ionicons
+              name={isFavorite ? 'star' : 'star-outline'}
+              size={22}
+              color={isFavorite ? colors.gold : colors.goldMuted}
+            />
+          </Pressable>
+        </View>
       </View>
 
       <Text style={styles.arabic}>{ayah.arabic}</Text>
@@ -64,6 +83,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   badge: {
     minWidth: 32,
     height: 32,
@@ -82,6 +106,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textMutedOnLight,
     opacity: 0.75,
+  },
+  favoriteButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   arabic: {
     fontSize: 26,

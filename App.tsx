@@ -16,7 +16,6 @@ import { AuthProvider } from './src/context/AuthContext';
 import { ChatProvider } from './src/context/ChatContext';
 import { LocationProvider } from './src/context/LocationContext';
 import { SubscriptionProvider } from './src/context/SubscriptionContext';
-import { KeyboardInsetProvider } from './src/context/KeyboardInsetContext';
 import RootNavigator from './src/navigation/RootNavigator';
 import { flushPendingNotificationNavigation, navigationRef } from './src/navigation/rootNavigation';
 import { initAdMob } from './src/services/adMob';
@@ -88,21 +87,19 @@ export default function App() {
           <AuthProvider>
             <SubscriptionProvider>
               <ChatProvider>
-                <KeyboardInsetProvider>
-                  <View style={styles.shell}>
-                    <View style={styles.navArea}>
-                      <NavigationContainer
-                        ref={navigationRef}
-                        onReady={() => {
-                          flushPendingNotificationNavigation();
-                        }}
-                      >
-                        <RootNavigator />
-                      </NavigationContainer>
-                    </View>
-                    {!showSplash ? <GlobalAdBannerHost /> : null}
+                <View style={styles.shell}>
+                  <View style={styles.navArea}>
+                    <NavigationContainer
+                      ref={navigationRef}
+                      onReady={() => {
+                        flushPendingNotificationNavigation();
+                      }}
+                    >
+                      <RootNavigator />
+                    </NavigationContainer>
                   </View>
-                </KeyboardInsetProvider>
+                  {!showSplash ? <GlobalAdBannerHost /> : null}
+                </View>
                 <StatusBar style="light" />
                 <AppOpenAdLifecycle splashVisible={showSplash} />
               </ChatProvider>

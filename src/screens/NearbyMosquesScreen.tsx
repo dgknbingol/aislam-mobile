@@ -112,14 +112,16 @@ export default function NearbyMosquesScreen() {
           <Ionicons name="location-outline" size={42} color={colors.gold} />
           <Text style={styles.errorText}>
             {permissionDenied
-              ? 'Konum izni kapalı. Ayarlardan izin verin veya uygulama ayarlarından şehir seçin.'
+              ? 'Yakın camiler için konum izni gerekli.'
               : 'Konum bilgisi alınamadı.'}
           </Text>
           <Pressable
             style={({ pressed }) => [styles.retryButton, pressed && styles.retryButtonPressed]}
             onPress={() => void refreshCurrentLocation()}
           >
-            <Text style={styles.retryButtonText}>Tekrar dene</Text>
+            <Text style={styles.retryButtonText}>
+              {permissionDenied ? 'Konum izni ver' : 'Tekrar dene'}
+            </Text>
           </Pressable>
         </View>
       ) : (

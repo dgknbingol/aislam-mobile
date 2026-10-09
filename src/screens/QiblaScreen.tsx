@@ -14,6 +14,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import LocationPermissionGate, {
+  openAppSettings,
+} from '../components/LocationPermissionGate';
 import QiblaCompass, { type TurnHint } from '../components/qibla/QiblaCompass';
 import { useLocationContext } from '../context/LocationContext';
 import { useCompassHeading } from '../hooks/useCompassHeading';
@@ -33,12 +36,29 @@ const BG = '#0A0E14';
 export default function QiblaScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
-  const { latitude, longitude, isLoadingLocation, permissionDenied } = useLocationContext();
-  const { heading, headingSV, isAvailable } = useCompassHeading(true, latitude, longitude);
+  const {
+    latitude,
+    longitude,
+    isLoadingLocation,
+    hasTrustedLocation,
+    permissionDenied,
+    refreshCurrentLocation,
+    isUpdatingLocation,
+  } = useLocationContext();
+  const compassActive = hasTrustedLocation;
+  const { heading, headingSV, isAvailable } = useCompassHeading(
+    compassActive,
+    latitude,
+    longitude,
+  );
   const [showCalibrationTip, setShowCalibrationTip] = useState(false);
   const wasAlignedRef = useRef(false);
 
   useEffect(() => {
+    if (!hasTrustedLocation) {
+      setShowCalibrationTip(false);
+      return;
+    }
     let cancelled = false;
     void AsyncStorage.getItem(CALIBRATION_TIP_KEY).then((value) => {
       if (!cancelled && value !== '1') {
@@ -48,7 +68,7 @@ export default function QiblaScreen() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hasTrustedLocation]);
 
   const dismissCalibrationTip = useCallback(async () => {
     setShowCalibrationTip(false);
@@ -59,9 +79,24 @@ export default function QiblaScreen() {
     navigation.goBack();
   }, [navigation]);
 
-  const hasLocation = latitude != null && longitude != null;
-  const qiblaBearing = hasLocation ? calculateQiblaBearing(latitude, longitude) : 0;
-  const distanceKm = hasLocation ? calculateDistanceToKaaba(latitude, longitude) : null;
+  const openLocationSettings = useCallback(() => {
+    navigation.navigate('Settings', { screen: 'LocationSettings' });
+  }, [navigation]);
+
+  const handleRequestPermission = useCallback(async () => {
+    await refreshCurrentLocation();
+    // Hâlâ red ise sistem ayarlarına yönlendir.
+    // refreshCurrentLocation permissionDenied günceller; bir sonraki render gate'i günceller.
+  }, [refreshCurrentLocation]);
+
+  const qiblaBearing =
+    hasTrustedLocation && latitude != null && longitude != null
+      ? calculateQiblaBearing(latitude, longitude)
+      : 0;
+  const distanceKm =
+    hasTrustedLocation && latitude != null && longitude != null
+      ? calculateDistanceToKaaba(latitude, longitude)
+      : null;
   const isAligned =
     heading != null &&
     angleDifference(heading, qiblaBearing) <= QIBLA_ALIGN_THRESHOLD_DEG;
@@ -74,7 +109,6 @@ export default function QiblaScreen() {
   }, [heading, isAligned, qiblaBearing]);
 
   useEffect(() => {
-    // Yalnızca tam kıbleye ilk girişte titreş
     if (isAligned && !wasAlignedRef.current) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
@@ -117,15 +151,27 @@ export default function QiblaScreen() {
       </View>
 
       <View style={[styles.content, { paddingBottom: insets.bottom + 12 }]}>
-        {isLoadingLocation ? (
+        {isLoadingLocation || isUpdatingLocation ? (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color="#1FA8A0" />
             <Text style={styles.statusText}>Konum alınıyor...</Text>
           </View>
-        ) : !hasLocation ? (
-          <View style={styles.centered}>
-            <Text style={styles.errorText}>Konum bilgisi alınamadı.</Text>
-          </View>
+        ) : !hasTrustedLocation ? (
+          <LocationPermissionGate
+            tone="dark"
+            title="Konum izni gerekli"
+            body="Kıble yönü bulunduğun yere göre hesaplanır. Devam etmek için konum iznini açman gerekiyor."
+            primaryLabel={permissionDenied ? 'Ayarlara git' : 'Konum izni ver'}
+            onPrimaryPress={() => {
+              if (permissionDenied) {
+                void openAppSettings();
+              } else {
+                void handleRequestPermission();
+              }
+            }}
+            secondaryLabel="Şehir seç"
+            onSecondaryPress={openLocationSettings}
+          />
         ) : (
           <>
             <QiblaCompass
@@ -136,12 +182,6 @@ export default function QiblaScreen() {
               turnHint={turnHint}
               distanceKm={distanceKm}
             />
-
-            {permissionDenied ? (
-              <Text style={styles.warning}>
-                Konum izni kapalı; kayıtlı veya varsayılan konum kullanılıyor.
-              </Text>
-            ) : null}
 
             {!isAvailable ? (
               <Text style={styles.warning}>
@@ -196,11 +236,6 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 15,
     color: 'rgba(245, 240, 230, 0.7)',
-  },
-  errorText: {
-    fontSize: 15,
-    color: '#FF9B7A',
-    textAlign: 'center',
   },
   warning: {
     marginTop: 8,

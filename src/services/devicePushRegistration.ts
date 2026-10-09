@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
@@ -15,11 +16,12 @@ const LOCATION_STORAGE_KEY = '@aislam/location';
 interface StoredLocation {
   latitude: number;
   longitude: number;
+  source?: 'manual' | 'gps';
 }
 
 let registerInFlight: Promise<void> | null = null;
 
-async function readStoredLocation(): Promise<StoredLocation | null> {
+async function readTrustedStoredLocation(): Promise<StoredLocation | null> {
   try {
     const raw = await AsyncStorage.getItem(LOCATION_STORAGE_KEY);
     if (!raw) return null;
@@ -32,7 +34,23 @@ async function readStoredLocation(): Promise<StoredLocation | null> {
     ) {
       return null;
     }
-    return { latitude: parsed.latitude, longitude: parsed.longitude };
+    if (parsed.source === 'manual') {
+      return {
+        latitude: parsed.latitude,
+        longitude: parsed.longitude,
+        source: 'manual',
+      };
+    }
+    if (parsed.source === 'gps') {
+      const { status } = await Location.getForegroundPermissionsAsync();
+      if (status !== Location.PermissionStatus.GRANTED) return null;
+      return {
+        latitude: parsed.latitude,
+        longitude: parsed.longitude,
+        source: 'gps',
+      };
+    }
+    return null;
   } catch {
     return null;
   }
@@ -64,8 +82,11 @@ export async function registerDeviceForPrayerPush(): Promise<void> {
       return;
     }
 
-    const location = await readStoredLocation();
-    if (!location) return;
+    const location = await readTrustedStoredLocation();
+    if (!location) {
+      await unregisterDeviceFromPrayerPush();
+      return;
+    }
 
     const pushToken = await getNativePushToken();
     if (!pushToken) return;

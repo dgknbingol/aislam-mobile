@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type ViewToken,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -25,11 +26,24 @@ import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
 import { useQuranPlayback } from '../hooks/useQuranPlayback';
 import type { RootStackParamList } from '../navigation/types';
 import { fetchSurahContent, fetchSurahList } from '../services/quranApi';
+import {
+  loadQuranReadingState,
+  saveLastRead,
+  toggleFavorite,
+  type QuranFavorite,
+  type QuranLastRead,
+  type QuranReadingState,
+} from '../services/quranReadingStorage';
 import { colors } from '../theme/colors';
 import type { AyahWithTranslation, SurahContent, SurahMeta } from '../types/quran';
 
 type ViewMode = 'list' | 'reader';
 type QuranRoute = RouteProp<RootStackParamList, 'Quran'>;
+
+const VIEWABILITY_CONFIG = {
+  itemVisiblePercentThreshold: 55,
+  minimumViewTime: 400,
+};
 
 export default function QuranScreen() {
   const insets = useSafeAreaInsets();
@@ -38,6 +52,9 @@ export default function QuranScreen() {
   const handleTabPress = useHomeTabNavigation();
   const listRef = useRef<FlatList<AyahWithTranslation>>(null);
   const pendingScrollAyah = useRef<number | null>(null);
+  const readingSurahRef = useRef<number | null>(null);
+  const lastSavedKeyRef = useRef<string>('');
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [surahs, setSurahs] = useState<SurahMeta[]>([]);
@@ -50,7 +67,62 @@ export default function QuranScreen() {
   const [isLoadingSurah, setIsLoadingSurah] = useState(false);
   const [surahError, setSurahError] = useState<string | null>(null);
 
+  const [lastRead, setLastRead] = useState<QuranLastRead | null>(null);
+  const [favorites, setFavorites] = useState<QuranFavorite[]>([]);
+
   const playback = useQuranPlayback();
+
+  const favoriteKeys = useMemo(
+    () => new Set(favorites.map((f) => `${f.surahNumber}:${f.ayahNumber}`)),
+    [favorites],
+  );
+
+  const applyReadingState = useCallback((state: QuranReadingState) => {
+    setLastRead(state.lastRead);
+    setFavorites(state.favorites);
+  }, []);
+
+  const refreshReadingState = useCallback(async () => {
+    applyReadingState(await loadQuranReadingState());
+  }, [applyReadingState]);
+
+  useEffect(() => {
+    void refreshReadingState();
+  }, [refreshReadingState]);
+
+  useEffect(() => {
+    readingSurahRef.current = readingSurahNumber;
+  }, [readingSurahNumber]);
+
+  const persistLastRead = useCallback(async (surahNumber: number, ayahNumber: number) => {
+    const key = `${surahNumber}:${ayahNumber}`;
+    if (lastSavedKeyRef.current === key) return;
+    lastSavedKeyRef.current = key;
+    await saveLastRead(surahNumber, ayahNumber);
+    setLastRead({
+      surahNumber,
+      ayahNumber,
+      updatedAt: new Date().toISOString(),
+    });
+  }, []);
+
+  const scheduleLastRead = useCallback(
+    (surahNumber: number, ayahNumber: number) => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => {
+        void persistLastRead(surahNumber, ayahNumber);
+      }, 500);
+    },
+    [persistLastRead],
+  );
+  const scheduleLastReadRef = useRef(scheduleLastRead);
+  scheduleLastReadRef.current = scheduleLastRead;
+
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, []);
 
   const loadSurahList = useCallback(async () => {
     setIsLoadingList(true);
@@ -79,6 +151,7 @@ export default function QuranScreen() {
       setSelectedSurah(null);
       pendingScrollAyah.current = safeAyah;
       await playback.stop();
+      void persistLastRead(surahNumber, safeAyah);
 
       try {
         const content = await fetchSurahContent(surahNumber);
@@ -90,10 +163,9 @@ export default function QuranScreen() {
         setIsLoadingSurah(false);
       }
     },
-    [playback],
+    [playback, persistLastRead],
   );
 
-  // Ana sayfa / deep link: params gelir gelmez sure+ayet aç
   useEffect(() => {
     const surahRaw = route.params?.surahNumber;
     if (surahRaw == null) return;
@@ -112,12 +184,37 @@ export default function QuranScreen() {
     setReadingSurahNumber(null);
     setSurahError(null);
     pendingScrollAyah.current = null;
-  }, [playback]);
+    void refreshReadingState();
+  }, [playback, refreshReadingState]);
 
   const handlePlaySurah = useCallback(async () => {
     if (!selectedSurah?.ayahs.length) return;
     await playback.playSurah(selectedSurah.ayahs, 0);
   }, [playback, selectedSurah]);
+
+  const handleToggleFavorite = useCallback(
+    async (ayah: AyahWithTranslation, surahNumber: number) => {
+      const next = await toggleFavorite({
+        surahNumber,
+        ayahNumber: ayah.numberInSurah,
+        globalNumber: ayah.globalNumber,
+        snippet: ayah.translation,
+      });
+      applyReadingState(next);
+    },
+    [applyReadingState],
+  );
+
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      const first = viewableItems.find((v) => v.isViewable && v.item != null);
+      if (!first?.item) return;
+      const ayah = first.item as AyahWithTranslation;
+      const surahNumber = readingSurahRef.current;
+      if (surahNumber == null) return;
+      scheduleLastReadRef.current(surahNumber, ayah.numberInSurah);
+    },
+  ).current;
 
   const activeAyahIndex =
     selectedSurah?.ayahs.findIndex((a) => a.globalNumber === playback.activeGlobalAyah) ?? -1;
@@ -125,10 +222,13 @@ export default function QuranScreen() {
   useEffect(() => {
     if (activeAyahIndex >= 0 && pendingScrollAyah.current == null) {
       listRef.current?.scrollToIndex({ index: activeAyahIndex, animated: true, viewPosition: 0.3 });
+      if (selectedSurah) {
+        const ayah = selectedSurah.ayahs[activeAyahIndex];
+        if (ayah) scheduleLastRead(selectedSurah.number, ayah.numberInSurah);
+      }
     }
-  }, [activeAyahIndex]);
+  }, [activeAyahIndex, scheduleLastRead, selectedSurah]);
 
-  // FlatList mount + ölçü sonrası hedef ayete kaydır (yükseklik değişken olduğu için retry)
   useEffect(() => {
     if (!selectedSurah || isLoadingSurah) return;
     if (pendingScrollAyah.current == null) return;
@@ -168,9 +268,7 @@ export default function QuranScreen() {
     [openSurah],
   );
 
-  const surahTitle = selectedSurah
-    ? getSurahNameTr(selectedSurah.number)
-    : '';
+  const surahTitle = selectedSurah ? getSurahNameTr(selectedSurah.number) : '';
 
   const playerAyahLabel =
     activeAyahIndex >= 0 && selectedSurah
@@ -193,6 +291,59 @@ export default function QuranScreen() {
     activeAyahIndex >= 0
       ? (selectedSurah?.ayahs[activeAyahIndex]?.numberInSurah ?? 1)
       : (selectedSurah?.ayahs[0]?.numberInSurah ?? 1);
+
+  const listHeader = (
+    <View style={styles.listHeader}>
+      {lastRead ? (
+        <Pressable
+          style={styles.continueCard}
+          onPress={() => void openSurah(lastRead.surahNumber, lastRead.ayahNumber)}
+          accessibilityRole="button"
+          accessibilityLabel="Kaldığın yerden devam et"
+        >
+          <View style={styles.continueIcon}>
+            <Ionicons name="bookmark" size={20} color={colors.gold} />
+          </View>
+          <View style={styles.continueText}>
+            <Text style={styles.continueLabel}>Kaldığın yerden devam</Text>
+            <Text style={styles.continueDetail}>
+              {getSurahNameTr(lastRead.surahNumber)} · {lastRead.ayahNumber}. ayet
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.creamMuted} />
+        </Pressable>
+      ) : null}
+
+      {favorites.length > 0 ? (
+        <View style={styles.favoritesBlock}>
+          <Text style={styles.sectionTitle}>Favoriler</Text>
+          {favorites.map((fav) => (
+            <Pressable
+              key={`${fav.surahNumber}:${fav.ayahNumber}`}
+              style={styles.favoriteRow}
+              onPress={() => void openSurah(fav.surahNumber, fav.ayahNumber)}
+              accessibilityRole="button"
+              accessibilityLabel={`Favori ${getSurahNameTr(fav.surahNumber)} ${fav.ayahNumber}`}
+            >
+              <Ionicons name="star" size={16} color={colors.gold} />
+              <View style={styles.favoriteText}>
+                <Text style={styles.favoriteTitle}>
+                  {getSurahNameTr(fav.surahNumber)} · {fav.ayahNumber}. ayet
+                </Text>
+                {fav.snippet ? (
+                  <Text style={styles.favoriteSnippet} numberOfLines={2}>
+                    {fav.snippet}
+                  </Text>
+                ) : null}
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+
+      <Text style={styles.sectionTitle}>Sureler</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -266,6 +417,7 @@ export default function QuranScreen() {
             <FlatList
               data={surahs}
               keyExtractor={(item) => String(item.number)}
+              ListHeaderComponent={listHeader}
               renderItem={({ item }) => (
                 <SurahListRow surah={item} onPress={() => void openSurah(item.number)} />
               )}
@@ -300,8 +452,10 @@ export default function QuranScreen() {
                 <AyahCard
                   ayah={item}
                   isActive={item.globalNumber === playback.activeGlobalAyah}
+                  isFavorite={favoriteKeys.has(`${selectedSurah.number}:${item.numberInSurah}`)}
                   translationLabel={QURAN_CONFIG.translationLabel}
                   onPlayPress={() => void playback.playAyah(item)}
+                  onToggleFavorite={() => void handleToggleFavorite(item, selectedSurah.number)}
                 />
               )}
               contentContainerStyle={[
@@ -309,6 +463,8 @@ export default function QuranScreen() {
                 showPlayer && styles.listContentWithPlayer,
               ]}
               showsVerticalScrollIndicator={false}
+              onViewableItemsChanged={onViewableItemsChanged}
+              viewabilityConfig={VIEWABILITY_CONFIG}
               onScrollToIndexFailed={(info) => {
                 listRef.current?.scrollToOffset({
                   offset: Math.max(0, info.averageItemLength * info.index),
@@ -376,12 +532,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
   },
-  playAllButton: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -407,11 +557,89 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   listContent: {
-    paddingTop: 16,
+    paddingTop: 8,
     paddingBottom: 24,
   },
   listContentWithPlayer: {
     paddingBottom: 8,
+  },
+  listHeader: {
+    paddingBottom: 8,
+  },
+  continueCard: {
+    marginHorizontal: 16,
+    marginBottom: 14,
+    marginTop: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    backgroundColor: colors.bar,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  continueIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.inputField,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  continueText: {
+    flex: 1,
+  },
+  continueLabel: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.cream,
+  },
+  continueDetail: {
+    fontSize: 13,
+    color: colors.creamMuted,
+    marginTop: 2,
+  },
+  favoritesBlock: {
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    marginHorizontal: 20,
+    marginBottom: 10,
+    marginTop: 4,
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textMutedOnLight,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+  },
+  favoriteRow: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: '#FFFDF6',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(2, 23, 52, 0.08)',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  favoriteText: {
+    flex: 1,
+  },
+  favoriteTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.textOnLight,
+  },
+  favoriteSnippet: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.textMutedOnLight,
+    marginTop: 4,
+    opacity: 0.85,
   },
   centered: {
     flex: 1,

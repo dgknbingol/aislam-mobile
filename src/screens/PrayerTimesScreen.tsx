@@ -1,4 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
@@ -11,8 +13,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import HomeBottomNav, { HOME_BOTTOM_NAV_CONTENT_PAD } from '../components/HomeBottomNav';
+import LocationPermissionGate, {
+  openAppSettings,
+} from '../components/LocationPermissionGate';
 import { useLocationContext } from '../context/LocationContext';
 import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
+import type { RootStackParamList } from '../navigation/types';
 import type { PrayerDay } from '../services/prayerTimesApi';
 import { colors } from '../theme/colors';
 
@@ -59,13 +65,18 @@ function formatMonthTitle(year: number, month: number): string {
 
 export default function PrayerTimesScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const handleTabPress = useHomeTabNavigation();
   const verticalScrollRef = useRef<ScrollView>(null);
   const {
     monthlyPrayerTimes,
     isLoadingPrayerTimes,
+    isLoadingLocation,
+    isUpdatingLocation,
     prayerTimesError,
     refreshPrayerTimes,
+    refreshCurrentLocation,
+    hasTrustedLocation,
     permissionDenied,
   } = useLocationContext();
 
@@ -103,15 +114,30 @@ export default function PrayerTimesScreen() {
         </Pressable>
       </View>
 
-      {permissionDenied ? (
-        <View style={styles.banner}>
-          <Text style={styles.bannerText}>
-            Konum izni verilmedi. İstanbul vakitleri gösteriliyor.
-          </Text>
+      {isLoadingLocation || isUpdatingLocation ? (
+        <View style={styles.centerState}>
+          <ActivityIndicator size="large" color={colors.gold} />
+          <Text style={styles.stateText}>Konum alınıyor...</Text>
         </View>
-      ) : null}
-
-      {isLoadingPrayerTimes ? (
+      ) : !hasTrustedLocation ? (
+        <LocationPermissionGate
+          tone="dark"
+          title="Konum izni gerekli"
+          body="Ezan vakitleri bulunduğun yere göre hesaplanır. Devam etmek için konum iznini aç veya şehir seç."
+          primaryLabel={permissionDenied ? 'Ayarlara git' : 'Konum izni ver'}
+          onPrimaryPress={() => {
+            if (permissionDenied) {
+              void openAppSettings();
+            } else {
+              void refreshCurrentLocation();
+            }
+          }}
+          secondaryLabel="Şehir seç"
+          onSecondaryPress={() =>
+            navigation.navigate('Settings', { screen: 'LocationSettings' })
+          }
+        />
+      ) : isLoadingPrayerTimes ? (
         <View style={styles.centerState}>
           <ActivityIndicator size="large" color={colors.gold} />
           <Text style={styles.stateText}>Vakitler yükleniyor...</Text>
@@ -217,15 +243,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
-  },
-  banner: {
-    backgroundColor: 'rgba(201, 162, 39, 0.15)',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  bannerText: {
-    fontSize: 13,
-    color: colors.gold,
   },
   centerState: {
     flex: 1,

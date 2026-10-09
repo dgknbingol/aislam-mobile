@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   View,
@@ -21,7 +23,6 @@ import PremiumPaywallModal from '../components/subscription/PremiumPaywallModal'
 import { APP_NAME } from '../constants/app';
 import { PREMIUM_UI_ENABLED } from '../constants/subscription';
 import { useChat } from '../context/ChatContext';
-import { useKeyboardInset } from '../context/KeyboardInsetContext';
 import { useSubscription } from '../context/SubscriptionContext';
 import type { RootStackParamList } from '../navigation/types';
 import { showInterstitialIfEligible } from '../services/fullscreenAds';
@@ -34,7 +35,6 @@ export default function ChatScreen() {
       NativeStackNavigationProp<RootStackParamList>
   >();
   const insets = useSafeAreaInsets();
-  const keyboardInset = useKeyboardInset();
   const listRef = useRef<FlatList<Message>>(null);
   const { activeConversation, createNewChat, sendMessage, isLoading, quotaExceeded, clearQuotaExceeded } =
     useChat();
@@ -89,7 +89,11 @@ export default function ChatScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+    >
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable
           style={styles.iconButton}
@@ -138,9 +142,9 @@ export default function ChatScreen() {
         contentContainerStyle={[
           styles.messageList,
           messages.length === 0 && styles.messageListEmpty,
-          { paddingBottom: 72 },
         ]}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         onContentSizeChange={() => {
           if (messages.length > 0) {
             listRef.current?.scrollToEnd({ animated: true });
@@ -162,14 +166,12 @@ export default function ChatScreen() {
         }
       />
 
-      <View style={[styles.composerDock, { bottom: keyboardInset }]}>
-        <ChatInput onSend={handleSend} disabled={isLoading} />
-      </View>
+      <ChatInput onSend={handleSend} disabled={isLoading} />
 
       {PREMIUM_UI_ENABLED ? (
         <PremiumPaywallModal visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
       ) : null}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -228,12 +230,6 @@ const styles = StyleSheet.create({
   messageListContainer: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  composerDock: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 2,
   },
   messageList: {
     paddingVertical: 16,

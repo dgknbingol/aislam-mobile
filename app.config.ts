@@ -56,8 +56,8 @@ const config: ExpoConfig = {
   },
   android: {
     package: 'net.eislam.app',
-    /** JS translateY ile birlikte: OS resize etmesin, çift kayma olmasın. */
-    softwareKeyboardLayoutMode: 'pan',
+    /** Aktivite klavyeyle küçülür; chat input flex ile üstte kalır (pan+absolute çift kaydırıyordu). */
+    softwareKeyboardLayoutMode: 'resize',
     adaptiveIcon: {
       // Köşe dolgusu launcher maskesini (squircle) gösterir; full-bleed foreground daire gibi görünürdü.
       backgroundColor: '#0B1A33',

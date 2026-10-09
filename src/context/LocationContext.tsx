@@ -21,15 +21,10 @@ import {
   setPrayerDaysForScheduling,
   syncPrayerNotifications,
 } from '../services/prayerNotificationScheduler';
+import { unregisterDeviceFromPrayerPush } from '../services/devicePushRegistration';
 
 const STORAGE_KEY = '@aislam/location';
 const PRAYER_TIMES_CACHE_PREFIX = '@aislam/prayer-times';
-
-const DEFAULT_COORDS = {
-  latitude: 41.0082,
-  longitude: 28.9784,
-  label: 'İstanbul',
-};
 
 type LocationSource = 'manual' | 'gps';
 
@@ -44,6 +39,9 @@ interface LocationContextValue {
   latitude: number | null;
   longitude: number | null;
   locationLabel: string | null;
+  locationSource: LocationSource | null;
+  /** GPS izni veya manuel şehir seçimi ile güvenilir konum var. */
+  hasTrustedLocation: boolean;
   isLoadingLocation: boolean;
   isUpdatingLocation: boolean;
   permissionDenied: boolean;
@@ -74,6 +72,10 @@ async function readStoredLocation(): Promise<StoredLocation | null> {
 
 async function persistLocation(coords: StoredLocation): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
+}
+
+async function clearStoredLocation(): Promise<void> {
+  await AsyncStorage.removeItem(STORAGE_KEY);
 }
 
 function prayerTimesCacheKey(lat: number, lon: number, year: number, month: number): string {
@@ -111,6 +113,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [locationLabel, setLocationLabel] = useState<string | null>(null);
+  const [locationSource, setLocationSource] = useState<LocationSource | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
@@ -119,10 +122,25 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [isLoadingPrayerTimes, setIsLoadingPrayerTimes] = useState(false);
   const [prayerTimesError, setPrayerTimesError] = useState<string | null>(null);
 
-  const applyCoords = useCallback(async (coords: StoredLocation) => {
+  const clearLocationFeatures = useCallback(async () => {
+    setLatitude(null);
+    setLongitude(null);
+    setLocationLabel(null);
+    setLocationSource(null);
+    setMonthlyPrayerTimes(null);
+    setPrayerTimesError(null);
+    setIsLoadingPrayerTimes(false);
+    setPrayerDaysForScheduling([]);
+    await clearStoredLocation();
+    await unregisterDeviceFromPrayerPush();
+    void syncPrayerNotifications();
+  }, []);
+
+  const applyCoords = useCallback(async (coords: StoredLocation & { source: LocationSource }) => {
     setLatitude(coords.latitude);
     setLongitude(coords.longitude);
     setLocationLabel(coords.label ?? null);
+    setLocationSource(coords.source);
     await persistLocation(coords);
   }, []);
 
@@ -222,16 +240,19 @@ export function LocationProvider({ children }: { children: ReactNode }) {
 
     async function initLocation() {
       setIsLoadingLocation(true);
-      let stored: StoredLocation | null = null;
       try {
-        stored = await readStoredLocation();
-        if (stored && !cancelled) {
+        const stored = await readStoredLocation();
+
+        // Manuel şehir: GPS izni olmasa da geçerli konum sayılır.
+        if (stored?.source === 'manual' && !cancelled) {
           setLatitude(stored.latitude);
           setLongitude(stored.longitude);
           setLocationLabel(stored.label ?? null);
-        }
-
-        if (stored?.source === 'manual') {
+          setLocationSource('manual');
+          const { status } = await Location.getForegroundPermissionsAsync();
+          if (!cancelled) {
+            setPermissionDenied(status !== Location.PermissionStatus.GRANTED);
+          }
           return;
         }
 
@@ -240,11 +261,8 @@ export function LocationProvider({ children }: { children: ReactNode }) {
 
         if (status !== Location.PermissionStatus.GRANTED) {
           setPermissionDenied(true);
-          if (!stored) {
-            setLatitude(DEFAULT_COORDS.latitude);
-            setLongitude(DEFAULT_COORDS.longitude);
-            setLocationLabel(DEFAULT_COORDS.label);
-          }
+          // Eski GPS / varsayılan İstanbul kaydını kullanma — ezan ve kıble kapalı.
+          await clearLocationFeatures();
           return;
         }
 
@@ -261,10 +279,8 @@ export function LocationProvider({ children }: { children: ReactNode }) {
           source: 'gps',
         });
       } catch {
-        if (!cancelled && !stored) {
-          setLatitude(DEFAULT_COORDS.latitude);
-          setLongitude(DEFAULT_COORDS.longitude);
-          setLocationLabel(DEFAULT_COORDS.label);
+        if (!cancelled) {
+          await clearLocationFeatures();
         }
       } finally {
         if (!cancelled) {
@@ -278,12 +294,17 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [applyCoords]);
+  }, [applyCoords, clearLocationFeatures]);
+
+  const hasTrustedLocation =
+    latitude != null &&
+    longitude != null &&
+    (locationSource === 'manual' || (locationSource === 'gps' && !permissionDenied));
 
   useEffect(() => {
-    if (latitude == null || longitude == null) return;
+    if (!hasTrustedLocation || latitude == null || longitude == null) return;
     void loadPrayerTimes(latitude, longitude);
-  }, [latitude, longitude, loadPrayerTimes]);
+  }, [hasTrustedLocation, latitude, longitude, loadPrayerTimes]);
 
   const todayPrayerDay = useMemo(
     () => (monthlyPrayerTimes ? getTodayPrayerDay(monthlyPrayerTimes.days) : undefined),
@@ -292,24 +313,28 @@ export function LocationProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<LocationContextValue>(
     () => ({
-      latitude,
-      longitude,
-      locationLabel,
+      latitude: hasTrustedLocation ? latitude : null,
+      longitude: hasTrustedLocation ? longitude : null,
+      locationLabel: hasTrustedLocation ? locationLabel : null,
+      locationSource: hasTrustedLocation ? locationSource : null,
+      hasTrustedLocation,
       isLoadingLocation,
       isUpdatingLocation,
       permissionDenied,
-      monthlyPrayerTimes,
-      todayPrayerDay,
-      isLoadingPrayerTimes,
-      prayerTimesError,
+      monthlyPrayerTimes: hasTrustedLocation ? monthlyPrayerTimes : null,
+      todayPrayerDay: hasTrustedLocation ? todayPrayerDay : undefined,
+      isLoadingPrayerTimes: hasTrustedLocation ? isLoadingPrayerTimes : false,
+      prayerTimesError: hasTrustedLocation ? prayerTimesError : null,
       refreshPrayerTimes,
       selectManualCity,
       refreshCurrentLocation,
     }),
     [
+      hasTrustedLocation,
       latitude,
       longitude,
       locationLabel,
+      locationSource,
       isLoadingLocation,
       isUpdatingLocation,
       permissionDenied,
