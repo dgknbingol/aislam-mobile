@@ -10,17 +10,18 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import SplashOverlay, { preloadSplashImage } from './src/components/SplashOverlay';
 import { preloadPrayerBannerImages } from './src/components/prayer-banners/prayerBannerAssets';
-import { ChatProvider } from './src/context/ChatContext';
-import { AuthProvider } from './src/context/AuthContext';
-import { LocationProvider } from './src/context/LocationContext';
-import { SubscriptionProvider } from './src/context/SubscriptionContext';
-import RootNavigator from './src/navigation/RootNavigator';
-import { navigationRef, flushPendingNotificationNavigation } from './src/navigation/rootNavigation';
-import { initPrayerNotifications } from './src/services/prayerNotificationScheduler';
-import { initAdMob } from './src/services/adMob';
-import { preloadFullscreenAds } from './src/services/fullscreenAds';
 import AppOpenAdLifecycle from './src/components/ads/AppOpenAdLifecycle';
 import GlobalAdBannerHost from './src/components/ads/GlobalAdBannerHost';
+import { AuthProvider } from './src/context/AuthContext';
+import { ChatProvider } from './src/context/ChatContext';
+import { LocationProvider } from './src/context/LocationContext';
+import { SubscriptionProvider } from './src/context/SubscriptionContext';
+import { KeyboardInsetProvider } from './src/context/KeyboardInsetContext';
+import RootNavigator from './src/navigation/RootNavigator';
+import { flushPendingNotificationNavigation, navigationRef } from './src/navigation/rootNavigation';
+import { initAdMob } from './src/services/adMob';
+import { preloadFullscreenAds } from './src/services/fullscreenAds';
+import { initPrayerNotifications } from './src/services/prayerNotificationScheduler';
 import { APP_MAX_FONT_MULTIPLIER } from './src/theme/fontScale';
 
 const SPLASH_MIN_MS = 2500;
@@ -87,19 +88,21 @@ export default function App() {
           <AuthProvider>
             <SubscriptionProvider>
               <ChatProvider>
-                <View style={styles.shell}>
-                  <View style={styles.navArea}>
-                    <NavigationContainer
-                      ref={navigationRef}
-                      onReady={() => {
-                        flushPendingNotificationNavigation();
-                      }}
-                    >
-                      <RootNavigator />
-                    </NavigationContainer>
+                <KeyboardInsetProvider>
+                  <View style={styles.shell}>
+                    <View style={styles.navArea}>
+                      <NavigationContainer
+                        ref={navigationRef}
+                        onReady={() => {
+                          flushPendingNotificationNavigation();
+                        }}
+                      >
+                        <RootNavigator />
+                      </NavigationContainer>
+                    </View>
+                    {!showSplash ? <GlobalAdBannerHost /> : null}
                   </View>
-                  {!showSplash ? <GlobalAdBannerHost /> : null}
-                </View>
+                </KeyboardInsetProvider>
                 <StatusBar style="light" />
                 <AppOpenAdLifecycle splashVisible={showSplash} />
               </ChatProvider>

@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AdBanner from './AdBanner';
@@ -8,13 +9,25 @@ import { colors } from '../../theme/colors';
 
 /**
  * Tüm ekranların altında sabit banner.
- * Safe-area (home indicator) burada; alt menü / chat input ekstra insets almaz.
+ * Klavye açıkken gizlenir — chat input klavyenin altında kalmasın.
  */
 export default function GlobalAdBannerHost() {
   const insets = useSafeAreaInsets();
   const { quota } = useSubscription();
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  if (quota?.premium || !isNativeAdsAvailable()) {
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardVisible(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  if (quota?.premium || !isNativeAdsAvailable() || keyboardVisible) {
     return null;
   }
 

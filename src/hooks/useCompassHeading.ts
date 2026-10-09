@@ -10,15 +10,16 @@ import {
 import { applyDeclination, shortestDelta } from '../utils/compassHeading';
 import { getMagneticDeclination } from '../utils/magneticDeclination';
 
+/** ~60 Hz hedef; cihaz daha seyrek verse de dt ile entegre edilir. */
 const GYRO_MS = 16;
-const GYRO_DEADZONE = 6;
-const STOP_MS = 100;
-const NEEDLE_LERP = 0.28;
-/** 0.85 eksik dönüş biriktiriyordu (biz 160/kıble, store 172 + sola dön). */
+/** Sadece sensör gürültüsü — yüksek deadzone APK'da takılma yapıyordu. */
+const GYRO_DEADZONE = 0.35;
 const GYRO_GAIN = 1;
-/** Durunca OS oturunca tek sefer hizala — store app ile aynı açı. */
-const OS_STABLE_EPS = 2.2;
-const OS_STABLE_COUNT = 4;
+/** OS güncellemesinde yumuşak çekim (hard snap yok). */
+const OS_BLEND_MOVING = 0.06;
+const OS_BLEND_STILL = 0.22;
+const STILL_DPS = 8;
+const NEEDLE_LERP = 0.34;
 
 function mod360(n: number): number {
   return ((n % 360) + 360) % 360;
@@ -43,14 +44,11 @@ export function useCompassHeading(
 
   const continuousRef = useRef(0);
   const primedRef = useRef(false);
-  const frozenRef = useRef(false);
   const lastGyroAtRef = useRef<number | null>(null);
   const lastOsRef = useRef<number | null>(null);
+  const lastDpsRef = useRef(0);
   const trueNorthRef = useRef(true);
   const lastUiRef = useRef(0);
-  const osStableRef = useRef(0);
-  const osPrevRef = useRef<number | null>(null);
-  const needsOsSyncRef = useRef(false);
 
   useFrameCallback((info) => {
     'worklet';
@@ -58,7 +56,7 @@ export function useCompassHeading(
     const dt = Math.min(info.timeSincePreviousFrame, 32);
     const a = 1 - Math.pow(1 - NEEDLE_LERP, dt / 16.67);
     headingSV.value += (targetSV.value - headingSV.value) * a;
-    if (Math.abs(targetSV.value - headingSV.value) < 0.08) {
+    if (Math.abs(targetSV.value - headingSV.value) < 0.05) {
       headingSV.value = targetSV.value;
     }
   }, active);
@@ -69,21 +67,17 @@ export function useCompassHeading(
     let locSub: Location.LocationSubscription | null = null;
     let gyroSub: { remove: () => void } | null = null;
     let cancelled = false;
-    let stopTimer: ReturnType<typeof setTimeout> | null = null;
 
     primedRef.current = false;
-    frozenRef.current = false;
     lastGyroAtRef.current = null;
     lastOsRef.current = null;
-    osStableRef.current = 0;
-    osPrevRef.current = null;
-    needsOsSyncRef.current = false;
+    lastDpsRef.current = 0;
 
     const paintTarget = () => {
       targetSV.value = continuousRef.current;
       setUsesTrueNorth(trueNorthRef.current);
       const now = Date.now();
-      if (now - lastUiRef.current >= 80) {
+      if (now - lastUiRef.current >= 100) {
         lastUiRef.current = now;
         setHeading(mod360(continuousRef.current));
       }
@@ -102,15 +96,14 @@ export function useCompassHeading(
       setHeading(h);
     };
 
-    const freezeNow = () => {
-      frozenRef.current = true;
-      needsOsSyncRef.current = true;
-      osStableRef.current = 0;
-      osPrevRef.current = null;
-      // Önce ekranı dondur (OS gecikmesiyle dönmesin)
-      continuousRef.current = headingSV.value;
-      targetSV.value = headingSV.value;
-      setHeading(mod360(headingSV.value));
+    /** OS / jiroskop birleşimi — ani sıçrama yok. */
+    const blendTowardOs = (os: number, amount: number) => {
+      if (!primedRef.current) {
+        lockTo(os);
+        return;
+      }
+      continuousRef.current += shortestDelta(mod360(continuousRef.current), os) * amount;
+      paintTarget();
     };
 
     void (async () => {
@@ -126,46 +119,34 @@ export function useCompassHeading(
           ? getMagneticDeclination(latitude, longitude)
           : 0;
 
+      const readOsDegrees = (data: Location.LocationHeadingObject): number | null => {
+        if (typeof data.accuracy === 'number' && data.accuracy < 0) return null;
+        if (typeof data.trueHeading === 'number' && data.trueHeading >= 0) {
+          trueNorthRef.current = true;
+          return mod360(data.trueHeading);
+        }
+        if (typeof data.magHeading === 'number' && data.magHeading >= 0) {
+          trueNorthRef.current = true;
+          return mod360(applyDeclination(data.magHeading, decl));
+        }
+        return null;
+      };
+
       try {
         locSub = await Location.watchHeadingAsync((data) => {
-          if (typeof data.accuracy === 'number' && data.accuracy < 0) return;
-
-          // Store / iPhone uygulamaları genelde trueHeading (coğrafi kuzey).
-          let deg: number | null = null;
-          if (typeof data.trueHeading === 'number' && data.trueHeading >= 0) {
-            deg = data.trueHeading;
-            trueNorthRef.current = true;
-          } else if (typeof data.magHeading === 'number' && data.magHeading >= 0) {
-            deg = applyDeclination(data.magHeading, decl);
-            trueNorthRef.current = true;
-          }
-          if (deg == null) return;
-
-          const os = mod360(deg);
+          const os = readOsDegrees(data);
+          if (os == null) return;
           lastOsRef.current = os;
 
           if (!primedRef.current) {
             lockTo(os);
-            frozenRef.current = true;
-            needsOsSyncRef.current = false;
             return;
           }
 
-          if (!frozenRef.current || !needsOsSyncRef.current) return;
-
-          // OS artık oturdu mu? (gecikmeli akış bitti)
-          if (osPrevRef.current != null && Math.abs(shortestDelta(osPrevRef.current, os)) < OS_STABLE_EPS) {
-            osStableRef.current += 1;
-          } else {
-            osStableRef.current = 0;
-          }
-          osPrevRef.current = os;
-
-          if (osStableRef.current >= OS_STABLE_COUNT) {
-            lockTo(os);
-            needsOsSyncRef.current = false;
-            osStableRef.current = 0;
-          }
+          // Hareketliyken az, durunca daha çok OS'a yaslan (doğruluk).
+          const blend =
+            Math.abs(lastDpsRef.current) < STILL_DPS ? OS_BLEND_STILL : OS_BLEND_MOVING;
+          blendTowardOs(os, blend);
         });
       } catch {
         if (!cancelled) setIsAvailable(false);
@@ -181,45 +162,22 @@ export function useCompassHeading(
           lastGyroAtRef.current = now;
           if (prev == null || !primedRef.current) return;
 
-          const dt = Math.min((now - prev) / 1000, 0.05);
+          const dt = Math.min(Math.max((now - prev) / 1000, 0), 0.05);
           const dps = -z * (180 / Math.PI) * GYRO_GAIN;
+          lastDpsRef.current = dps;
 
-          if (Math.abs(dps) < GYRO_DEADZONE) {
-            if (stopTimer) clearTimeout(stopTimer);
-            stopTimer = setTimeout(() => {
-              freezeNow();
-            }, STOP_MS);
-            return;
+          if (Math.abs(dps) >= GYRO_DEADZONE) {
+            continuousRef.current += dps * dt;
+            paintTarget();
           }
-
-          if (stopTimer) {
-            clearTimeout(stopTimer);
-            stopTimer = null;
-          }
-
-          if (frozenRef.current) {
-            frozenRef.current = false;
-            needsOsSyncRef.current = false;
-            if (lastOsRef.current != null) {
-              lockTo(lastOsRef.current);
-            }
-          }
-
-          continuousRef.current += dps * dt;
-          paintTarget();
         });
       } else {
+        // Salt OS — Expo Go'da bazen bu yol daha akıcı hissedilir.
         locSub?.remove();
         locSub = await Location.watchHeadingAsync((data) => {
-          if (typeof data.accuracy === 'number' && data.accuracy < 0) return;
-          let deg: number | null = null;
-          if (typeof data.trueHeading === 'number' && data.trueHeading >= 0) {
-            deg = data.trueHeading;
-          } else if (typeof data.magHeading === 'number' && data.magHeading >= 0) {
-            deg = applyDeclination(data.magHeading, decl);
-          }
-          if (deg == null) return;
-          lockTo(mod360(deg));
+          const os = readOsDegrees(data);
+          if (os == null) return;
+          lockTo(os);
         });
       }
 
@@ -228,7 +186,6 @@ export function useCompassHeading(
 
     return () => {
       cancelled = true;
-      if (stopTimer) clearTimeout(stopTimer);
       locSub?.remove();
       gyroSub?.remove();
       primedRef.current = false;

@@ -100,11 +100,7 @@ function QiblaCompass({
         </View>
 
         {/* Sadece çizgiler + Kabe döner */}
-        <Animated.View
-          style={[styles.dial, dialStyle]}
-          shouldRasterizeIOS
-          renderToHardwareTextureAndroid
-        >
+        <Animated.View style={[styles.dial, dialStyle]}>
           <Svg width={SIZE} height={SIZE}>
             <Circle
               cx={CENTER}
