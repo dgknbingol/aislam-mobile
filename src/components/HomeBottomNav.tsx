@@ -25,7 +25,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'home', label: 'Ana Sayfa', icon: 'home-outline' },
-  { id: 'quran', label: 'Kuran', icon: 'book-outline' },
+  { id: 'quran', label: "Kur'an", icon: 'book-outline' },
   { id: 'chat', label: 'AI Asistan', icon: 'chatbubble-ellipses-outline' },
   { id: 'quiz', label: 'Yarışma', icon: 'help-circle-outline' },
   { id: 'tesbih', label: 'Tesbih', icon: 'ribbon-outline' },

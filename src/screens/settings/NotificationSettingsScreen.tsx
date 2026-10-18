@@ -14,6 +14,7 @@ import {
 } from '../../constants/dailyContentNotifications';
 import type { SettingsStackParamList } from '../../navigation/types';
 import { requestServerTestPush } from '../../services/devicePushRegistration';
+import { loadAllDailyContentNotificationSettings } from '../../services/notificationSettingsStorage';
 import {
   ensureNotificationPermissions,
   getNotificationPermissionStatus,
@@ -22,6 +23,7 @@ import {
   scheduleTestNotification,
   syncAllNotifications,
 } from '../../services/prayerNotificationScheduler';
+import type { AllDailyContentNotificationSettings } from '../../types/notificationSettings';
 import { colors } from '../../theme/colors';
 
 export default function NotificationSettingsScreen() {
@@ -32,6 +34,9 @@ export default function NotificationSettingsScreen() {
   const [dailyTestMessage, setDailyTestMessage] = useState<string | null>(null);
   const [pushTestMessage, setPushTestMessage] = useState<string | null>(null);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
+  const [dailySettings, setDailySettings] = useState<AllDailyContentNotificationSettings | null>(
+    null,
+  );
 
   const refreshPermission = useCallback(async () => {
     const status = await getNotificationPermissionStatus();
@@ -43,6 +48,7 @@ export default function NotificationSettingsScreen() {
   useFocusEffect(
     useCallback(() => {
       void refreshPermission();
+      void loadAllDailyContentNotificationSettings().then(setDailySettings);
     }, [refreshPermission]),
   );
 
@@ -148,16 +154,21 @@ export default function NotificationSettingsScreen() {
 
         <Text style={styles.sectionTitle}>Günlük İçerik Bildirimleri</Text>
         <View style={styles.listCard}>
-          {DAILY_CONTENT_NOTIFICATIONS.map((item, index) => (
-            <SettingsLinkRow
-              key={item.kind}
-              label={`${item.label} · ${formatClock(item.hour, item.minute)}`}
-              onPress={() =>
-                navigation.navigate('DailyContentNotificationSettings', { kind: item.kind })
-              }
-              showDivider={index < DAILY_CONTENT_NOTIFICATIONS.length - 1}
-            />
-          ))}
+          {DAILY_CONTENT_NOTIFICATIONS.map((item, index) => {
+            const saved = dailySettings?.[item.kind];
+            const hour = saved?.hour ?? item.hour;
+            const minute = saved?.minute ?? item.minute;
+            return (
+              <SettingsLinkRow
+                key={item.kind}
+                label={`${item.label} · ${formatClock(hour, minute)}`}
+                onPress={() =>
+                  navigation.navigate('DailyContentNotificationSettings', { kind: item.kind })
+                }
+                showDivider={index < DAILY_CONTENT_NOTIFICATIONS.length - 1}
+              />
+            );
+          })}
         </View>
 
         <Text style={styles.sectionTitle}>Vakit Bildirimleri</Text>

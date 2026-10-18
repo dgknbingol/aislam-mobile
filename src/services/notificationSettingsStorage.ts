@@ -61,18 +61,25 @@ function normalizeDailyContentSettings(
   };
 }
 
-export function createDefaultPrayerNotificationSettings(): PrayerNotificationSettings {
+/**
+ * Onboarding ile aynı varsayılanlar:
+ * - Vaktinde: açık (Güneş hariç)
+ * - Vakit öncesi: kapalı (kullanıcı isterse açar)
+ */
+export function createDefaultPrayerNotificationSettings(
+  prayerId?: PrayerBannerId,
+): PrayerNotificationSettings {
   return {
-    // 1 = Ezan (bkz. NOTIFICATION_SOUND_OPTIONS)
-    atTime: { enabled: true, melodyIndex: 1 },
-    before: { enabled: true, melodyIndex: 0, minutesBefore: 15 },
+    // 1 = Ezan, 0 = telefon varsayılan bildirim sesi (bkz. NOTIFICATION_SOUND_OPTIONS)
+    atTime: { enabled: prayerId !== 'gunes', melodyIndex: 1 },
+    before: { enabled: false, melodyIndex: 0, minutesBefore: 15 },
     days: [true, true, true, true, true, true, true],
   };
 }
 
 export function createDefaultAllPrayerSettings(): AllPrayerNotificationSettings {
   return PRAYER_BANNERS.reduce<AllPrayerNotificationSettings>((acc, banner) => {
-    acc[banner.id] = createDefaultPrayerNotificationSettings();
+    acc[banner.id] = createDefaultPrayerNotificationSettings(banner.id);
     return acc;
   }, {} as AllPrayerNotificationSettings);
 }
@@ -82,7 +89,8 @@ export function createDefaultCompetitionNotificationSettings(
 ): CompetitionNotificationSettings {
   return {
     atTime: { enabled: true, melodyIndex: 0 },
-    before: { enabled: true, melodyIndex: 0, minutesBefore: 15 },
+    // Ezan onboarding ile aynı: öncesi kapalı, kullanıcı isterse açar.
+    before: { enabled: false, melodyIndex: 0, minutesBefore: 15 },
     days: [true, true, true, true, true, true, true],
   };
 }
@@ -162,7 +170,9 @@ export async function saveAllPrayerNotificationSettings(
   all: AllPrayerNotificationSettings,
 ): Promise<void> {
   const normalized = PRAYER_BANNERS.reduce<AllPrayerNotificationSettings>((acc, banner) => {
-    acc[banner.id] = normalizeTimedSettings(all[banner.id] ?? createDefaultPrayerNotificationSettings());
+    acc[banner.id] = normalizeTimedSettings(
+      all[banner.id] ?? createDefaultPrayerNotificationSettings(banner.id),
+    );
     return acc;
   }, {} as AllPrayerNotificationSettings);
   memoryCache = normalized;

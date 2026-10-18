@@ -16,20 +16,33 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import OptionPickerModal, {
+  MinutesPickerModal,
+} from '../../components/settings/OptionPickerModal';
 import { PRAYER_BANNERS, type PrayerBannerId } from '../../components/prayer-banners/shared';
+import {
+  clampMelodyIndex,
+  NOTIFICATION_MELODIES,
+} from '../../constants/notificationSounds';
 import { TURKISH_CITIES, type TurkishCity } from '../../constants/turkishCities';
 import { useLocationContext } from '../../context/LocationContext';
 import type { RootStackParamList } from '../../navigation/types';
 import { markOnboardingComplete } from '../../services/onboardingStorage';
 import {
+  BEFORE_MINUTES_OPTIONS,
   createDefaultPrayerNotificationSettings,
   saveAllPrayerNotificationSettings,
 } from '../../services/notificationSettingsStorage';
+import {
+  previewNotificationSound,
+  stopNotificationSoundPreview,
+} from '../../services/notificationSoundPreview';
 import { ensureNotificationPermissions } from '../../services/prayerNotificationScheduler';
 import type { AllPrayerNotificationSettings } from '../../types/notificationSettings';
 import { colors } from '../../theme/colors';
 
 type Step = 'location' | 'notifications';
+type SoundPickerTarget = 'atTime' | 'before';
 
 type PrayerToggleState = Record<
   PrayerBannerId,
@@ -37,6 +50,10 @@ type PrayerToggleState = Record<
 >;
 
 const ACCENT = '#1FA8A0';
+/** NOTIFICATION_SOUND_OPTIONS: 1 = Ezan, 0 = telefon varsayılanı */
+const DEFAULT_AT_TIME_MELODY_INDEX = 1;
+const DEFAULT_BEFORE_MELODY_INDEX = 0;
+const DEFAULT_BEFORE_MINUTES = 15;
 
 function createInitialToggles(): PrayerToggleState {
   // Varsayılan: vaktinde açık (Güneş hariç); öncesi kapalı — kullanıcı isterse açar.
@@ -64,6 +81,11 @@ export default function OnboardingScreen() {
   const [step, setStep] = useState<Step>('location');
   const [query, setQuery] = useState('');
   const [toggles, setToggles] = useState<PrayerToggleState>(createInitialToggles);
+  const [atTimeMelodyIndex, setAtTimeMelodyIndex] = useState(DEFAULT_AT_TIME_MELODY_INDEX);
+  const [beforeMelodyIndex, setBeforeMelodyIndex] = useState(DEFAULT_BEFORE_MELODY_INDEX);
+  const [beforeMinutes, setBeforeMinutes] = useState(DEFAULT_BEFORE_MINUTES);
+  const [soundPickerTarget, setSoundPickerTarget] = useState<SoundPickerTarget | null>(null);
+  const [minutesPickerOpen, setMinutesPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -107,18 +129,32 @@ export default function OnboardingScreen() {
     if (saving) return;
     setSaving(true);
     try {
+      const atMelody = clampMelodyIndex(atTimeMelodyIndex);
+      const beforeMelody = clampMelodyIndex(beforeMelodyIndex);
+      const minutesBefore = BEFORE_MINUTES_OPTIONS.includes(
+        beforeMinutes as (typeof BEFORE_MINUTES_OPTIONS)[number],
+      )
+        ? beforeMinutes
+        : DEFAULT_BEFORE_MINUTES;
+
       const all = PRAYER_BANNERS.reduce((acc, banner) => {
-        const base = createDefaultPrayerNotificationSettings();
+        const base = createDefaultPrayerNotificationSettings(banner.id);
         const t = toggles[banner.id];
         const atTimeEnabled = banner.id === 'gunes' ? false : t.atTime;
         acc[banner.id] = {
           ...base,
-          atTime: { ...base.atTime, enabled: atTimeEnabled },
-          before: { ...base.before, enabled: t.before },
+          atTime: { ...base.atTime, enabled: atTimeEnabled, melodyIndex: atMelody },
+          before: {
+            ...base.before,
+            enabled: t.before,
+            melodyIndex: beforeMelody,
+            minutesBefore,
+          },
         };
         return acc;
       }, {} as AllPrayerNotificationSettings);
 
+      await stopNotificationSoundPreview();
       await saveAllPrayerNotificationSettings(all);
       await ensureNotificationPermissions();
       await markOnboardingComplete();
@@ -215,7 +251,7 @@ export default function OnboardingScreen() {
         </Pressable>
         <Text style={styles.title}>Bildirim Ayarları</Text>
         <Text style={styles.subtitle}>
-          Hangi vakitlerde bildirim almak istediğini seç. Detaylı ses ve süre ayarlarını sonra
+          Hangi vakitlerde bildirim almak istediğini ve sesi seç. Süre ve diğer detayları sonra
           Ayarlar’dan değiştirebilirsin.
         </Text>
       </View>
@@ -225,6 +261,63 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.notifContent}
         showsVerticalScrollIndicator={false}
       >
+        <Pressable
+          style={styles.soundRow}
+          onPress={() => setSoundPickerTarget('atTime')}
+          disabled={saving}
+          accessibilityRole="button"
+          accessibilityLabel="Vaktinde bildirim sesi seç"
+        >
+          <View style={styles.soundRowLeft}>
+            <Ionicons name="volume-medium-outline" size={20} color={colors.textOnLight} />
+            <View style={styles.soundTextWrap}>
+              <Text style={styles.soundLabel}>Vaktinde ses</Text>
+              <Text style={styles.soundValue} numberOfLines={1}>
+                {NOTIFICATION_MELODIES[clampMelodyIndex(atTimeMelodyIndex)]}
+              </Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.textMutedOnLight} />
+        </Pressable>
+
+        <Pressable
+          style={styles.soundRow}
+          onPress={() => setSoundPickerTarget('before')}
+          disabled={saving}
+          accessibilityRole="button"
+          accessibilityLabel="Vakit öncesi bildirim sesi seç"
+        >
+          <View style={styles.soundRowLeft}>
+            <Ionicons name="notifications-outline" size={20} color={colors.textOnLight} />
+            <View style={styles.soundTextWrap}>
+              <Text style={styles.soundLabel}>Vakit öncesi ses</Text>
+              <Text style={styles.soundValue} numberOfLines={1}>
+                {NOTIFICATION_MELODIES[clampMelodyIndex(beforeMelodyIndex)]}
+              </Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.textMutedOnLight} />
+        </Pressable>
+
+        <Pressable
+          style={styles.soundRow}
+          onPress={() => setMinutesPickerOpen(true)}
+          disabled={saving}
+          accessibilityRole="button"
+          accessibilityLabel="Vakit öncesi süre seç"
+        >
+          <View style={styles.soundRowLeft}>
+            <Ionicons name="time-outline" size={20} color={colors.textOnLight} />
+            <View style={styles.soundTextWrap}>
+              <Text style={styles.soundLabel}>Vakit öncesi süre</Text>
+              <Text style={styles.soundValue} numberOfLines={1}>
+                {beforeMinutes} Dakika
+              </Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.textMutedOnLight} />
+        </Pressable>
+
         <View style={styles.gridHeader}>
           <Text style={[styles.gridCorner, styles.gridCornerSpacer]} />
           <Text style={styles.gridColLabel}>Vaktinde</Text>
@@ -275,6 +368,40 @@ export default function OnboardingScreen() {
           )}
         </Pressable>
       </View>
+
+      <OptionPickerModal
+        visible={soundPickerTarget != null}
+        title={
+          soundPickerTarget === 'before' ? 'Vakit öncesi sesi seç' : 'Vaktinde sesi seç'
+        }
+        options={NOTIFICATION_MELODIES}
+        selectedIndex={clampMelodyIndex(
+          soundPickerTarget === 'before' ? beforeMelodyIndex : atTimeMelodyIndex,
+        )}
+        closeOnSelect={false}
+        onSelect={(index) => {
+          const next = clampMelodyIndex(index);
+          if (soundPickerTarget === 'before') {
+            setBeforeMelodyIndex(next);
+          } else {
+            setAtTimeMelodyIndex(next);
+          }
+          void previewNotificationSound(next);
+        }}
+        onClose={() => {
+          void stopNotificationSoundPreview();
+          setSoundPickerTarget(null);
+        }}
+      />
+
+      <MinutesPickerModal
+        visible={minutesPickerOpen}
+        title="Vakit öncesi süre"
+        options={BEFORE_MINUTES_OPTIONS}
+        selectedMinutes={beforeMinutes}
+        onSelect={setBeforeMinutes}
+        onClose={() => setMinutesPickerOpen(false)}
+      />
     </View>
   );
 }
@@ -383,9 +510,44 @@ const styles = StyleSheet.create({
   notifContent: {
     paddingBottom: 12,
   },
+  soundRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    marginBottom: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(2, 23, 52, 0.12)',
+  },
+  soundRowLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingRight: 8,
+  },
+  soundTextWrap: {
+    flex: 1,
+    minWidth: 0,
+  },
+  soundLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textMutedOnLight,
+    marginBottom: 2,
+  },
+  soundValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.textOnLight,
+  },
   gridHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 6,
     marginBottom: 8,
     paddingHorizontal: 4,
   },

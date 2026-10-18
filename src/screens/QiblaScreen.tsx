@@ -43,7 +43,6 @@ export default function QiblaScreen() {
     hasTrustedLocation,
     permissionDenied,
     refreshCurrentLocation,
-    isUpdatingLocation,
   } = useLocationContext();
   const compassActive = hasTrustedLocation;
   const { heading, headingSV, isAvailable } = useCompassHeading(
@@ -123,7 +122,12 @@ export default function QiblaScreen() {
         animationType="fade"
         onRequestClose={() => void dismissCalibrationTip()}
       >
-        <View style={styles.tipBackdrop}>
+        <View
+          style={[
+            styles.tipBackdrop,
+            { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 },
+          ]}
+        >
           <View style={styles.tipCard}>
             <Text style={styles.tipTitle}>Pusulayı kalibre edin</Text>
             <Text style={styles.tipBody}>
@@ -151,7 +155,7 @@ export default function QiblaScreen() {
       </View>
 
       <View style={[styles.content, { paddingBottom: insets.bottom + 12 }]}>
-        {isLoadingLocation || isUpdatingLocation ? (
+        {isLoadingLocation && !hasTrustedLocation ? (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color="#1FA8A0" />
             <Text style={styles.statusText}>Konum alınıyor...</Text>
@@ -183,7 +187,7 @@ export default function QiblaScreen() {
               distanceKm={distanceKm}
             />
 
-            {!isAvailable ? (
+            {isAvailable === false ? (
               <Text style={styles.warning}>
                 Bu cihazda pusula sensörü bulunamadı. Kıble açısı yine de gösteriliyor.
               </Text>
@@ -251,6 +255,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
   },
   tipCard: {
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
     backgroundColor: '#151A22',
     borderRadius: 16,
     paddingHorizontal: 22,

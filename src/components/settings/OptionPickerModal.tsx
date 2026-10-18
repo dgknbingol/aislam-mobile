@@ -1,4 +1,5 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '../../theme/colors';
 
@@ -13,6 +14,17 @@ interface OptionPickerModalProps {
   closeOnSelect?: boolean;
 }
 
+function useSheetLayout() {
+  const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  // Üstte boşluk bırak; küçük telefonlarda da taşmasın.
+  const sheetMaxHeight = Math.round(Math.min(windowHeight * 0.62, windowHeight - insets.top - 32));
+  const bottomPad = Math.max(insets.bottom, 12) + 8;
+  // Başlık + üst padding yaklaşık yüksekliği; kalan alan kaydırılabilir.
+  const listMaxHeight = Math.max(120, sheetMaxHeight - 52 - bottomPad);
+  return { sheetMaxHeight, bottomPad, listMaxHeight };
+}
+
 export default function OptionPickerModal({
   visible,
   title,
@@ -22,17 +34,28 @@ export default function OptionPickerModal({
   onClose,
   closeOnSelect = true,
 }: OptionPickerModalProps) {
+  const { sheetMaxHeight, bottomPad, listMaxHeight } = useSheetLayout();
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(event) => event.stopPropagation()}>
+        <Pressable
+          style={[styles.sheet, { maxHeight: sheetMaxHeight, paddingBottom: bottomPad }]}
+          onPress={(event) => event.stopPropagation()}
+        >
           <Text style={styles.title}>{title}</Text>
-          <ScrollView bounces={false}>
+          <ScrollView
+            bounces={false}
+            style={{ maxHeight: listMaxHeight }}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator
+            keyboardShouldPersistTaps="handled"
+          >
             {options.map((option, index) => {
               const selected = index === selectedIndex;
               return (
                 <Pressable
-                  key={option}
+                  key={`${option}-${index}`}
                   onPress={() => {
                     onSelect(index);
                     if (closeOnSelect) onClose();
@@ -69,12 +92,23 @@ export function MinutesPickerModal({
   onSelect,
   onClose,
 }: MinutesPickerModalProps) {
+  const { sheetMaxHeight, bottomPad, listMaxHeight } = useSheetLayout();
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(event) => event.stopPropagation()}>
+        <Pressable
+          style={[styles.sheet, { maxHeight: sheetMaxHeight, paddingBottom: bottomPad }]}
+          onPress={(event) => event.stopPropagation()}
+        >
           <Text style={styles.title}>{title}</Text>
-          <ScrollView bounces={false}>
+          <ScrollView
+            bounces={false}
+            style={{ maxHeight: listMaxHeight }}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator
+            keyboardShouldPersistTaps="handled"
+          >
             {options.map((minutes) => {
               const selected = minutes === selectedMinutes;
               return (
@@ -106,12 +140,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    maxHeight: '55%',
+    width: '100%',
     backgroundColor: colors.drawer,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     paddingTop: 16,
-    paddingBottom: 24,
+    overflow: 'hidden',
   },
   title: {
     fontSize: 16,
@@ -120,6 +154,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
     paddingHorizontal: 16,
+  },
+  listContent: {
+    paddingBottom: 4,
   },
   option: {
     paddingHorizontal: 20,

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
-import Svg, { Circle, Line } from 'react-native-svg';
+import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 
 const SIZE = 320;
 const CENTER = SIZE / 2;
@@ -26,40 +26,10 @@ function bearingToRad(bearing: number): number {
   return ((bearing - 90) * Math.PI) / 180;
 }
 
-/** Pusula üzerinde durur; yazı her zaman dik (ters dönmez). */
-function UprightLabel({
-  bearing,
-  headingSV,
-  radius,
-  children,
-  fontSize,
-  color,
-  fontWeight,
-}: {
-  bearing: number;
-  headingSV: SharedValue<number>;
-  radius: number;
-  children: string;
-  fontSize: number;
-  color: string;
-  fontWeight: '600' | '700';
-}) {
-  const style = useAnimatedStyle(() => {
-    const angleRad = ((bearing - headingSV.value) * Math.PI) / 180;
-    const x = Math.sin(angleRad) * radius;
-    const y = -Math.cos(angleRad) * radius;
-    return {
-      transform: [{ translateX: x }, { translateY: y }],
-    };
-  });
-
-  return (
-    <Animated.View style={[styles.labelAnchor, style]} pointerEvents="none">
-      <Text style={{ fontSize, color, fontWeight, textAlign: 'center' }}>{children}</Text>
-    </Animated.View>
-  );
-}
-
+/**
+ * Tek Animated.View döner — 12 ayrı label animasyonu APK'da jank yapıyordu.
+ * Yazılar dial ile birlikte döner (klasik pusula).
+ */
 function QiblaCompass({
   qiblaBearing,
   headingSV,
@@ -78,7 +48,7 @@ function QiblaCompass({
 
   const ticks = useMemo(() => {
     const items: { angle: number; major: boolean }[] = [];
-    for (let angle = 0; angle < 360; angle += 5) {
+    for (let angle = 0; angle < 360; angle += 10) {
       items.push({ angle, major: angle % 30 === 0 });
     }
     return items;
@@ -99,8 +69,11 @@ function QiblaCompass({
           <View style={styles.topPointerLine} />
         </View>
 
-        {/* Sadece çizgiler + Kabe döner */}
-        <Animated.View style={[styles.dial, dialStyle]}>
+        <Animated.View
+          style={[styles.dial, dialStyle]}
+          renderToHardwareTextureAndroid
+          shouldRasterizeIOS
+        >
           <Svg width={SIZE} height={SIZE}>
             <Circle
               cx={CENTER}
@@ -126,6 +99,42 @@ function QiblaCompass({
                 />
               );
             })}
+
+            {cardinals.map(({ bearing, label }) => {
+              const rad = bearingToRad(bearing);
+              return (
+                <SvgText
+                  key={label}
+                  x={CENTER + LABEL_R * Math.cos(rad)}
+                  y={CENTER + LABEL_R * Math.sin(rad)}
+                  fill="#F5F0E6"
+                  fontSize="20"
+                  fontWeight="700"
+                  textAnchor="middle"
+                  alignmentBaseline="middle"
+                >
+                  {label}
+                </SvgText>
+              );
+            })}
+
+            {degreeLabels.map((angle) => {
+              const rad = bearingToRad(angle);
+              return (
+                <SvgText
+                  key={angle}
+                  x={CENTER + DEGREE_R * Math.cos(rad)}
+                  y={CENTER + DEGREE_R * Math.sin(rad)}
+                  fill="rgba(245, 240, 230, 0.55)"
+                  fontSize="11"
+                  fontWeight="600"
+                  textAnchor="middle"
+                  alignmentBaseline="middle"
+                >
+                  {String(angle)}
+                </SvgText>
+              );
+            })}
           </Svg>
 
           <View
@@ -140,36 +149,6 @@ function QiblaCompass({
             </View>
           </View>
         </Animated.View>
-
-        {/* Yazılar ayrı katman — her zaman düz */}
-        <View style={styles.labelsLayer} pointerEvents="none">
-          {cardinals.map(({ bearing, label }) => (
-            <UprightLabel
-              key={label}
-              bearing={bearing}
-              headingSV={headingSV}
-              radius={LABEL_R}
-              fontSize={20}
-              color="#F5F0E6"
-              fontWeight="700"
-            >
-              {label}
-            </UprightLabel>
-          ))}
-          {degreeLabels.map((angle) => (
-            <UprightLabel
-              key={angle}
-              bearing={angle}
-              headingSV={headingSV}
-              radius={DEGREE_R}
-              fontSize={11}
-              color="rgba(245, 240, 230, 0.55)"
-              fontWeight="600"
-            >
-              {String(angle)}
-            </UprightLabel>
-          ))}
-        </View>
 
         <View style={styles.centerGuide} pointerEvents="none">
           {isAligned || turnHint === 'aligned' ? (
@@ -248,21 +227,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: SIZE,
     height: SIZE,
-  },
-  labelsLayer: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 2,
-  },
-  labelAnchor: {
-    position: 'absolute',
-    left: CENTER - 20,
-    top: CENTER - 12,
-    width: 40,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   qiblaArm: {
     position: 'absolute',

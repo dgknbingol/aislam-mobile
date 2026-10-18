@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -53,6 +54,17 @@ export default function QuranNavigateSheet({
   onNavigate,
 }: QuranNavigateSheetProps) {
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  const bottomPad = Math.max(insets.bottom, 16);
+  // Sheet + sabit chrome (handle/tabs/search/buton) küçük telefonlarda taşmasın.
+  const sheetMaxHeight = Math.round(
+    Math.min(windowHeight * 0.78, windowHeight - insets.top - 24),
+  );
+  const chromeHeight = 10 + 18 + 52 + 12 + 50 + 12 + 54 + 8; // handle..goButton
+  const pickerHeight = Math.max(
+    160,
+    Math.min(260, sheetMaxHeight - chromeHeight - bottomPad),
+  );
   const [activeTab, setActiveTab] = useState<NavigateTab>('surah');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSurah, setSelectedSurah] = useState(initialSurah);
@@ -158,7 +170,12 @@ export default function QuranNavigateSheet({
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Kapat" />
 
-        <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+        <View
+          style={[
+            styles.sheet,
+            { maxHeight: sheetMaxHeight, paddingBottom: bottomPad },
+          ]}
+        >
           <View style={styles.handle} />
 
           <View style={styles.tabs}>
@@ -198,7 +215,7 @@ export default function QuranNavigateSheet({
             ) : null}
           </View>
 
-          <View style={styles.pickerArea}>
+          <View style={[styles.pickerArea, { height: pickerHeight }]}>
             {activeTab === 'surah' ? (
               <>
                 <PickerColumn
@@ -262,12 +279,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(2, 23, 52, 0.45)',
   },
   sheet: {
+    width: '100%',
     backgroundColor: colors.background,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingTop: 10,
     paddingHorizontal: 16,
-    maxHeight: '78%',
+    overflow: 'hidden',
   },
   handle: {
     alignSelf: 'center',
@@ -321,7 +339,6 @@ const styles = StyleSheet.create({
   pickerArea: {
     flexDirection: 'row',
     gap: 10,
-    height: 260,
     marginBottom: 12,
   },
   errorText: {

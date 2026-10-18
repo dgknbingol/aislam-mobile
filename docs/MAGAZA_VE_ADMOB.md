@@ -1,4 +1,4 @@
-﻿# e-İslam — AdMob & Mağaza Listeleme Metinleri
+# e-İslam — AdMob & Mağaza Listeleme Metinleri
 
 Onay beklerken hazırlayın; Play / App Store formlarına doğrudan yapıştırın.
 
@@ -86,7 +86,7 @@ Play Console → **Uygulama içeriği → Reklamlar** → **Evet, uygulama rekla
 ### Kısa açıklama (max 80 karakter)
 
 ```
-İslami yaşam rehberiniz: Kuran, ezan, kıble, AI sohbet ve daha fazlası.
+İslami yaşam rehberiniz: Kur'an, ezan, kıble, AI sohbet ve daha fazlası.
 ```
 
 (78 karakter)
@@ -128,7 +128,7 @@ Gizlilik: https://e-islam.net/gizlilik
 ### Ne yenilik var? (İlk sürüm)
 
 ```
-e-İslam'ın ilk sürümü yayında! Kuran, ezan vakitleri, kıble pusulası, tesbih, AI sohbet ve bilgi yarışması tek uygulamada.
+e-İslam'ın ilk sürümü yayında! Kur'an, ezan vakitleri, kıble pusulası, tesbih, AI sohbet ve bilgi yarışması tek uygulamada.
 ```
 
 ### Etiketler / anahtar kelimeler (Play — virgülle)
@@ -144,7 +144,7 @@ islam, kuran, ezan, namaz, kıble, tesbih, dini, müslüman, ibadet, ramazan
 ### Alt başlık (max 30 karakter)
 
 ```
-Kuran, ezan ve AI rehber
+Kur'an, ezan ve AI rehber
 ```
 
 (24 karakter)
@@ -152,7 +152,7 @@ Kuran, ezan ve AI rehber
 ### Tanıtım metni (max 170 karakter, güncellenebilir)
 
 ```
-Kuran okuyun, ezan vakitlerini takip edin, kıbleyi bulun. AI ile İslami sorularınıza cevap alın. Premium ile reklamsız ve daha fazla sohbet hakkı.
+Kur'an okuyun, ezan vakitlerini takip edin, kıbleyi bulun. AI ile İslami sorularınıza cevap alın. Premium ile reklamsız ve daha fazla sohbet hakkı.
 ```
 
 ### Açıklama
@@ -203,7 +203,7 @@ Her mağaza en az **2**, ideal **4–8** ekran görüntüsü ister.
 **Önerilen ekranlar (sırayla):**
 
 1. Ana sayfa / drawer menü
-2. Kuran ekranı
+2. Kur'an ekranı
 3. Ezan vakitleri
 4. AI Chat
 5. Premium / paywall

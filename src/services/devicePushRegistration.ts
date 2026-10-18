@@ -68,28 +68,31 @@ async function getNativePushToken(): Promise<string | null> {
   }
 }
 
-/** Tüm bildirim prefs + token → sunucu (ezan / günlük / yarışma). */
-export async function registerDeviceForPrayerPush(): Promise<void> {
+/**
+ * Tüm bildirim prefs + token → sunucu (ezan / günlük / yarışma).
+ * @returns true = sunucu kaydı başarılı; false = konum/izin/token/ağ yok veya hata.
+ */
+export async function registerDeviceForPrayerPush(): Promise<boolean> {
   if (registerInFlight) {
-    await registerInFlight;
-    return;
+    return registerInFlight;
   }
 
   registerInFlight = (async () => {
     const permission = await Notifications.getPermissionsAsync();
     if (permission.status !== Notifications.PermissionStatus.GRANTED) {
       await unregisterDeviceFromPrayerPush();
-      return;
+      return false;
     }
 
+    // Güvenilir konum yoksa ezan planlanamaz — sunucu kaydını da kaldır.
     const location = await readTrustedStoredLocation();
     if (!location) {
       await unregisterDeviceFromPrayerPush();
-      return;
+      return false;
     }
 
     const pushToken = await getNativePushToken();
-    if (!pushToken) return;
+    if (!pushToken) return false;
 
     const deviceId = await ensureAppUserId();
     const [prayers, daily, competition] = await Promise.all([
@@ -119,11 +122,13 @@ export async function registerDeviceForPrayerPush(): Promise<void> {
 
     if (!response.ok) {
       console.warn('[push] register failed', response.status);
+      return false;
     }
+    return true;
   })();
 
   try {
-    await registerInFlight;
+    return await registerInFlight;
   } finally {
     registerInFlight = null;
   }

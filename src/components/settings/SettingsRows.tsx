@@ -24,9 +24,15 @@ export function SettingsLinkRow({
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
     >
       {icon ? <Ionicons name={icon} size={18} color={colors.creamMuted} style={styles.icon} /> : null}
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label} numberOfLines={1}>
+        {label}
+      </Text>
       <View style={styles.valueWrap}>
-        {value ? <Text style={styles.value}>{value}</Text> : null}
+        {value ? (
+          <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+            {value}
+          </Text>
+        ) : null}
         <Ionicons name="chevron-forward" size={18} color={colors.creamMuted} />
       </View>
       {showDivider ? <View style={styles.divider} /> : null}
@@ -49,7 +55,9 @@ export function SettingsToggleRow({
 }: SettingsToggleRowProps) {
   return (
     <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label} numberOfLines={1}>
+        {label}
+      </Text>
       <Pressable
         onPress={() => onValueChange(!value)}
         style={[styles.toggle, value && styles.toggleOn]}
@@ -116,14 +124,16 @@ const styles = StyleSheet.create({
     color: colors.cream,
   },
   valueWrap: {
+    flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    maxWidth: '52%',
   },
   value: {
+    flexShrink: 1,
     fontSize: 14,
     color: colors.creamMuted,
-    maxWidth: 140,
   },
   divider: {
     position: 'absolute',

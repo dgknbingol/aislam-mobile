@@ -4,7 +4,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -191,30 +193,35 @@ export default function KazaPrayersScreen() {
       )}
 
       <Modal visible={bulkPrayerId != null} transparent animationType="fade" onRequestClose={closeBulkEntry}>
-        <Pressable style={styles.modalBackdrop} onPress={closeBulkEntry}>
-          <Pressable style={styles.modalCard} onPress={(event) => event.stopPropagation()}>
-            <Text style={styles.modalTitle}>
-              {bulkPrayerId ? KAZA_PRAYER_LABELS[bulkPrayerId] : ''} kaza sayısı
-            </Text>
-            <TextInput
-              value={bulkValue}
-              onChangeText={setBulkValue}
-              keyboardType="number-pad"
-              style={styles.modalInput}
-              placeholder="0"
-              placeholderTextColor="rgba(2, 23, 52, 0.42)"
-              autoFocus
-            />
-            <View style={styles.modalActions}>
-              <Pressable style={styles.modalSecondary} onPress={closeBulkEntry}>
-                <Text style={styles.modalSecondaryText}>İptal</Text>
-              </Pressable>
-              <Pressable style={styles.modalPrimary} onPress={() => void saveBulkEntry()}>
-                <Text style={styles.modalPrimaryText}>Kaydet</Text>
-              </Pressable>
-            </View>
+        <KeyboardAvoidingView
+          style={styles.modalKeyboard}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <Pressable style={styles.modalBackdrop} onPress={closeBulkEntry}>
+            <Pressable style={styles.modalCard} onPress={(event) => event.stopPropagation()}>
+              <Text style={styles.modalTitle}>
+                {bulkPrayerId ? KAZA_PRAYER_LABELS[bulkPrayerId] : ''} kaza sayısı
+              </Text>
+              <TextInput
+                value={bulkValue}
+                onChangeText={setBulkValue}
+                keyboardType="number-pad"
+                style={styles.modalInput}
+                placeholder="0"
+                placeholderTextColor="rgba(2, 23, 52, 0.42)"
+                autoFocus
+              />
+              <View style={styles.modalActions}>
+                <Pressable style={styles.modalSecondary} onPress={closeBulkEntry}>
+                  <Text style={styles.modalSecondaryText}>İptal</Text>
+                </Pressable>
+                <Pressable style={styles.modalPrimary} onPress={() => void saveBulkEntry()}>
+                  <Text style={styles.modalPrimaryText}>Kaydet</Text>
+                </Pressable>
+              </View>
+            </Pressable>
           </Pressable>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -364,12 +371,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.85,
   },
+  modalKeyboard: {
+    flex: 1,
+  },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(2, 23, 52, 0.45)',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
   },
   modalCard: {
     width: '100%',

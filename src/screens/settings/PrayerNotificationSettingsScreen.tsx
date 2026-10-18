@@ -40,8 +40,8 @@ export default function PrayerNotificationSettingsScreen() {
   const prayer = PRAYER_BANNERS.find((item) => item.id === prayerId);
   const prayerLabel = prayer?.label ?? 'Vakit';
 
-  const [settings, setSettings] = useState<PrayerNotificationSettings>(
-    createDefaultPrayerNotificationSettings(),
+  const [settings, setSettings] = useState<PrayerNotificationSettings>(() =>
+    createDefaultPrayerNotificationSettings(prayerId),
   );
   const [melodyPicker, setMelodyPicker] = useState<'atTime' | 'before' | null>(null);
   const [minutesPickerOpen, setMinutesPickerOpen] = useState(false);

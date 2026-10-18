@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,6 +58,13 @@ function computeYearlyDiscountPercent(
 
 export default function PremiumPaywallModal({ visible, onClose }: PremiumPaywallModalProps) {
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  const bottomPad = Math.max(insets.bottom, 16);
+  const sheetMaxHeight = Math.round(
+    Math.min(windowHeight * 0.92, windowHeight - insets.top - 8),
+  );
+  // Handle + close alanı; kalan scroll için.
+  const scrollMaxHeight = Math.max(220, sheetMaxHeight - 28 - bottomPad);
   const {
     monthlyPackage,
     yearlyPackage,
@@ -121,7 +129,7 @@ export default function PremiumPaywallModal({ visible, onClose }: PremiumPaywall
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Kapat" />
 
-        <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+        <View style={[styles.sheet, { maxHeight: sheetMaxHeight, paddingBottom: bottomPad }]}>
           <View style={styles.handle} />
 
           <Pressable style={styles.closeButton} onPress={onClose} accessibilityLabel="Kapat">
@@ -130,8 +138,10 @@ export default function PremiumPaywallModal({ visible, onClose }: PremiumPaywall
 
           <ScrollView
             showsVerticalScrollIndicator={false}
+            style={{ maxHeight: scrollMaxHeight }}
             contentContainerStyle={styles.content}
             bounces={false}
+            keyboardShouldPersistTaps="handled"
           >
             <View style={styles.iconWrap}>
               <Ionicons name="diamond" size={28} color={colors.bar} />
@@ -233,13 +243,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(2, 23, 52, 0.72)',
   },
   sheet: {
-    maxHeight: '92%',
+    width: '100%',
     backgroundColor: colors.bar,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(245, 240, 230, 0.12)',
     paddingTop: 10,
+    overflow: 'hidden',
   },
   handle: {
     alignSelf: 'center',

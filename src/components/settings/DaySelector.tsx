@@ -24,7 +24,12 @@ export default function DaySelector({ days, onChange }: DaySelectorProps) {
               }}
               style={[styles.dayButton, active ? styles.dayButtonActive : styles.dayButtonInactive]}
             >
-              <Text style={[styles.dayText, active ? styles.dayTextActive : styles.dayTextInactive]}>
+              <Text
+                style={[styles.dayText, active ? styles.dayTextActive : styles.dayTextInactive]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
+              >
                 {label}
               </Text>
             </Pressable>
@@ -46,11 +51,13 @@ const styles = StyleSheet.create({
   },
   dayButton: {
     flex: 1,
+    minWidth: 0,
     minHeight: 42,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    paddingHorizontal: 2,
   },
   dayButtonActive: {
     backgroundColor: colors.inputField,

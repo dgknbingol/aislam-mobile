@@ -39,6 +39,9 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
 
   return (
     <View style={[styles.container, { paddingBottom }]}>
+      <Text style={styles.disclaimer}>
+        AI hata yapabilir. Önemli bilgileri güvenilir kaynaklardan kontrol edin.
+      </Text>
       <View style={styles.inputRow}>
         <View style={styles.inputWrapper}>
           <TextInput
@@ -87,7 +90,16 @@ const styles = StyleSheet.create({
     borderTopColor: colors.barBorder,
     backgroundColor: colors.bar,
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 6,
+  },
+  disclaimer: {
+    textAlign: 'center',
+    fontSize: 11,
+    lineHeight: 15,
+    color: colors.creamMuted,
+    opacity: 0.85,
+    marginBottom: 6,
+    paddingHorizontal: 8,
   },
   inputRow: {
     flexDirection: 'row',

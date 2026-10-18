@@ -100,7 +100,7 @@ export default function HomeDrawerContent(props: DrawerContentComponentProps) {
 
       <DrawerContentScrollView
         {...props}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom, 24) + 16 }]}
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
@@ -191,7 +191,6 @@ const styles = StyleSheet.create({
   list: {
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 24,
   },
   sectionLabel: {
     fontSize: 12,

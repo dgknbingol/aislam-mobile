@@ -35,6 +35,7 @@ import {
   registerDeviceForPrayerPush,
 } from './devicePushRegistration';
 import { getLatestHutbe } from './hutbeStorage';
+import { isOnboardingComplete } from './onboardingStorage';
 import {
   loadAllCompetitionNotificationSettings,
   loadAllDailyContentNotificationSettings,
@@ -568,9 +569,15 @@ export async function syncAllNotifications(): Promise<void> {
   }
 
   syncInFlight = (async () => {
+    // Onboarding bitmeden sunucuya / yerele yanlış varsayılan yazma.
+    // finish() → saveAll + markComplete sonrası ilk gerçek sync çalışır.
+    if (!(await isOnboardingComplete())) {
+      return;
+    }
+
     const granted = await ensureNotificationPermissions();
     if (!granted) {
-      void registerDeviceForPrayerPush();
+      await registerDeviceForPrayerPush();
       return;
     }
 
@@ -579,8 +586,11 @@ export async function syncAllNotifications(): Promise<void> {
 
     const online = await isOnlineForPush();
     if (online) {
-      // Asıl kanal: sunucu. Yerel ezan kurma.
-      void registerDeviceForPrayerPush();
+      const registered = await registerDeviceForPrayerPush();
+      if (!registered) {
+        // API ayakta ama FCM/konum/kayıt başarısız → yerel yedek.
+        await schedulePrayerNotifications(LOCAL_PRAYER_FALLBACK_COUNT);
+      }
     } else {
       // Offline: sonraki 1–2 ezan yerel yedek (telefon saati / cache vakitleri).
       await schedulePrayerNotifications(LOCAL_PRAYER_FALLBACK_COUNT);

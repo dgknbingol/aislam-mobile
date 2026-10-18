@@ -39,9 +39,9 @@ export function headingFromSensors(magnetometer: Vec3, accelerometer: Vec3): num
   const ny = gz * ex - gx * ez;
   // nz unused for yaw when phone is roughly flat; still compute heading from n/e on horizontal
 
-  // Telefonun +Y (üst kenar) → coğrafi açı (saat yönünde kuzeyden)
-  // Expo/Android: atan2(-east, north) yaygın doğru yön
-  const heading = (Math.atan2(-ex, nx) * 180) / Math.PI;
+  // Telefonun +Y (üst kenar) → manyetik kuzeyden saat yönü açı.
+  // atan2(-E, N) bazı cihazlarda ayna yapıyordu (sağa dön → sola); E, N doğru yön.
+  const heading = (Math.atan2(ex, nx) * 180) / Math.PI;
   if (!Number.isFinite(heading)) return null;
   return (heading + 360) % 360;
 }
@@ -51,10 +51,17 @@ export function applyDeclination(magneticHeading: number, declinationDegrees: nu
 }
 
 export function shortestDelta(from: number, to: number): number {
+  'worklet';
   let delta = to - from;
   if (delta > 180) delta -= 360;
   if (delta < -180) delta += 360;
   return delta;
+}
+
+/** 0..360 normalize. Worklet'ten de çağrılabilir. */
+export function normalizeAngle(n: number): number {
+  'worklet';
+  return ((n % 360) + 360) % 360;
 }
 
 /** 0–180: iki açı arasındaki en küçük fark. */

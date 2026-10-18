@@ -33,12 +33,12 @@ interface ApiSurahEdition {
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Kuran verisi alınamadı (${response.status})`);
+    throw new Error(`Kur'an verisi alınamadı (${response.status})`);
   }
 
   const body = (await response.json()) as ApiResponse<T>;
   if (body.code !== 200 || !body.data) {
-    throw new Error('Kuran verisi alınamadı.');
+    throw new Error("Kur'an verisi alınamadı.");
   }
 
   return body.data;

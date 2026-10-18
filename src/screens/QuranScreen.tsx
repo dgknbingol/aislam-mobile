@@ -360,7 +360,7 @@ export default function QuranScreen() {
           <Pressable
             onPress={() => setNavSheetVisible(true)}
             style={styles.headerActionButton}
-            accessibilityLabel="Kuran ara"
+            accessibilityLabel="Kur'an ara"
           >
             <Ionicons name="search" size={22} color={colors.cream} />
           </Pressable>
@@ -368,7 +368,7 @@ export default function QuranScreen() {
 
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>
-            {viewMode === 'list' ? 'Kuran-ı Kerim' : surahTitle}
+            {viewMode === 'list' ? "Kur'an-ı Kerim" : surahTitle}
           </Text>
           {viewMode === 'reader' && selectedSurah ? (
             <Text style={styles.headerSubtitle}>{readerHeaderDetail}</Text>
