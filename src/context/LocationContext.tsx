@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -17,6 +18,7 @@ import {
   type MonthlyPrayerTimesResponse,
   type PrayerDay,
 } from '../services/prayerTimesApi';
+import { getDevicePositionFast } from '../services/deviceLocation';
 import {
   setPrayerDaysForScheduling,
   syncPrayerNotifications,
@@ -121,6 +123,8 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     useState<MonthlyPrayerTimesResponse | null>(null);
   const [isLoadingPrayerTimes, setIsLoadingPrayerTimes] = useState(false);
   const [prayerTimesError, setPrayerTimesError] = useState<string | null>(null);
+  /** Geç gelen GPS/şehir yanıtlarının birbirini ezmesini engeller. */
+  const locationUpdateSeqRef = useRef(0);
 
   const clearLocationFeatures = useCallback(async () => {
     setLatitude(null);
@@ -181,6 +185,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
 
   const selectManualCity = useCallback(
     async (city: TurkishCity) => {
+      const seq = ++locationUpdateSeqRef.current;
       setIsUpdatingLocation(true);
       try {
         await applyCoords({
@@ -190,48 +195,65 @@ export function LocationProvider({ children }: { children: ReactNode }) {
           source: 'manual',
         });
       } finally {
-        setIsUpdatingLocation(false);
+        if (locationUpdateSeqRef.current === seq) {
+          setIsUpdatingLocation(false);
+        }
       }
     },
     [applyCoords],
   );
 
   const refreshCurrentLocation = useCallback(async () => {
+    const seq = ++locationUpdateSeqRef.current;
     setIsUpdatingLocation(true);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
+      if (locationUpdateSeqRef.current !== seq) return;
       if (status !== Location.PermissionStatus.GRANTED) {
         setPermissionDenied(true);
         return;
       }
 
       setPermissionDenied(false);
-      const position = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      const position = await getDevicePositionFast();
+      if (locationUpdateSeqRef.current !== seq) return;
 
-      let label = 'Mevcut konum';
-      try {
-        const places = await Location.reverseGeocodeAsync({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-        const place = places[0];
-        if (place?.city || place?.district) {
-          label = place.city ?? place.district ?? label;
-        }
-      } catch {
-        // keep default label
-      }
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
 
+      // Önce konumu hemen yaz — reverse geocode takılsa bile spinner bitmesin / etiket görünsün.
       await applyCoords({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        label,
+        latitude: lat,
+        longitude: lon,
+        label: 'Mevcut konum',
         source: 'gps',
       });
-    } finally {
+      if (locationUpdateSeqRef.current !== seq) return;
       setIsUpdatingLocation(false);
+
+      try {
+        const places = await Location.reverseGeocodeAsync({
+          latitude: lat,
+          longitude: lon,
+        });
+        if (locationUpdateSeqRef.current !== seq) return;
+        const place = places[0];
+        const resolved = place?.city ?? place?.district ?? null;
+        if (resolved) {
+          await applyCoords({
+            latitude: lat,
+            longitude: lon,
+            label: resolved,
+            source: 'gps',
+          });
+        }
+      } catch {
+        // "Mevcut konum" etiketi kalsın
+      }
+    } finally {
+      if (locationUpdateSeqRef.current === seq) {
+        setIsUpdatingLocation(false);
+      }
     }
   }, [applyCoords]);
 
@@ -267,17 +289,30 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         }
 
         setPermissionDenied(false);
-        const position = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-        if (cancelled) return;
 
-        await applyCoords({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          label: stored?.label ?? 'Mevcut konum',
-          source: 'gps',
-        });
+        // Kayıtlı GPS varsa hemen göster — taze fix arka planda gelsin.
+        if (stored?.source === 'gps' && !cancelled) {
+          setLatitude(stored.latitude);
+          setLongitude(stored.longitude);
+          setLocationLabel(stored.label ?? 'Mevcut konum');
+          setLocationSource('gps');
+          setIsLoadingLocation(false);
+        }
+
+        try {
+          const position = await getDevicePositionFast();
+          if (cancelled) return;
+          await applyCoords({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            label: stored?.label ?? 'Mevcut konum',
+            source: 'gps',
+          });
+        } catch {
+          if (!cancelled && !(stored?.source === 'gps')) {
+            await clearLocationFeatures();
+          }
+        }
       } catch {
         if (!cancelled) {
           await clearLocationFeatures();

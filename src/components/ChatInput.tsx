@@ -19,7 +19,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   const { quota } = useSubscription();
   const canSend = text.trim().length > 0 && !disabled;
   const remaining = MAX_MESSAGE_LENGTH - text.length;
-  // Android: softwareKeyboardLayoutMode=resize — alt boşluk klavye açıkken gerekmez.
+  /** Klavye kapalıyken alt güvenli alan; açıkken ChatScreen klavye inset uygular. */
   const paddingBottom =
     Platform.OS === 'android'
       ? 8

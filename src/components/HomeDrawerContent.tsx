@@ -75,6 +75,16 @@ export default function HomeDrawerContent(props: DrawerContentComponentProps) {
     navigation.getParent()?.navigate('AsmaUlHusna');
   };
 
+  const openKaabaLive = () => {
+    navigation.closeDrawer();
+    navigation.getParent()?.navigate('KaabaLive');
+  };
+
+  const openQuranRadio = () => {
+    navigation.closeDrawer();
+    navigation.getParent()?.navigate('QuranRadio');
+  };
+
   const openEducation = () => {
     navigation.closeDrawer();
     navigation.getParent()?.navigate('Education');
@@ -148,6 +158,18 @@ export default function HomeDrawerContent(props: DrawerContentComponentProps) {
             title="Esmaül Hüsna"
             subtitle="Allah'ın 99 güzel ismi, anlamları ve ses"
             onPress={openAsmaUlHusna}
+          />
+          <MenuRow
+            icon="videocam-outline"
+            title="Kâbe Canlı"
+            subtitle="Kesintisiz Kâbe canlı yayın"
+            onPress={openKaabaLive}
+          />
+          <MenuRow
+            icon="radio-outline"
+            title="Kur'an Radyo"
+            subtitle="Kesintisiz tilavet"
+            onPress={openQuranRadio}
           />
           <MenuRow
             icon="settings-outline"

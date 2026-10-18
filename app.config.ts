@@ -39,7 +39,8 @@ const config: ExpoConfig = {
   /** Yanlış Expo hesabına build/submit yapılmasını engeller. */
   owner: 'ahmetbingol',
   version: '1.0.0',
-  orientation: 'portrait',
+  /** Varsayılan portrait; Kâbe Canlı ekranı geçici olarak landscape açar. */
+  orientation: 'default',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
   splash: {
@@ -52,12 +53,13 @@ const config: ExpoConfig = {
     bundleIdentifier: 'net.eislam.app',
     infoPlist: {
       LSApplicationQueriesSchemes: ['comgooglemaps', 'maps'],
+      UIBackgroundModes: ['audio'],
     },
   },
   android: {
     package: 'net.eislam.app',
-    /** Aktivite klavyeyle küçülür; chat input flex ile üstte kalır (pan+absolute çift kaydırıyordu). */
-    softwareKeyboardLayoutMode: 'resize',
+    /** Chat klavye inset ile yukarı kayar; resize bazı cihazlarda input’u klavyenin altında bırakıyordu. */
+    softwareKeyboardLayoutMode: 'pan',
     adaptiveIcon: {
       // Köşe dolgusu launcher maskesini (squircle) gösterir; full-bleed foreground daire gibi görünürdü.
       backgroundColor: '#0B1A33',
@@ -92,6 +94,14 @@ const config: ExpoConfig = {
     ],
     'expo-asset',
     'expo-dev-client',
+    [
+      'expo-video',
+      {
+        supportsBackgroundPlayback: true,
+        supportsPictureInPicture: true,
+      },
+    ],
+    'expo-screen-orientation',
     [
       'expo-splash-screen',
       {

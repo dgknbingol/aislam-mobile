@@ -13,14 +13,10 @@ import {
   formatClock,
 } from '../../constants/dailyContentNotifications';
 import type { SettingsStackParamList } from '../../navigation/types';
-import { requestServerTestPush } from '../../services/devicePushRegistration';
 import { loadAllDailyContentNotificationSettings } from '../../services/notificationSettingsStorage';
 import {
   ensureNotificationPermissions,
   getNotificationPermissionStatus,
-  getScheduledNotificationCount,
-  scheduleDailyContentTestNotifications,
-  scheduleTestNotification,
   syncAllNotifications,
 } from '../../services/prayerNotificationScheduler';
 import type { AllDailyContentNotificationSettings } from '../../types/notificationSettings';
@@ -30,10 +26,6 @@ export default function NotificationSettingsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<SettingsStackParamList>>();
   const insets = useSafeAreaInsets();
   const [permissionGranted, setPermissionGranted] = useState(true);
-  const [testMessage, setTestMessage] = useState<string | null>(null);
-  const [dailyTestMessage, setDailyTestMessage] = useState<string | null>(null);
-  const [pushTestMessage, setPushTestMessage] = useState<string | null>(null);
-  const [pendingCount, setPendingCount] = useState<number | null>(null);
   const [dailySettings, setDailySettings] = useState<AllDailyContentNotificationSettings | null>(
     null,
   );
@@ -41,8 +33,6 @@ export default function NotificationSettingsScreen() {
   const refreshPermission = useCallback(async () => {
     const status = await getNotificationPermissionStatus();
     setPermissionGranted(status === Notifications.PermissionStatus.GRANTED);
-    const count = await getScheduledNotificationCount();
-    setPendingCount(count);
   }, []);
 
   useFocusEffect(
@@ -59,40 +49,6 @@ export default function NotificationSettingsScreen() {
       await syncAllNotifications();
       await refreshPermission();
     }
-  };
-
-  const runTestNotification = async () => {
-    setTestMessage(null);
-    const ok = await scheduleTestNotification(10);
-    if (!ok) {
-      setTestMessage('Bildirim izni verilmedi.');
-      return;
-    }
-    setTestMessage('10 saniye içinde test bildirimi gelecek. Uygulamayı arka plana alın.');
-    await refreshPermission();
-  };
-
-  const runDailyContentTest = async () => {
-    setDailyTestMessage(null);
-    const ok = await scheduleDailyContentTestNotifications(10);
-    if (!ok) {
-      setDailyTestMessage('Bildirim izni verilmedi.');
-      return;
-    }
-    setDailyTestMessage(
-      '10 sn sonra ayet, ardından dua / hadis / hutbe / esma (3 sn arayla). Uygulamayı arka plana alın; esma bildirimine dokununca Esmaül Hüsna açılır.',
-    );
-    await refreshPermission();
-  };
-
-  const runServerPushTest = async () => {
-    setPushTestMessage(null);
-    const ok = await requestServerTestPush();
-    setPushTestMessage(
-      ok
-        ? 'Sunucu test push gönderildi. Uygulamayı arka plana alın; birkaç saniye içinde gelmeli.'
-        : 'Sunucu push başarısız. İnternet, bildirim izni ve API erişimini kontrol edin.',
-    );
   };
 
   return (
@@ -114,43 +70,7 @@ export default function NotificationSettingsScreen() {
               <Text style={styles.permissionButtonText}>İzin ver</Text>
             </Pressable>
           </View>
-        ) : (
-          <>
-            <Text style={styles.hint}>
-              İnternet varken tüm bildirimler sunucudan FCM/APNs ile gelir (saat sunucuya göre).
-              İnternet yokken yalnızca sonraki 1–2 ezan yerel yedek olarak planlanır. Pil
-              kısıtlamasını (Samsung: uygulama → pil → kısıtlama yok) kapatmanız önerilir.
-              {pendingCount != null ? ` Planlı: ${pendingCount}` : ''}
-            </Text>
-
-            <View style={styles.testCard}>
-              <Text style={styles.testTitle}>Expo ile hızlı test</Text>
-              <Text style={styles.testText}>
-                Fiziksel telefonda deneyin. Teste basın, uygulamayı arka plana alın ve bekleyin.
-              </Text>
-              <Pressable style={styles.testButton} onPress={() => void runTestNotification()}>
-                <Text style={styles.testButtonText}>10 sn sonra test bildirimi</Text>
-              </Pressable>
-              {testMessage ? <Text style={styles.testResult}>{testMessage}</Text> : null}
-              <Pressable
-                style={[styles.testButton, styles.testButtonSecondary]}
-                onPress={() => void runServerPushTest()}
-              >
-                <Text style={styles.testButtonText}>Sunucu ezan push testi</Text>
-              </Pressable>
-              {pushTestMessage ? <Text style={styles.testResult}>{pushTestMessage}</Text> : null}
-              <Pressable
-                style={[styles.testButton, styles.testButtonSecondary]}
-                onPress={() => void runDailyContentTest()}
-              >
-                <Text style={styles.testButtonText}>10 sn sonra günlük içerik testleri</Text>
-              </Pressable>
-              {dailyTestMessage ? (
-                <Text style={styles.testResult}>{dailyTestMessage}</Text>
-              ) : null}
-            </View>
-          </>
-        )}
+        ) : null}
 
         <Text style={styles.sectionTitle}>Günlük İçerik Bildirimleri</Text>
         <View style={styles.listCard}>
@@ -210,54 +130,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingTop: 18,
-  },
-  hint: {
-    fontSize: 13,
-    lineHeight: 20,
-    color: colors.textMutedOnLight,
-    marginBottom: 14,
-    paddingHorizontal: 4,
-  },
-  testCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(2, 23, 52, 0.1)',
-  },
-  testTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.textOnLight,
-    marginBottom: 6,
-  },
-  testText: {
-    fontSize: 13,
-    lineHeight: 20,
-    color: colors.textMutedOnLight,
-    marginBottom: 12,
-  },
-  testButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.bar,
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  testButtonSecondary: {
-    marginTop: 10,
-    backgroundColor: colors.inputField,
-  },
-  testButtonText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.cream,
-  },
-  testResult: {
-    marginTop: 10,
-    fontSize: 13,
-    color: colors.goldMuted,
   },
   permissionCard: {
     backgroundColor: '#FFFDF6',

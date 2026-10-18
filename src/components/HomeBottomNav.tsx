@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import TesbihTabIcon from './icons/TesbihTabIcon';
 import PressableScale from './PressableScale';
 import { useSubscription } from '../context/SubscriptionContext';
 import { colors } from '../theme/colors';
@@ -20,7 +21,8 @@ interface HomeBottomNavProps {
 interface NavItem {
   id: HomeTabId;
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon?: keyof typeof Ionicons.glyphMap;
+  customIcon?: 'tesbih';
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -28,7 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'quran', label: "Kur'an", icon: 'book-outline' },
   { id: 'chat', label: 'AI Asistan', icon: 'chatbubble-ellipses-outline' },
   { id: 'quiz', label: 'Yarışma', icon: 'help-circle-outline' },
-  { id: 'tesbih', label: 'Tesbih', icon: 'ribbon-outline' },
+  { id: 'tesbih', label: 'Zikirmatik', customIcon: 'tesbih' },
 ];
 
 export default function HomeBottomNav({ activeTab, onTabPress }: HomeBottomNavProps) {
@@ -42,6 +44,7 @@ export default function HomeBottomNav({ activeTab, onTabPress }: HomeBottomNavPr
       {NAV_ITEMS.map((item) => {
         const isActive = activeTab === item.id;
         const isChat = item.id === 'chat';
+        const iconColor = isActive ? colors.gold : colors.creamMuted;
 
         if (isChat) {
           return (
@@ -54,7 +57,7 @@ export default function HomeBottomNav({ activeTab, onTabPress }: HomeBottomNavPr
               pressedColor={colors.barBorder}
               accessibilityLabel="AI Asistan"
             >
-              <Ionicons name={item.icon} size={26} color={colors.cream} />
+              <Ionicons name={item.icon!} size={26} color={colors.cream} />
             </PressableScale>
           );
         }
@@ -67,16 +70,16 @@ export default function HomeBottomNav({ activeTab, onTabPress }: HomeBottomNavPr
             contentStyle={styles.tabContent}
             accessibilityLabel={item.label}
           >
-            <Ionicons
-              name={item.icon}
-              size={22}
-              color={isActive ? colors.gold : colors.creamMuted}
-            />
+            {item.customIcon === 'tesbih' ? (
+              <TesbihTabIcon size={22} color={iconColor} />
+            ) : (
+              <Ionicons name={item.icon!} size={22} color={iconColor} />
+            )}
             <Text
               style={[styles.tabLabel, isActive && styles.tabLabelActive]}
               numberOfLines={1}
               adjustsFontSizeToFit
-              minimumFontScale={0.8}
+              minimumFontScale={0.75}
               maxFontSizeMultiplier={COMPACT_MAX_FONT_MULTIPLIER}
             >
               {item.label}

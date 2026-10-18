@@ -20,6 +20,8 @@ import QiblaScreen from '../screens/QiblaScreen';
 import QuranScreen from '../screens/QuranScreen';
 import TesbihScreen from '../screens/TesbihScreen';
 import AsmaUlHusnaScreen from '../screens/AsmaUlHusnaScreen';
+import KaabaLiveScreen from '../screens/KaabaLiveScreen';
+import QuranRadioScreen from '../screens/QuranRadioScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import { isOnboardingComplete } from '../services/onboardingStorage';
 import { colors } from '../theme/colors';
@@ -79,6 +81,8 @@ export default function RootNavigator() {
       <Stack.Screen name="Quran" component={QuranScreen} />
       <Stack.Screen name="Qibla" component={QiblaScreen} />
       <Stack.Screen name="AsmaUlHusna" component={AsmaUlHusnaScreen} />
+      <Stack.Screen name="KaabaLive" component={KaabaLiveScreen} />
+      <Stack.Screen name="QuranRadio" component={QuranRadioScreen} />
       <Stack.Screen name="Settings" component={SettingsStackNavigator} />
     </Stack.Navigator>
   );

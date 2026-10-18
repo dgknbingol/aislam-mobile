@@ -175,7 +175,11 @@ export default function OnboardingScreen() {
 
         <View style={styles.body}>
           <Text style={styles.currentLabel}>Seçili konum</Text>
-          <Text style={styles.currentValue}>{locationLabel ?? 'Henüz seçilmedi'}</Text>
+          <Text style={styles.currentValue}>
+            {isUpdatingLocation
+              ? 'Konum alınıyor...'
+              : locationLabel ?? (hasLocation ? 'Mevcut konum' : 'Henüz seçilmedi')}
+          </Text>
 
           <Pressable
             style={styles.gpsButton}
@@ -187,7 +191,9 @@ export default function OnboardingScreen() {
             ) : (
               <Ionicons name="navigate-outline" size={18} color={colors.gold} />
             )}
-            <Text style={styles.gpsButtonText}>Mevcut konumu kullan</Text>
+            <Text style={styles.gpsButtonText}>
+              {isUpdatingLocation ? 'Konum alınıyor...' : 'Mevcut konumu kullan'}
+            </Text>
           </Pressable>
 
           <TextInput

@@ -43,6 +43,10 @@ export type RootStackParamList = {
 
   AsmaUlHusna: { catalogIndex?: number } | undefined;
 
+  KaabaLive: undefined;
+
+  QuranRadio: undefined;
+
   Settings: NavigatorScreenParams<SettingsStackParamList>;
 
 };

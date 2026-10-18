@@ -21,29 +21,27 @@ type OverpassResponse = {
   elements?: OverpassElement[];
 };
 
-/** overpass-api.de bazen 406/429/timeout verir — sırayla dene. */
+/** overpass-api.de bazen 406/429/timeout verir — paralel dene, ilk başarılı yeter. */
 const OVERPASS_ENDPOINTS = [
-  'https://overpass-api.de/api/interpreter',
   'https://lz4.overpass-api.de/api/interpreter',
   'https://overpass.osm.ch/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
 ] as const;
 
-const SEARCH_RADIUS_METERS = 5000;
-const MAX_RESULTS = 40;
+const SEARCH_RADIUS_METERS = 4000;
+const MAX_RESULTS = 30;
+const FETCH_TIMEOUT_MS = 12_000;
 
 function buildQuery(latitude: number, longitude: number): string {
   const around = `${SEARCH_RADIUS_METERS},${latitude},${longitude}`;
-  // nwr yerine node/way/relation — daha uyumlu
+  // Daha dar sorgu — Overpass daha hızlı döner
   return `
-    [out:json][timeout:25];
+    [out:json][timeout:10];
     (
       node["amenity"="place_of_worship"]["religion"="muslim"](around:${around});
       way["amenity"="place_of_worship"]["religion"="muslim"](around:${around});
-      relation["amenity"="place_of_worship"]["religion"="muslim"](around:${around});
       node["building"="mosque"](around:${around});
       way["building"="mosque"](around:${around});
-      node["amenity"="mosque"](around:${around});
-      way["amenity"="mosque"](around:${around});
     );
     out center tags;
   `;
@@ -67,7 +65,7 @@ function elementName(tags: Record<string, string> | undefined): string {
 
 async function postOverpass(endpoint: string, query: string): Promise<OverpassResponse> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 30_000);
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
   try {
     const response = await fetch(endpoint, {
@@ -97,19 +95,18 @@ export async function fetchNearbyMosques(
   longitude: number,
 ): Promise<NearbyMosque[]> {
   const query = buildQuery(latitude, longitude);
-  let lastError: unknown;
 
-  for (const endpoint of OVERPASS_ENDPOINTS) {
-    try {
-      const payload = await postOverpass(endpoint, query);
-      return parseMosques(payload, latitude, longitude);
-    } catch (error) {
-      lastError = error;
-    }
+  try {
+    return await Promise.any(
+      OVERPASS_ENDPOINTS.map(async (endpoint) => {
+        const payload = await postOverpass(endpoint, query);
+        return parseMosques(payload, latitude, longitude);
+      }),
+    );
+  } catch (lastError) {
+    console.warn('[nearbyMosques] all endpoints failed', lastError);
+    throw new Error('Yakın camiler alınamadı. Lütfen tekrar deneyin.');
   }
-
-  console.warn('[nearbyMosques] all endpoints failed', lastError);
-  throw new Error('Yakın camiler alınamadı. Lütfen tekrar deneyin.');
 }
 
 function parseMosques(

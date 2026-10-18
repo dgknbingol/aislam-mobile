@@ -121,7 +121,7 @@ export default function TesbihScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Text style={styles.headerTitle}>Tesbih</Text>
+        <Text style={styles.headerTitle}>Zikirmatik</Text>
       </View>
 
       <View

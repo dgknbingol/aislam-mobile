@@ -24,6 +24,7 @@ import { APP_NAME } from '../constants/app';
 import { PREMIUM_UI_ENABLED } from '../constants/subscription';
 import { useChat } from '../context/ChatContext';
 import { useSubscription } from '../context/SubscriptionContext';
+import { useKeyboardBottomInset } from '../hooks/useKeyboardBottomInset';
 import type { RootStackParamList } from '../navigation/types';
 import { showInterstitialIfEligible } from '../services/fullscreenAds';
 import { colors } from '../theme/colors';
@@ -35,6 +36,7 @@ export default function ChatScreen() {
       NativeStackNavigationProp<RootStackParamList>
   >();
   const insets = useSafeAreaInsets();
+  const keyboardInset = useKeyboardBottomInset();
   const listRef = useRef<FlatList<Message>>(null);
   const { activeConversation, createNewChat, sendMessage, isLoading, quotaExceeded, clearQuotaExceeded } =
     useChat();
@@ -166,7 +168,15 @@ export default function ChatScreen() {
         }
       />
 
-      <ChatInput onSend={handleSend} disabled={isLoading} />
+      <View
+        style={
+          Platform.OS === 'android' && keyboardInset > 0
+            ? { paddingBottom: keyboardInset }
+            : undefined
+        }
+      >
+        <ChatInput onSend={handleSend} disabled={isLoading} />
+      </View>
 
       {PREMIUM_UI_ENABLED ? (
         <PremiumPaywallModal visible={paywallVisible} onClose={() => setPaywallVisible(false)} />

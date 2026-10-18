@@ -157,7 +157,7 @@ function QiblaCompass({
             </View>
           ) : turnHint === 'calibrating' ? (
             <View style={styles.hintCircle}>
-              <Ionicons name="compass-outline" size={28} color="#FFFFFF" />
+              <Text style={styles.calibratingKaaba}>🕋</Text>
             </View>
           ) : (
             <>
@@ -277,6 +277,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#1FA8A0',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  calibratingKaaba: {
+    fontSize: 26,
+    lineHeight: 30,
+    textAlign: 'center',
   },
   checkCircle: {
     width: 72,

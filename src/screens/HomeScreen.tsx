@@ -191,7 +191,9 @@ export default function HomeScreen() {
             onPress={() => navigation.navigate('Qibla')}
             accessibilityLabel="Kıble pusulası"
           >
-            <Ionicons name="compass-outline" size={24} color={colors.cream} />
+            <Text style={styles.kaabaHeaderIcon} accessibilityElementsHidden>
+              🕋
+            </Text>
           </Pressable>
           <Pressable
             style={styles.headerIconButton}
@@ -368,6 +370,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
+  },
+  kaabaHeaderIcon: {
+    fontSize: 22,
+    lineHeight: 26,
+    textAlign: 'center',
   },
   scroll: {
     flex: 1,
