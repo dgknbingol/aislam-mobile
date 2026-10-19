@@ -60,6 +60,8 @@ const config: ExpoConfig = {
     package: 'net.eislam.app',
     /** Chat klavye inset ile yukarı kayar; resize bazı cihazlarda input’u klavyenin altında bırakıyordu. */
     softwareKeyboardLayoutMode: 'pan',
+    /** expo-sensors ekliyor; kıble için gerekmez — Play "Sağlık uygulamaları" beyanını tetikliyor. */
+    blockedPermissions: ['android.permission.ACTIVITY_RECOGNITION'],
     adaptiveIcon: {
       // Köşe dolgusu launcher maskesini (squircle) gösterir; full-bleed foreground daire gibi görünürdü.
       backgroundColor: '#0B1A33',
