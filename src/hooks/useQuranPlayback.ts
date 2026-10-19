@@ -24,9 +24,14 @@ export function useQuranPlayback(): QuranPlaybackState {
   const [activeGlobalAyah, setActiveGlobalAyah] = useState<number | null>(null);
 
   const unloadSound = useCallback(async () => {
-    if (soundRef.current) {
-      await soundRef.current.unloadAsync();
-      soundRef.current = null;
+    const sound = soundRef.current;
+    soundRef.current = null;
+    if (!sound) return;
+    try {
+      sound.setOnPlaybackStatusUpdate(null);
+      await sound.unloadAsync();
+    } catch {
+      // Unmount / çift stop sırasında native unload hata verebilir
     }
   }, []);
 

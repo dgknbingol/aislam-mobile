@@ -177,13 +177,15 @@ export default function QuranScreen() {
     void openSurah(surahNumber, ayahNumber);
   }, [route.params?.surahNumber, route.params?.ayahNumber, navigation, openSurah]);
 
-  const goBackToList = useCallback(async () => {
-    await playback.stop();
+  const goBackToList = useCallback(() => {
+    // Önce UI'ı listeye al — ayet FlatList unmount olurken async stop beklemek Android crash'e yol açabiliyordu.
     setViewMode('list');
     setSelectedSurah(null);
     setReadingSurahNumber(null);
     setSurahError(null);
+    setIsLoadingSurah(false);
     pendingScrollAyah.current = null;
+    void playback.stop();
     void refreshReadingState();
   }, [playback, refreshReadingState]);
 
@@ -207,11 +209,11 @@ export default function QuranScreen() {
 
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      const surahNumber = readingSurahRef.current;
+      if (surahNumber == null) return;
       const first = viewableItems.find((v) => v.isViewable && v.item != null);
       if (!first?.item) return;
       const ayah = first.item as AyahWithTranslation;
-      const surahNumber = readingSurahRef.current;
-      if (surahNumber == null) return;
       scheduleLastReadRef.current(surahNumber, ayah.numberInSurah);
     },
   ).current;
@@ -350,7 +352,7 @@ export default function QuranScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         {viewMode === 'reader' ? (
           <Pressable
-            onPress={() => void goBackToList()}
+            onPress={goBackToList}
             style={styles.backButton}
             accessibilityLabel="Sure listesine dön"
           >
@@ -423,6 +425,7 @@ export default function QuranScreen() {
               )}
               contentContainerStyle={styles.listContent}
               showsVerticalScrollIndicator={false}
+              removeClippedSubviews={false}
             />
           )}
         </>
@@ -446,6 +449,7 @@ export default function QuranScreen() {
           ) : selectedSurah ? (
             <FlatList
               ref={listRef}
+              key={`ayahs-${selectedSurah.number}`}
               data={selectedSurah.ayahs}
               keyExtractor={(item) => String(item.globalNumber)}
               renderItem={({ item }) => (
@@ -463,6 +467,7 @@ export default function QuranScreen() {
                 showPlayer && styles.listContentWithPlayer,
               ]}
               showsVerticalScrollIndicator={false}
+              removeClippedSubviews={false}
               onViewableItemsChanged={onViewableItemsChanged}
               viewabilityConfig={VIEWABILITY_CONFIG}
               onScrollToIndexFailed={(info) => {
