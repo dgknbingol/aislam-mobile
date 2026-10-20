@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  AppState,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,7 +20,11 @@ import LocationPermissionGate, {
 import { useLocationContext } from '../context/LocationContext';
 import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
 import type { RootStackParamList } from '../navigation/types';
-import type { PrayerDay } from '../services/prayerTimesApi';
+import {
+  isPrayerDayToday,
+  localDateKey,
+  type PrayerDay,
+} from '../services/prayerTimesApi';
 import { colors } from '../theme/colors';
 
 const COLUMNS = [
@@ -68,6 +73,7 @@ export default function PrayerTimesScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const handleTabPress = useHomeTabNavigation();
   const verticalScrollRef = useRef<ScrollView>(null);
+  const [calendarDateKey, setCalendarDateKey] = useState(() => localDateKey());
   const {
     monthlyPrayerTimes,
     isLoadingPrayerTimes,
@@ -80,12 +86,38 @@ export default function PrayerTimesScreen() {
     permissionDenied,
   } = useLocationContext();
 
+  useEffect(() => {
+    const syncCalendarDate = () => {
+      const next = localDateKey();
+      setCalendarDateKey((prev) => (prev === next ? prev : next));
+    };
+    syncCalendarDate();
+    const timer = setInterval(syncCalendarDate, 60_000);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') syncCalendarDate();
+    });
+    return () => {
+      clearInterval(timer);
+      sub.remove();
+    };
+  }, []);
+
+  const calendarNow = useMemo(
+    () => new Date(`${calendarDateKey}T12:00:00`),
+    [calendarDateKey],
+  );
+
+  const todayIndex = useMemo(() => {
+    if (!monthlyPrayerTimes) return -1;
+    return monthlyPrayerTimes.days.findIndex((day) =>
+      isPrayerDayToday(day, calendarNow),
+    );
+  }, [monthlyPrayerTimes, calendarNow]);
+
   const scrollToToday = useCallback(() => {
-    if (!monthlyPrayerTimes) return;
-    const todayIndex = monthlyPrayerTimes.days.findIndex((day) => day.today);
     if (todayIndex < 0) return;
     verticalScrollRef.current?.scrollTo({ y: todayIndex * 44, animated: true });
-  }, [monthlyPrayerTimes]);
+  }, [todayIndex]);
 
   useEffect(() => {
     if (!monthlyPrayerTimes || isLoadingPrayerTimes) return;
@@ -176,26 +208,29 @@ export default function PrayerTimesScreen() {
                 ))}
               </View>
 
-              {monthlyPrayerTimes.days.map((day) => (
-                <View
-                  key={day.date}
-                  style={[styles.dataRow, day.today && styles.dataRowToday]}
-                >
-                  {COLUMNS.map((col) => (
-                    <Text
-                      key={col.key}
-                      style={[
-                        styles.dataCell,
-                        { width: col.width },
-                        day.today && styles.dataCellToday,
-                      ]}
-                      numberOfLines={2}
-                    >
-                      {getCellValue(day, col.key)}
-                    </Text>
-                  ))}
-                </View>
-              ))}
+              {monthlyPrayerTimes.days.map((day) => {
+                const isToday = isPrayerDayToday(day, calendarNow);
+                return (
+                  <View
+                    key={day.date}
+                    style={[styles.dataRow, isToday && styles.dataRowToday]}
+                  >
+                    {COLUMNS.map((col) => (
+                      <Text
+                        key={col.key}
+                        style={[
+                          styles.dataCell,
+                          { width: col.width },
+                          isToday && styles.dataCellToday,
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {getCellValue(day, col.key)}
+                      </Text>
+                    ))}
+                  </View>
+                );
+              })}
             </View>
           </ScrollView>
         </ScrollView>

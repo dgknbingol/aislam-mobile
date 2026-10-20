@@ -10,11 +10,13 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { AppState } from 'react-native';
 
 import type { TurkishCity } from '../constants/turkishCities';
 import {
   fetchMonthlyPrayerTimes,
   getTodayPrayerDay,
+  localDateKey,
   type MonthlyPrayerTimesResponse,
   type PrayerDay,
 } from '../services/prayerTimesApi';
@@ -123,8 +125,28 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     useState<MonthlyPrayerTimesResponse | null>(null);
   const [isLoadingPrayerTimes, setIsLoadingPrayerTimes] = useState(false);
   const [prayerTimesError, setPrayerTimesError] = useState<string | null>(null);
+  /** Gece yarısı sonrası `today` seçiminin güncellenmesi için yerel takvim günü. */
+  const [calendarDateKey, setCalendarDateKey] = useState(() => localDateKey());
   /** Geç gelen GPS/şehir yanıtlarının birbirini ezmesini engeller. */
   const locationUpdateSeqRef = useRef(0);
+
+  useEffect(() => {
+    const syncCalendarDate = () => {
+      const next = localDateKey();
+      setCalendarDateKey((prev) => (prev === next ? prev : next));
+    };
+
+    syncCalendarDate();
+    const timer = setInterval(syncCalendarDate, 60_000);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') syncCalendarDate();
+    });
+
+    return () => {
+      clearInterval(timer);
+      sub.remove();
+    };
+  }, []);
 
   const clearLocationFeatures = useCallback(async () => {
     setLatitude(null);
@@ -339,12 +361,15 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!hasTrustedLocation || latitude == null || longitude == null) return;
     void loadPrayerTimes(latitude, longitude);
-  }, [hasTrustedLocation, latitude, longitude, loadPrayerTimes]);
+  }, [hasTrustedLocation, latitude, longitude, loadPrayerTimes, calendarDateKey]);
 
-  const todayPrayerDay = useMemo(
-    () => (monthlyPrayerTimes ? getTodayPrayerDay(monthlyPrayerTimes.days) : undefined),
-    [monthlyPrayerTimes],
-  );
+  const todayPrayerDay = useMemo(() => {
+    if (!monthlyPrayerTimes) return undefined;
+    return getTodayPrayerDay(
+      monthlyPrayerTimes.days,
+      new Date(`${calendarDateKey}T12:00:00`),
+    );
+  }, [monthlyPrayerTimes, calendarDateKey]);
 
   const value = useMemo<LocationContextValue>(
     () => ({

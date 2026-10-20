@@ -71,8 +71,24 @@ export async function fetchMonthlyPrayerTimes(
   return content;
 }
 
-export function getTodayPrayerDay(days: PrayerDay[]): PrayerDay | undefined {
-  return days.find((day) => day.today);
+/** Yerel takvim günü (YYYY-MM-DD). API'deki `today` bayrağı cache'te bayatlayabilir. */
+export function localDateKey(now: Date = new Date()): string {
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function isPrayerDayToday(day: PrayerDay, now: Date = new Date()): boolean {
+  return day.date === localDateKey(now);
+}
+
+export function getTodayPrayerDay(
+  days: PrayerDay[],
+  now: Date = new Date(),
+): PrayerDay | undefined {
+  const key = localDateKey(now);
+  return days.find((day) => day.date === key) ?? days.find((day) => day.today);
 }
 
 export function getAdjacentPrayerDay(
