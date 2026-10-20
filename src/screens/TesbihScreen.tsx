@@ -175,10 +175,6 @@ export default function TesbihScreen() {
         </View>
 
         <View style={styles.counterSection}>
-          {lapCount > 0 ? (
-            <Text style={styles.lapText}>{lapCount}</Text>
-          ) : null}
-
           <View style={styles.ringContainer}>
             <TesbihProgressRing
               size={RING_SIZE}
@@ -190,6 +186,9 @@ export default function TesbihScreen() {
               onPress={handleIncrement}
               accessibilityLabel="Zikir say"
             >
+              {lapCount > 0 ? (
+                <Text style={styles.lapBadge}>Tur {lapCount}</Text>
+              ) : null}
               <Text style={styles.countText}>{count}</Text>
               <Text style={styles.targetText}>/ {targetLabel}</Text>
             </GHPressable>
@@ -315,12 +314,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  lapText: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.gold,
-    marginBottom: 12,
-  },
   ringContainer: {
     width: RING_SIZE,
     height: RING_SIZE,
@@ -336,6 +329,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: colors.barBorder,
+  },
+  lapBadge: {
+    position: 'absolute',
+    top: 28,
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.gold,
   },
   countText: {
     fontSize: 56,
