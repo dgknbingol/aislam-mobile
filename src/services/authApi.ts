@@ -59,10 +59,17 @@ export async function register(params: {
   return response.json();
 }
 
+type AuthResult = {
+  token: string;
+  tokenType: string;
+  expiresInSeconds: number;
+  user: UserProfile;
+};
+
 export async function login(params: {
   email: string;
   password: string;
-}): Promise<{ token: string; tokenType: string; expiresInSeconds: number; user: UserProfile }> {
+}): Promise<AuthResult> {
   const response = await fetch(`${baseUrl()}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -78,6 +85,29 @@ export async function login(params: {
   }
 
   return response.json();
+}
+
+async function socialLogin(path: 'google' | 'apple', idToken: string): Promise<AuthResult> {
+  const response = await fetch(`${baseUrl()}/api/auth/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken }),
+  });
+
+  if (!response.ok) {
+    const err = await parseApiError(response);
+    throw new AuthApiError(err.message ?? 'Sosyal giriş başarısız.', err.code);
+  }
+
+  return response.json();
+}
+
+export function loginWithGoogle(idToken: string): Promise<AuthResult> {
+  return socialLogin('google', idToken);
+}
+
+export function loginWithApple(idToken: string): Promise<AuthResult> {
+  return socialLogin('apple', idToken);
 }
 
 export async function getMe(token: string): Promise<UserProfile> {

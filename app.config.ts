@@ -39,6 +39,7 @@ const config: ExpoConfig = {
   /** Yanlış Expo hesabına build/submit yapılmasını engeller. */
   owner: 'ahmetbingol',
   version: '1.0.0',
+  scheme: 'eislam',
   /** Varsayılan portrait; Kâbe Canlı ekranı geçici olarak landscape açar. */
   orientation: 'default',
   icon: './assets/icon.png',
@@ -51,6 +52,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'net.eislam.app',
+    usesAppleSignIn: true,
     infoPlist: {
       LSApplicationQueriesSchemes: ['comgooglemaps', 'maps'],
       UIBackgroundModes: ['audio'],
@@ -77,6 +79,8 @@ const config: ExpoConfig = {
     favicon: './assets/favicon.png',
   },
   plugins: [
+    'expo-apple-authentication',
+    'expo-web-browser',
     [
       'expo-build-properties',
       {
@@ -141,6 +145,9 @@ const config: ExpoConfig = {
     ragApiUrl: process.env.EXPO_PUBLIC_RAG_API_URL ?? 'https://api.e-islam.net',
     revenueCatIosApiKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ?? '',
     revenueCatAndroidApiKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY ?? '',
+    googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '',
+    googleAndroidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? '',
+    googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? '',
     adMobAndroidAppId: androidAdMobAppId,
     adMobIosAppId: iosAdMobAppId,
     eas: {

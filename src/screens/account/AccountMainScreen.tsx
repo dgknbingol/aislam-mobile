@@ -74,22 +74,6 @@ export default function AccountMainScreen({ navigation }: Props) {
                 <Ionicons name="create-outline" size={20} color={colors.gold} />
                 <Text style={styles.actionText}>Kullanıcı adını değiştir</Text>
               </Pressable>
-
-              <Pressable
-                style={({ pressed }) => [styles.actionRow, pressed && styles.actionRowPressed]}
-                onPress={() => Alert.alert('Yakında', 'Google ile giriş şu an desteklenmiyor.')}
-              >
-                <Ionicons name="logo-google" size={20} color={colors.gold} />
-                <Text style={styles.actionText}>Google ile giriş</Text>
-              </Pressable>
-
-              <Pressable
-                style={({ pressed }) => [styles.actionRow, pressed && styles.actionRowPressed]}
-                onPress={() => Alert.alert('Yakında', 'Apple ile giriş şu an desteklenmiyor.')}
-              >
-                <Ionicons name="logo-apple" size={20} color={colors.gold} />
-                <Text style={styles.actionText}>Apple ile giriş</Text>
-              </Pressable>
             </View>
 
             <TextInput style={styles.hiddenInput} value="" onChangeText={() => {}} editable={false} />

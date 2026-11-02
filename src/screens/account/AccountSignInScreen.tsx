@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import SocialAuthButtons from '../../components/account/SocialAuthButtons';
 import SettingsHeader from '../../components/settings/SettingsHeader';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
@@ -87,16 +88,10 @@ export default function AccountSignInScreen({ navigation }: Props) {
               <Text style={styles.secondaryButtonText}>Üye Ol</Text>
             </Pressable>
 
-            <View style={styles.socialRow}>
-              <Pressable style={({ pressed }) => [styles.socialButton, pressed && styles.secondaryButtonPressed]} onPress={() => Alert.alert('Yakında', 'Google ile giriş şu an desteklenmiyor.')}>
-                <Ionicons name="logo-google" size={20} color={colors.gold} />
-                <Text style={styles.socialText}>Google</Text>
-              </Pressable>
-              <Pressable style={({ pressed }) => [styles.socialButton, pressed && styles.secondaryButtonPressed]} onPress={() => Alert.alert('Yakında', 'Apple ile giriş şu an desteklenmiyor.')}>
-                <Ionicons name="logo-apple" size={20} color={colors.gold} />
-                <Text style={styles.socialText}>Apple</Text>
-              </Pressable>
-            </View>
+            <SocialAuthButtons
+              disabled={isSubmitting || isLoading}
+              onSuccess={() => navigation.replace('AccountMain')}
+            />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>

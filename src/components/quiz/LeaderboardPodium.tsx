@@ -80,7 +80,7 @@ export default function LeaderboardPodium({
   currentUserId,
   educationLevelXp,
 }: LeaderboardPodiumProps) {
-  const [second, first, third] = entries;
+  const [first, second, third] = entries;
 
   return (
     <View style={styles.container}>

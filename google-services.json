@@ -12,7 +12,28 @@
           "package_name": "net.eislam.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "415198635831-1u22fskt31pejl149qvmig637k4hbrff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.eislam.app",
+            "certificate_hash": "956998c656c8e1c4ea3016e6c4ac707592085b16"
+          }
+        },
+        {
+          "client_id": "415198635831-halko8o01vbp8739rbd4hm8fsqivdc70.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.eislam.app",
+            "certificate_hash": "1e5c2acb29ae3381295f8e4b54c82ec201c4b529"
+          }
+        },
+        {
+          "client_id": "415198635831-uau39j8kgmdb9pkmtl2dsan4e0gi30dc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDUZFlVqqk4QWyXY1WQLg8Ny-aOJNpwnzA"
@@ -20,7 +41,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "415198635831-uau39j8kgmdb9pkmtl2dsan4e0gi30dc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

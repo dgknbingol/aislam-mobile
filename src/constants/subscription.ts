@@ -7,7 +7,7 @@
  * Kapalıyken: Ayarlar'daki Premium satırı, sohbet paywall'ı ve Premium linki gizlenir.
  * Backend'den gelen `quota.premium` yine de geçerlidir (satın almış kullanıcı korunur).
  */
-export const PREMIUM_UI_ENABLED = false;
+export const PREMIUM_UI_ENABLED = true;
 
 export const PREMIUM_ENTITLEMENT_ID = 'premium';
 

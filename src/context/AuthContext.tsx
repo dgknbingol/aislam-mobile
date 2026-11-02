@@ -1,7 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import type { UserProfile } from '../services/authApi';
-import { login, register, updateDisplayName as requestDisplayNameUpdate } from '../services/authApi';
+import {
+  login,
+  loginWithApple,
+  loginWithGoogle,
+  register,
+  updateDisplayName as requestDisplayNameUpdate,
+} from '../services/authApi';
 import { clearAuth, getStoredAuthToken, getStoredAuthUser, saveAuth, type StoredAuthUser } from '../services/authStorage';
 
 import { clearCachedQuizPlayer } from '../services/playerStorage';
@@ -12,6 +18,8 @@ type AuthContextValue = {
   isLoading: boolean;
   signIn: (params: { email: string; password: string }) => Promise<void>;
   signUp: (params: { email: string; password: string; displayName: string }) => Promise<void>;
+  signInWithGoogle: (idToken: string) => Promise<void>;
+  signInWithApple: (idToken: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateDisplayName: (displayName: string) => Promise<void>;
 };
@@ -48,21 +56,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signIn = useCallback(async (params: { email: string; password: string }) => {
-    const result = await login(params);
+  const applyAuth = useCallback(async (result: { token: string; user: UserProfile }) => {
     const storedUser = toStoredUser(result.user);
     setToken(result.token);
     setUser(storedUser);
     await saveAuth(result.token, storedUser);
   }, []);
 
+  const signIn = useCallback(async (params: { email: string; password: string }) => {
+    await applyAuth(await login(params));
+  }, [applyAuth]);
+
   const signUp = useCallback(async (params: { email: string; password: string; displayName: string }) => {
-    const result = await register(params);
-    const storedUser = toStoredUser(result.user);
-    setToken(result.token);
-    setUser(storedUser);
-    await saveAuth(result.token, storedUser);
-  }, []);
+    await applyAuth(await register(params));
+  }, [applyAuth]);
+
+  const signInWithGoogle = useCallback(async (idToken: string) => {
+    await applyAuth(await loginWithGoogle(idToken));
+  }, [applyAuth]);
+
+  const signInWithApple = useCallback(async (idToken: string) => {
+    await applyAuth(await loginWithApple(idToken));
+  }, [applyAuth]);
 
   const signOut = useCallback(async () => {
     await clearAuth();
@@ -89,10 +104,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       signIn,
       signUp,
+      signInWithGoogle,
+      signInWithApple,
       signOut,
       updateDisplayName,
     }),
-    [token, user, isLoading, signIn, signUp, signOut, updateDisplayName],
+    [token, user, isLoading, signIn, signUp, signInWithGoogle, signInWithApple, signOut, updateDisplayName],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
