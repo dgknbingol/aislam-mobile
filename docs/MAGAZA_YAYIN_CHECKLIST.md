@@ -11,6 +11,8 @@ Uygulama kimlikleri (**değiştirme** — kod ile birebir aynı olmalı):
 
 Detaylı AdMob / RevenueCat adımları: `KURULUM_MONETIZASYON.md`, `MAGAZA_VE_ADMOB.md`.
 
+**Premium Android sprint:** bugün (IBAN hariç) → [`PREMIUM_ANDROID_BUGUN.md`](PREMIUM_ANDROID_BUGUN.md); IBAN sonrası → [`PREMIUM_ANDROID_YARIN.md`](PREMIUM_ANDROID_YARIN.md). Fiyat: aylık ₺49,99 / yıllık ₺399,99.
+
 ---
 
 ## 0. Hazırlık
