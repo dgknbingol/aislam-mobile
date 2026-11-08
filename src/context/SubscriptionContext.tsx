@@ -10,7 +10,7 @@ import {
 
 import { PREMIUM_UI_ENABLED } from '../constants/subscription';
 import type { ChatQuota } from '../services/chatApi';
-import { fetchChatQuota } from '../services/chatApi';
+import { claimRewardedChatBonus, fetchChatQuota } from '../services/chatApi';
 import {
   configureRevenueCat,
   getOfferings,
@@ -28,6 +28,7 @@ interface SubscriptionContextValue {
   isPurchasing: boolean;
   isStoreConfigured: boolean;
   refreshQuota: () => Promise<ChatQuota | null>;
+  claimRewardedBonus: () => Promise<ChatQuota>;
   purchaseMonthly: () => Promise<void>;
   purchaseYearly: () => Promise<void>;
   restore: () => Promise<void>;
@@ -53,6 +54,12 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoadingQuota(false);
     }
+  }, []);
+
+  const claimRewardedBonus = useCallback(async (): Promise<ChatQuota> => {
+    const next = await claimRewardedChatBonus();
+    setQuota(next);
+    return next;
   }, []);
 
   const loadOfferings = useCallback(async () => {
@@ -131,6 +138,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       isPurchasing,
       isStoreConfigured,
       refreshQuota,
+      claimRewardedBonus,
       purchaseMonthly,
       purchaseYearly,
       restore,
@@ -143,6 +151,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       isPurchasing,
       isStoreConfigured,
       refreshQuota,
+      claimRewardedBonus,
       purchaseMonthly,
       purchaseYearly,
       restore,

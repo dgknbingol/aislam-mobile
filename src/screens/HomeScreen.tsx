@@ -21,6 +21,7 @@ import AdBanner from '../components/ads/AdBanner';
 import HomeCompetitionSection from '../components/quiz/HomeCompetitionSection';
 import HomeScoreStatusSection from '../components/quiz/HomeScoreStatusSection';
 import NextPrayerCard from '../components/NextPrayerCard';
+import RewardedBonusCard from '../components/RewardedBonusCard';
 import TodayPrayerTimesSection from '../components/prayer-banners/TodayPrayerTimesSection';
 import { useLocationContext } from '../context/LocationContext';
 import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
@@ -318,6 +319,8 @@ export default function HomeScreen() {
             })
           }
         />
+
+        <RewardedBonusCard />
 
         <AdBanner inline />
 

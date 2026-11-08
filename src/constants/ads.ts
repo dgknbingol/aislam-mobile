@@ -12,6 +12,7 @@ export const ADMOB_TEST_APP_IDS = {
 const TEST_ADAPTIVE_BANNER = 'ca-app-pub-3940256099942544/9214589741';
 const TEST_INTERSTITIAL = 'ca-app-pub-3940256099942544/1033173712';
 const TEST_APP_OPEN = 'ca-app-pub-3940256099942544/9257395921';
+const TEST_REWARDED = 'ca-app-pub-3940256099942544/5224354917';
 
 export function isNativeAdsAvailable(): boolean {
   return isNativeModulesAvailable();
@@ -62,5 +63,13 @@ export function getAppOpenAdUnitId(): string {
     TEST_APP_OPEN,
     'EXPO_PUBLIC_ADMOB_APP_OPEN_ANDROID',
     'EXPO_PUBLIC_ADMOB_APP_OPEN_IOS',
+  );
+}
+
+export function getRewardedAdUnitId(): string {
+  return resolveUnitId(
+    TEST_REWARDED,
+    'EXPO_PUBLIC_ADMOB_REWARDED_ANDROID',
+    'EXPO_PUBLIC_ADMOB_REWARDED_IOS',
   );
 }

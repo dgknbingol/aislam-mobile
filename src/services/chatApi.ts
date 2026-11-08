@@ -7,6 +7,10 @@ export interface ChatQuota {
   remaining: number;
   premium: boolean;
   resetsAt: string;
+  /** Bugün rewarded ile kazanılan ekstra soru hakkı */
+  rewardedBonus: number;
+  /** Bugün daha kaç rewarded izlenebilir (premium'da 0) */
+  rewardedRemaining: number;
 }
 
 export interface ServerConversation {
@@ -80,7 +84,39 @@ export async function fetchChatQuota(): Promise<ChatQuota> {
     throw await parseError(response);
   }
 
-  return response.json() as Promise<ChatQuota>;
+  return normalizeQuota(await response.json());
+}
+
+/** Rewarded reklam ödülü sonrası +1 günlük soru hakkı talep eder. */
+export async function claimRewardedChatBonus(): Promise<ChatQuota> {
+  const response = await fetch(`${baseUrl()}/api/chat/quota/rewarded-bonus`, {
+    method: 'POST',
+    headers: await buildHeaders(false),
+  });
+
+  if (!response.ok) {
+    throw await parseError(response);
+  }
+
+  return normalizeQuota(await response.json());
+}
+
+function normalizeQuota(raw: Partial<ChatQuota> & {
+  limit: number;
+  used: number;
+  remaining: number;
+  premium: boolean;
+  resetsAt: string;
+}): ChatQuota {
+  return {
+    limit: raw.limit,
+    used: raw.used,
+    remaining: raw.remaining,
+    premium: raw.premium,
+    resetsAt: raw.resetsAt,
+    rewardedBonus: raw.rewardedBonus ?? 0,
+    rewardedRemaining: raw.rewardedRemaining ?? 0,
+  };
 }
 
 /** Geriye uyumluluk: tek seferlik soru (sunucu geçmişi yok). */

@@ -1,4 +1,5 @@
 import { getAppOpenAdUnitId, getInterstitialAdUnitId, isNativeAdsAvailable } from '../constants/ads';
+import { preloadRewardedAd } from './rewardedAds';
 
 /** Tam ekran interstitial'lar arası minimum süre (AdMob önerisi: doğal kırılım + seyrek). */
 const INTERSTITIAL_COOLDOWN_MS = 3 * 60 * 1000;
@@ -111,11 +112,12 @@ function loadAppOpen(): void {
   }
 }
 
-/** AdMob init sonrası çağır — interstitial + app open ön yükleme. */
+/** AdMob init sonrası çağır — interstitial + app open + rewarded ön yükleme. */
 export function preloadFullscreenAds(): void {
   if (!isNativeAdsAvailable()) return;
   loadInterstitial();
   loadAppOpen();
+  preloadRewardedAd();
 }
 
 function canShowByCooldown(lastShownAt: number, cooldownMs: number): boolean {
