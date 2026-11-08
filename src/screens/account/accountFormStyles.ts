@@ -35,6 +35,18 @@ export const accountFormStyles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '700',
   },
+  legalHint: {
+    marginTop: 14,
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.creamMuted,
+    textAlign: 'center',
+  },
+  legalHintLink: {
+    color: colors.gold,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
   primaryButton: {
     marginTop: 16,
     backgroundColor: colors.gold,

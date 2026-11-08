@@ -13,7 +13,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../../constants/legal';
+import {
+  PRIVACY_POLICY_URL,
+  SUBSCRIPTION_DISCLOSURE,
+  TERMS_OF_SERVICE_URL,
+} from '../../constants/legal';
 import { PREMIUM_DAILY_CHAT_LIMIT } from '../../constants/subscription';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { colors } from '../../theme/colors';
@@ -213,6 +217,8 @@ export default function PremiumPaywallModal({ visible, onClose }: PremiumPaywall
 
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
+            <Text style={styles.disclosureText}>{SUBSCRIPTION_DISCLOSURE}</Text>
+
             <View style={styles.footerLinks}>
               <Pressable onPress={() => void handleRestore()}>
                 <Text style={styles.footerLink}>Satın almayı geri yükle</Text>
@@ -411,6 +417,15 @@ const styles = StyleSheet.create({
     color: colors.warning,
     textAlign: 'center',
     marginBottom: 8,
+  },
+  disclosureText: {
+    width: '100%',
+    fontSize: 11,
+    lineHeight: 15,
+    color: colors.creamMuted,
+    textAlign: 'center',
+    marginBottom: 10,
+    marginTop: 2,
   },
   footerLinks: {
     flexDirection: 'row',

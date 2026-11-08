@@ -5,8 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import SocialAuthButtons from '../../components/account/SocialAuthButtons';
 import SettingsHeader from '../../components/settings/SettingsHeader';
+import { PRIVACY_POLICY_URL } from '../../constants/legal';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
+import { openLegalUrl } from '../../utils/openLegalUrl';
 import { accountFormStyles as styles, inputPlaceholderColor } from './accountFormStyles';
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -81,6 +83,17 @@ export default function AccountSignUpScreen({ navigation }: Props) {
             />
 
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+            <Text style={styles.legalHint}>
+              Kullanıcı adı ve e-posta; giriş, hesap güvenliği ve premium durumu için kullanılır.
+              Adres bilgisi istemeyiz.{' '}
+              <Text
+                style={styles.legalHintLink}
+                onPress={() => void openLegalUrl(PRIVACY_POLICY_URL).catch(() => undefined)}
+              >
+                Gizlilik Politikası
+              </Text>
+            </Text>
 
             <Pressable
               style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}

@@ -12,7 +12,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import SettingsHeader from '../../components/settings/SettingsHeader';
-import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../../constants/legal';
+import {
+  PRIVACY_POLICY_URL,
+  SUBSCRIPTION_DISCLOSURE,
+  TERMS_OF_SERVICE_URL,
+} from '../../constants/legal';
 import { PREMIUM_DAILY_CHAT_LIMIT, FREE_DAILY_CHAT_LIMIT } from '../../constants/subscription';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { colors } from '../../theme/colors';
@@ -101,7 +105,7 @@ export default function PremiumSettingsScreen() {
               <Text style={styles.planPrice}>
                 {formatPrice(monthlyPackage?.product.priceString, '—')}
               </Text>
-              <Text style={styles.planHint}>Her ay yenilenir · istediğin zaman iptal</Text>
+              <Text style={styles.planHint}>Her ay otomatik yenilenir · Play/App Store’dan iptal</Text>
               <Pressable
                 style={[styles.primaryButton, isPurchasing && styles.buttonDisabled]}
                 disabled={isPurchasing || !monthlyPackage}
@@ -123,7 +127,7 @@ export default function PremiumSettingsScreen() {
               <Text style={styles.planPrice}>
                 {formatPrice(yearlyPackage?.product.priceString, '—')}
               </Text>
-              <Text style={styles.planHint}>Tek seferde ödeyin, daha uyguna kullanın</Text>
+              <Text style={styles.planHint}>Her yıl otomatik yenilenir · daha avantajlı · Play/App Store’dan iptal</Text>
               <Pressable
                 style={[styles.primaryButton, isPurchasing && styles.buttonDisabled]}
                 disabled={isPurchasing || !yearlyPackage}
@@ -142,6 +146,8 @@ export default function PremiumSettingsScreen() {
         <Pressable style={styles.secondaryButton} onPress={() => void handleRestore()}>
           <Text style={styles.secondaryButtonText}>Satın alımları geri yükle</Text>
         </Pressable>
+
+        <Text style={styles.disclosureText}>{SUBSCRIPTION_DISCLOSURE}</Text>
 
         <View style={styles.legalLinks}>
           <Pressable onPress={() => void openLegalUrl(PRIVACY_POLICY_URL).catch(() => undefined)}>
@@ -286,6 +292,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.textOnLight,
+  },
+  disclosureText: {
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.textMutedOnLight,
+    textAlign: 'center',
+    paddingHorizontal: 4,
   },
   legalLinks: {
     flexDirection: 'row',
