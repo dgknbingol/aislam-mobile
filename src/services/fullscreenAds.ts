@@ -1,11 +1,15 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { getAppOpenAdUnitId, getInterstitialAdUnitId, isNativeAdsAvailable } from '../constants/ads';
 import { preloadRewardedAd } from './rewardedAds';
 
-/** Tam ekran interstitial'lar arası minimum süre (AdMob önerisi: doğal kırılım + seyrek). */
-const INTERSTITIAL_COOLDOWN_MS = 3 * 60 * 1000;
+/** Tam ekran interstitial'lar arası minimum süre (kısa oturum için). */
+const INTERSTITIAL_COOLDOWN_MS = 2 * 60 * 1000;
 
 /** App Open reklamlar arası minimum süre (arka plandan dönüş / cold start). */
-const APP_OPEN_COOLDOWN_MS = 4 * 60 * 60 * 1000;
+const APP_OPEN_COOLDOWN_MS = 30 * 60 * 1000;
+
+const COOLDOWN_STORAGE_KEY = '@aislam/fullscreen_ad_cooldowns_v1';
 
 type AdLike = {
   loaded: boolean;
@@ -20,6 +24,7 @@ let interstitialLoading = false;
 let appOpenLoading = false;
 let lastInterstitialShownAt = 0;
 let lastAppOpenShownAt = 0;
+let hydratePromise: Promise<void> | null = null;
 let adsModule: typeof import('react-native-google-mobile-ads') | null = null;
 
 function getAdsModule(): typeof import('react-native-google-mobile-ads') | null {
@@ -39,6 +44,42 @@ function getAdsModule(): typeof import('react-native-google-mobile-ads') | null 
 
 function requestOptions() {
   return { requestNonPersonalizedAdsOnly: true as const };
+}
+
+async function hydrateCooldowns(): Promise<void> {
+  if (hydratePromise) {
+    return hydratePromise;
+  }
+  hydratePromise = (async () => {
+    try {
+      const raw = await AsyncStorage.getItem(COOLDOWN_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { interstitial?: number; appOpen?: number };
+      if (typeof parsed.interstitial === 'number' && parsed.interstitial > lastInterstitialShownAt) {
+        lastInterstitialShownAt = parsed.interstitial;
+      }
+      if (typeof parsed.appOpen === 'number' && parsed.appOpen > lastAppOpenShownAt) {
+        lastAppOpenShownAt = parsed.appOpen;
+      }
+    } catch {
+      // depo okunamazsa bellek cooldown ile devam
+    }
+  })();
+  return hydratePromise;
+}
+
+async function persistCooldowns(): Promise<void> {
+  try {
+    await AsyncStorage.setItem(
+      COOLDOWN_STORAGE_KEY,
+      JSON.stringify({
+        interstitial: lastInterstitialShownAt,
+        appOpen: lastAppOpenShownAt,
+      }),
+    );
+  } catch {
+    // ignore
+  }
 }
 
 function attachReloadOnClose(ad: AdLike, reload: () => void): void {
@@ -115,6 +156,7 @@ function loadAppOpen(): void {
 /** AdMob init sonrası çağır — interstitial + app open + rewarded ön yükleme. */
 export function preloadFullscreenAds(): void {
   if (!isNativeAdsAvailable()) return;
+  void hydrateCooldowns();
   loadInterstitial();
   loadAppOpen();
   preloadRewardedAd();
@@ -138,6 +180,7 @@ export async function showInterstitialIfEligible(options?: {
   if (options?.isPremium || !isNativeAdsAvailable()) {
     return false;
   }
+  await hydrateCooldowns();
   if (!options?.ignoreCooldown && !canShowByCooldown(lastInterstitialShownAt, INTERSTITIAL_COOLDOWN_MS)) {
     return false;
   }
@@ -149,6 +192,7 @@ export async function showInterstitialIfEligible(options?: {
   try {
     await interstitial.show();
     lastInterstitialShownAt = Date.now();
+    void persistCooldowns();
     interstitial = null;
     loadInterstitial();
     return true;
@@ -161,6 +205,7 @@ export async function showInterstitialIfEligible(options?: {
 
 /**
  * Uygunsa App Open gösterir (cold start / uzun arka plan dönüşü).
+ * Cooldown cihazda saklanır — uygulamayı tamamen kapatsan da 30 dk dolmadan tekrar gelmez.
  */
 export async function showAppOpenIfEligible(options?: {
   isPremium?: boolean;
@@ -169,6 +214,7 @@ export async function showAppOpenIfEligible(options?: {
   if (options?.isPremium || !isNativeAdsAvailable()) {
     return false;
   }
+  await hydrateCooldowns();
   if (!options?.ignoreCooldown && !canShowByCooldown(lastAppOpenShownAt, APP_OPEN_COOLDOWN_MS)) {
     return false;
   }
@@ -180,6 +226,7 @@ export async function showAppOpenIfEligible(options?: {
   try {
     await appOpen.show();
     lastAppOpenShownAt = Date.now();
+    void persistCooldowns();
     appOpen = null;
     loadAppOpen();
     return true;

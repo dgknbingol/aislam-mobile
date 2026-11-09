@@ -38,6 +38,7 @@ export function preloadRewardedAd(): void {
 function loadRewarded(): void {
   const mod = getAdsModule();
   if (!mod || rewardedLoading) return;
+  if (rewarded?.loaded) return;
 
   rewardedLoading = true;
   try {
@@ -54,11 +55,6 @@ function loadRewarded(): void {
       rewardedLoading = false;
       rewarded = null;
     });
-    next.addAdEventListener(mod.AdEventType.CLOSED, () => {
-      rewarded = null;
-      rewardedLoading = false;
-      loadRewarded();
-    });
     next.load();
   } catch {
     rewardedLoading = false;
@@ -73,7 +69,8 @@ export type RewardedShowResult =
   | { status: 'error'; message: string };
 
 /**
- * Rewarded gösterir. Ödül yalnızca EARNED_REWARD olayında `earned` döner.
+ * Rewarded gösterir. Ödül EARNED_REWARD ile hemen onaylanır
+ * (CLOSED bazen ödülden önce geldiği için beklemek kaçırmaya yol açıyordu).
  */
 export function showRewardedAd(): Promise<RewardedShowResult> {
   return new Promise((resolve) => {
@@ -97,39 +94,44 @@ export function showRewardedAd(): Promise<RewardedShowResult> {
     const ad = rewarded;
     let earned = false;
     let settled = false;
+    let closedFallbackTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const cleanup = () => {
+      if (closedFallbackTimer) {
+        clearTimeout(closedFallbackTimer);
+        closedFallbackTimer = null;
+      }
+      unsubEarned();
+      unsubClosed();
+      unsubError();
+      rewarded = null;
+      rewardedLoading = false;
+      loadRewarded();
+    };
 
     const finish = (result: RewardedShowResult) => {
       if (settled) return;
       settled = true;
+      cleanup();
       resolve(result);
     };
 
     const unsubEarned = ad.addAdEventListener(mod.RewardedAdEventType.EARNED_REWARD, () => {
       earned = true;
+      // Ödülü CLOSED'a bırakma — bazı cihazlarda sıra tersine gelebiliyor.
+      finish({ status: 'earned' });
     });
     const unsubClosed = ad.addAdEventListener(mod.AdEventType.CLOSED, () => {
-      unsubEarned();
-      unsubClosed();
-      unsubError();
-      rewarded = null;
-      loadRewarded();
-      finish(earned ? { status: 'earned' } : { status: 'dismissed' });
+      // EARNED_REWARD biraz gecikebilir; kısa pencere tanı.
+      closedFallbackTimer = setTimeout(() => {
+        finish(earned ? { status: 'earned' } : { status: 'dismissed' });
+      }, 400);
     });
     const unsubError = ad.addAdEventListener(mod.AdEventType.ERROR, () => {
-      unsubEarned();
-      unsubClosed();
-      unsubError();
-      rewarded = null;
-      loadRewarded();
       finish({ status: 'error', message: 'Reklam gösterilemedi.' });
     });
 
     void ad.show().catch(() => {
-      unsubEarned();
-      unsubClosed();
-      unsubError();
-      rewarded = null;
-      loadRewarded();
       finish({ status: 'error', message: 'Reklam gösterilemedi.' });
     });
   });

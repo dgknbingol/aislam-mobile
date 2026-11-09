@@ -17,6 +17,7 @@ import { EDUCATION_ACHIEVEMENTS } from '../../constants/educationAchievements';
 import { EDUCATION_XP } from '../../constants/educationXp';
 import { useEducationCatalog } from '../../hooks/useEducationCatalog';
 import { useEducationProgress } from '../../hooks/useEducationProgress';
+import { useInterstitialLeave } from '../../hooks/useInterstitialLeave';
 import type { EducationStackParamList } from '../../navigation/types';
 import { EducationApiError, fetchEducationQuiz } from '../../services/educationApi';
 import type { EducationQuizDetail } from '../../types/education';
@@ -47,6 +48,7 @@ export default function EducationModuleQuizScreen() {
 
   const module = getModule(route.params.categoryId, route.params.moduleId);
   const quizMeta = module?.quiz;
+  const leaveWithAd = useInterstitialLeave();
 
   const [quiz, setQuiz] = useState<EducationQuizDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -139,7 +141,17 @@ export default function EducationModuleQuizScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.iconButton} accessibilityLabel="Geri">
+        <Pressable
+          onPress={() => {
+            if (isFinished) {
+              void leaveWithAd(() => navigation.goBack());
+              return;
+            }
+            navigation.goBack();
+          }}
+          style={styles.iconButton}
+          accessibilityLabel="Geri"
+        >
           <Ionicons name="chevron-back" size={24} color={colors.cream} />
         </Pressable>
         <View style={styles.headerText}>
@@ -212,7 +224,7 @@ export default function EducationModuleQuizScreen() {
             </Pressable>
             <Pressable
               style={styles.circleAction}
-              onPress={() => navigation.goBack()}
+              onPress={() => void leaveWithAd(() => navigation.goBack())}
               accessibilityLabel="Modüle dön"
             >
               <View style={[styles.circleButton, styles.circleButtonSecondary]}>

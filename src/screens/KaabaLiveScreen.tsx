@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useInterstitialLeave } from '../hooks/useInterstitialLeave';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 
@@ -35,6 +36,8 @@ function isLandscapeOrientation(orientation: ScreenOrientation.Orientation): boo
 export default function KaabaLiveScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
+  const leaveWithAd = useInterstitialLeave();
+  const leavingWithAdRef = useRef(false);
   const videoViewRef = useRef<VideoView>(null);
   const [immersive, setImmersive] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -107,6 +110,24 @@ export default function KaabaLiveScreen() {
   const openYouTube = useCallback(() => {
     void Linking.openURL(YOUTUBE_LIVE_URL);
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (leavingWithAdRef.current) return;
+      event.preventDefault();
+      leavingWithAdRef.current = true;
+      try {
+        player.pause();
+      } catch {
+        // ignore
+      }
+      void leaveWithAd(() => {
+        navigation.dispatch(event.data.action);
+        leavingWithAdRef.current = false;
+      });
+    });
+    return unsubscribe;
+  }, [leaveWithAd, navigation, player]);
 
   return (
     <View style={styles.container}>

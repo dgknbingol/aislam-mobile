@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { EducationStackParamList } from '../../navigation/types';
 import { useEducationCatalog } from '../../hooks/useEducationCatalog';
+import { useInterstitialLeave } from '../../hooks/useInterstitialLeave';
 import { colors } from '../../theme/colors';
 
 type RouteProps = RouteProp<EducationStackParamList, 'EducationCategoryQuiz'>;
@@ -15,6 +16,7 @@ export default function EducationCategoryQuizScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<EducationStackParamList>>();
   const route = useRoute<RouteProps>();
   const insets = useSafeAreaInsets();
+  const leaveWithAd = useInterstitialLeave();
   const { getCategory } = useEducationCatalog();
   const category = getCategory(route.params.categoryId);
   const quiz = category?.quiz;
@@ -22,7 +24,11 @@ export default function EducationCategoryQuizScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.iconButton} accessibilityLabel="Geri">
+        <Pressable
+          onPress={() => void leaveWithAd(() => navigation.goBack())}
+          style={styles.iconButton}
+          accessibilityLabel="Geri"
+        >
           <Ionicons name="chevron-back" size={24} color={colors.cream} />
         </Pressable>
         <View style={styles.headerText}>

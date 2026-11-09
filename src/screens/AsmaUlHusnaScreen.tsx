@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ASMAUL_HUSNA, type AsmaUlHusnaItem } from '../constants/asmaUlHusna';
 import { useAsmaPlaylist } from '../hooks/useAsmaPlaylist';
+import { useInterstitialLeave } from '../hooks/useInterstitialLeave';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 
@@ -74,6 +75,7 @@ export default function AsmaUlHusnaScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'AsmaUlHusna'>>();
   const insets = useSafeAreaInsets();
   const playlist = useAsmaPlaylist();
+  const leaveWithAd = useInterstitialLeave();
   const listRef = useRef<FlatList<AsmaUlHusnaItem>>(null);
   const sliderTrackRef = useRef<View>(null);
   const pageHeightRef = useRef(0);
@@ -84,6 +86,20 @@ export default function AsmaUlHusnaScreen() {
   const suppressFollowUntilRef = useRef(0);
   const lastFollowedIndexRef = useRef(-1);
   const didInitialScrollRef = useRef(false);
+  const leavingWithAdRef = useRef(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (leavingWithAdRef.current) return;
+      event.preventDefault();
+      leavingWithAdRef.current = true;
+      void leaveWithAd(() => {
+        navigation.dispatch(event.data.action);
+        leavingWithAdRef.current = false;
+      });
+    });
+    return unsubscribe;
+  }, [leaveWithAd, navigation]);
 
   const [pageHeight, setPageHeight] = useState(0);
   const [scrubRatio, setScrubRatio] = useState<number | null>(null);

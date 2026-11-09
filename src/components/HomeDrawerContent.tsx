@@ -1,10 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import PremiumPaywallModal from './subscription/PremiumPaywallModal';
+import { PREMIUM_UI_ENABLED } from '../constants/subscription';
 import { useAuth } from '../context/AuthContext';
+import { useSubscription } from '../context/SubscriptionContext';
 import { colors } from '../theme/colors';
 
 interface MenuRowProps {
@@ -44,6 +48,9 @@ export default function HomeDrawerContent(props: DrawerContentComponentProps) {
   const { navigation } = props;
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { quota } = useSubscription();
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const showPremiumRow = PREMIUM_UI_ENABLED && !quota?.premium;
 
   const openPrayerTimes = () => {
     navigation.closeDrawer();
@@ -93,6 +100,11 @@ export default function HomeDrawerContent(props: DrawerContentComponentProps) {
   const openSettings = () => {
     navigation.closeDrawer();
     navigation.getParent()?.navigate('Settings');
+  };
+
+  const openPremium = () => {
+    navigation.closeDrawer();
+    setPaywallVisible(true);
   };
 
   const openAccount = () => {
@@ -177,6 +189,14 @@ export default function HomeDrawerContent(props: DrawerContentComponentProps) {
             subtitle="Konum, bildirim ve diğer tercihler"
             onPress={openSettings}
           />
+          {showPremiumRow ? (
+            <MenuRow
+              icon="diamond-outline"
+              title="Premium Ol"
+              subtitle="Sınırsız sohbet, reklamsız deneyim"
+              onPress={openPremium}
+            />
+          ) : null}
           <MenuRow
             icon="person-outline"
             title={user ? 'Hesabım' : 'Giriş Yap'}
@@ -186,6 +206,10 @@ export default function HomeDrawerContent(props: DrawerContentComponentProps) {
           />
         </View>
       </DrawerContentScrollView>
+
+      {PREMIUM_UI_ENABLED ? (
+        <PremiumPaywallModal visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      ) : null}
     </View>
   );
 }

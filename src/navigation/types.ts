@@ -82,8 +82,6 @@ export type SettingsStackParamList = {
 
   DailyContentNotificationSettings: { kind: DailyContentKind };
 
-  PremiumSettings: undefined;
-
 };
 
 

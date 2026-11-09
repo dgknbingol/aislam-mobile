@@ -23,11 +23,8 @@ export default function AdBannerNative({ inline = false }: AdBannerNativeProps) 
     >
       <BannerAd
         unitId={getBannerAdUnitId()}
-        size={
-          inline
-            ? BannerAdSize.INLINE_ADAPTIVE_BANNER
-            : BannerAdSize.ANCHORED_ADAPTIVE_BANNER
-        }
+        // INLINE_ADAPTIVE scroll içinde aşırı uzayabiliyor; ince adaptive banner.
+        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         requestOptions={{ requestNonPersonalizedAdsOnly: true }}
         onAdFailedToLoad={() => setFailed(true)}
       />

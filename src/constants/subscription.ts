@@ -4,7 +4,7 @@
  * İlk Play sürümü reklamlı/ücretsiz çıkıyor; mağaza ürünleri ve RevenueCat
  * offering'i hazır olduğunda `true` yapıp yeni sürüm gönder.
  *
- * Kapalıyken: Ayarlar'daki Premium satırı, sohbet paywall'ı ve Premium linki gizlenir.
+ * Kapalıyken: menüdeki Premium Ol, sohbet paywall'ı ve Premium linki gizlenir.
  * Backend'den gelen `quota.premium` yine de geçerlidir (satın almış kullanıcı korunur).
  */
 export const PREMIUM_UI_ENABLED = true;

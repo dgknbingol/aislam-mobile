@@ -5,7 +5,6 @@ import CompetitionNotificationSettingsScreen from '../screens/settings/Competiti
 import DailyContentNotificationSettingsScreen from '../screens/settings/DailyContentNotificationSettingsScreen';
 import NotificationSettingsScreen from '../screens/settings/NotificationSettingsScreen';
 import PrayerNotificationSettingsScreen from '../screens/settings/PrayerNotificationSettingsScreen';
-import PremiumSettingsScreen from '../screens/settings/PremiumSettingsScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import AccountMainScreen from '../screens/account/AccountMainScreen';
 import AccountSignInScreen from '../screens/account/AccountSignInScreen';
@@ -42,7 +41,6 @@ export default function SettingsStackNavigator() {
         name="DailyContentNotificationSettings"
         component={DailyContentNotificationSettingsScreen}
       />
-      <Stack.Screen name="PremiumSettings" component={PremiumSettingsScreen} />
     </Stack.Navigator>
   );
 }

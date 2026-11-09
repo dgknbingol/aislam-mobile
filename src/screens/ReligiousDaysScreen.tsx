@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,6 +16,7 @@ import {
   type ReligiousDay,
   type ReligiousDayCategory,
 } from '../constants/religiousDays2026';
+import { useInterstitialLeave } from '../hooks/useInterstitialLeave';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 
@@ -69,7 +70,22 @@ function ReligiousDayCard({ day }: { day: ReligiousDay }) {
 export default function ReligiousDaysScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
+  const leaveWithAd = useInterstitialLeave();
   const listRef = useRef<SectionList<ReligiousDay>>(null);
+  const leavingWithAdRef = useRef(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (leavingWithAdRef.current) return;
+      event.preventDefault();
+      leavingWithAdRef.current = true;
+      void leaveWithAd(() => {
+        navigation.dispatch(event.data.action);
+        leavingWithAdRef.current = false;
+      });
+    });
+    return unsubscribe;
+  }, [leaveWithAd, navigation]);
 
   const sections = useMemo(() => {
     return groupReligiousDaysByMonth(RELIGIOUS_DAYS_2026).map((section) => ({

@@ -33,7 +33,6 @@ interface PremiumPaywallModalProps {
 const FEATURES = [
   { icon: 'chatbubbles-outline' as const, label: `Günlük ${PREMIUM_DAILY_CHAT_LIMIT} AI Chat kullanım hakkı` },
   { icon: 'eye-off-outline' as const, label: 'Reklamsız kullanım' },
-  { icon: 'trophy-outline' as const, label: 'Potansiyel yarışma ödülleri' },
 ] as const;
 
 function formatPrice(priceString: string | null | undefined, fallback: string): string {
@@ -58,6 +57,18 @@ function computeYearlyDiscountPercent(
   const fullYearMonthly = monthly * 12;
   const saved = Math.round((1 - yearly / fullYearMonthly) * 100);
   return saved > 0 && saved < 100 ? saved : null;
+}
+
+/** Yıllık toplamı aylık eşdeğere çevirir (ör. ₺58,33/ay). */
+function formatYearlyAsMonthlyEquivalent(yearlyPrice: string | null | undefined): string | null {
+  const yearly = parsePrice(yearlyPrice);
+  if (!yearly || yearly <= 0) return null;
+  const perMonth = yearly / 12;
+  const formatted = perMonth.toLocaleString('tr-TR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `₺${formatted}/ay`;
 }
 
 export default function PremiumPaywallModal({ visible, onClose }: PremiumPaywallModalProps) {
@@ -94,6 +105,10 @@ export default function PremiumPaywallModal({ visible, onClose }: PremiumPaywall
 
   const monthlyPrice = formatPrice(monthlyPackage?.product.priceString, '—');
   const yearlyPrice = formatPrice(yearlyPackage?.product.priceString, '—');
+  const yearlyMonthlyEquivalent = useMemo(
+    () => formatYearlyAsMonthlyEquivalent(yearlyPackage?.product.priceString),
+    [yearlyPackage],
+  );
 
   const ctaPrice = selectedPlan === 'yearly' ? yearlyPrice : monthlyPrice;
   const ctaPeriod = selectedPlan === 'yearly' ? 'yıl' : 'ay';
@@ -197,7 +212,9 @@ export default function PremiumPaywallModal({ visible, onClose }: PremiumPaywall
                 <Text style={[styles.planPrice, selectedPlan === 'yearly' && styles.planPriceSelected]}>
                   {yearlyPrice}
                 </Text>
-                <Text style={styles.planPeriod}>/ yıl</Text>
+                <Text style={styles.planPeriod}>
+                  {yearlyMonthlyEquivalent ?? '/ yıl'}
+                </Text>
               </Pressable>
             </View>
 

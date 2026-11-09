@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useInterstitialLeave } from '../hooks/useInterstitialLeave';
 import type { RootStackParamList } from '../navigation/types';
 import { syncHutbes } from '../services/hutbeApi';
 import {
@@ -26,6 +27,7 @@ export default function HutbeDetailScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'HutbeDetail'>>();
   const insets = useSafeAreaInsets();
+  const leaveWithAd = useInterstitialLeave();
   const [hutbe, setHutbe] = useState<HutbeItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [openError, setOpenError] = useState<string | null>(null);
@@ -74,7 +76,11 @@ export default function HutbeDetailScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.iconButton} accessibilityLabel="Geri">
+        <Pressable
+          onPress={() => void leaveWithAd(() => navigation.goBack())}
+          style={styles.iconButton}
+          accessibilityLabel="Geri"
+        >
           <Ionicons name="chevron-back" size={24} color={colors.cream} />
         </Pressable>
         <View style={styles.headerText}>
@@ -119,7 +125,7 @@ export default function HutbeDetailScreen() {
           {openError ? <Text style={styles.errorText}>{openError}</Text> : null}
 
           <Pressable
-            onPress={() => navigation.navigate('Hutbeler')}
+            onPress={() => void leaveWithAd(() => navigation.navigate('Hutbeler'))}
             style={({ pressed }) => [styles.secondaryButton, pressed && styles.secondaryPressed]}
           >
             <Text style={styles.secondaryText}>Tüm hutbelere git</Text>

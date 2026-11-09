@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
+import { useInterstitialLeave } from '../hooks/useInterstitialLeave';
 import { colors } from '../theme/colors';
 import type { Conversation } from '../types/chat';
 
@@ -84,6 +85,7 @@ export default function ChatDrawerContent(props: DrawerContentComponentProps) {
   const { navigation } = props;
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const leaveWithAd = useInterstitialLeave();
   const {
     conversations,
     activeConversation,
@@ -119,7 +121,9 @@ export default function ChatDrawerContent(props: DrawerContentComponentProps) {
 
   const handleGoHome = () => {
     navigation.closeDrawer();
-    navigation.getParent()?.navigate('Home');
+    void leaveWithAd(() => {
+      navigation.getParent()?.navigate('Home');
+    });
   };
 
   const handleGoAccount = () => {

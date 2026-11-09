@@ -20,6 +20,7 @@ import LocationPermissionGate, {
 import QiblaCompass, { type TurnHint } from '../components/qibla/QiblaCompass';
 import { useLocationContext } from '../context/LocationContext';
 import { useCompassHeading } from '../hooks/useCompassHeading';
+import { useInterstitialLeave } from '../hooks/useInterstitialLeave';
 import type { RootStackParamList } from '../navigation/types';
 import {
   angleDifference,
@@ -36,6 +37,8 @@ const BG = '#0A0E14';
 export default function QiblaScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
+  const leaveWithAd = useInterstitialLeave();
+  const leavingWithAdRef = useRef(false);
   const {
     latitude,
     longitude,
@@ -52,6 +55,19 @@ export default function QiblaScreen() {
   );
   const [showCalibrationTip, setShowCalibrationTip] = useState(false);
   const wasAlignedRef = useRef(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (leavingWithAdRef.current) return;
+      event.preventDefault();
+      leavingWithAdRef.current = true;
+      void leaveWithAd(() => {
+        navigation.dispatch(event.data.action);
+        leavingWithAdRef.current = false;
+      });
+    });
+    return unsubscribe;
+  }, [leaveWithAd, navigation]);
 
   useEffect(() => {
     if (!hasTrustedLocation) {

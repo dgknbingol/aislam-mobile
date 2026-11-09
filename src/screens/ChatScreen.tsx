@@ -16,6 +16,7 @@ import {
 import { Pressable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import ChatRewardedStrip from '../components/ads/ChatRewardedStrip';
 import ChatBubble from '../components/ChatBubble';
 import ChatInput from '../components/ChatInput';
 import PressableScale from '../components/PressableScale';
@@ -175,6 +176,7 @@ export default function ChatScreen() {
             : undefined
         }
       >
+        <ChatRewardedStrip />
         <ChatInput onSend={handleSend} disabled={isLoading} />
       </View>
 

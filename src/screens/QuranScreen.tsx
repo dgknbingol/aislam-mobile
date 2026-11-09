@@ -23,6 +23,7 @@ import HomeBottomNav from '../components/HomeBottomNav';
 import { getSurahNameTr } from '../constants/surahNamesTr';
 import { QURAN_CONFIG } from '../config/quran';
 import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
+import { useInterstitialLeave } from '../hooks/useInterstitialLeave';
 import { useQuranPlayback } from '../hooks/useQuranPlayback';
 import type { RootStackParamList } from '../navigation/types';
 import { fetchSurahContent, fetchSurahList } from '../services/quranApi';
@@ -48,6 +49,7 @@ const VIEWABILITY_CONFIG = {
 export default function QuranScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const leaveWithAd = useInterstitialLeave();
   const route = useRoute<QuranRoute>();
   const handleTabPress = useHomeTabNavigation();
   const listRef = useRef<FlatList<AyahWithTranslation>>(null);
@@ -178,7 +180,7 @@ export default function QuranScreen() {
   }, [route.params?.surahNumber, route.params?.ayahNumber, navigation, openSurah]);
 
   const goBackToList = useCallback(() => {
-    // Önce UI'ı listeye al — ayet FlatList unmount olurken async stop beklemek Android crash'e yol açabiliyordu.
+    // Sure içi → liste geçişi: interstitial yok (sadece Kur'an ekranından çıkışta).
     setViewMode('list');
     setSelectedSurah(null);
     setReadingSurahNumber(null);
@@ -188,6 +190,31 @@ export default function QuranScreen() {
     void playback.stop();
     void refreshReadingState();
   }, [playback, refreshReadingState]);
+
+  const onTabPress = useCallback(
+    (tab: Parameters<typeof handleTabPress>[0]) => {
+      if (tab === 'quran') {
+        handleTabPress(tab);
+        return;
+      }
+      void leaveWithAd(() => handleTabPress(tab));
+    },
+    [handleTabPress, leaveWithAd],
+  );
+
+  const leavingQuranRef = useRef(false);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (leavingQuranRef.current) return;
+      event.preventDefault();
+      leavingQuranRef.current = true;
+      void leaveWithAd(() => {
+        navigation.dispatch(event.data.action);
+        leavingQuranRef.current = false;
+      });
+    });
+    return unsubscribe;
+  }, [leaveWithAd, navigation]);
 
   const handlePlaySurah = useCallback(async () => {
     if (!selectedSurah?.ayahs.length) return;
@@ -499,7 +526,7 @@ export default function QuranScreen() {
         />
       ) : null}
 
-      <HomeBottomNav activeTab="quran" onTabPress={handleTabPress} />
+      <HomeBottomNav activeTab="quran" onTabPress={onTabPress} />
 
       <QuranNavigateSheet
         visible={navSheetVisible}

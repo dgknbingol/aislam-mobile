@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Keyboard,
   Pressable,
@@ -14,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeBottomNav, { HOME_BOTTOM_NAV_CONTENT_PAD } from '../components/HomeBottomNav';
 import TesbihProgressRing from '../components/TesbihProgressRing';
 import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
+import { useInterstitialLeave } from '../hooks/useInterstitialLeave';
 import { colors } from '../theme/colors';
 
 type PresetTarget = 33 | 99 | 100 | 'infinite';
@@ -31,8 +33,24 @@ const BUTTON_SIZE = 200;
 
 export default function TesbihScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const handleTabPress = useHomeTabNavigation();
+  const leaveWithAd = useInterstitialLeave();
+  const leavingWithAdRef = useRef(false);
   const customInputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (leavingWithAdRef.current) return;
+      event.preventDefault();
+      leavingWithAdRef.current = true;
+      void leaveWithAd(() => {
+        navigation.dispatch(event.data.action);
+        leavingWithAdRef.current = false;
+      });
+    });
+    return unsubscribe;
+  }, [leaveWithAd, navigation]);
 
   const [count, setCount] = useState(0);
   const [lapCount, setLapCount] = useState(0);

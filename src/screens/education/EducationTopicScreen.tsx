@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,6 +11,7 @@ import type { EducationStackParamList, RootStackParamList } from '../../navigati
 import { useEducationCatalog } from '../../hooks/useEducationCatalog';
 import { useEducationTopic } from '../../hooks/useEducationTopic';
 import { useEducationProgress } from '../../hooks/useEducationProgress';
+import { useInterstitialLeave } from '../../hooks/useInterstitialLeave';
 import { colors } from '../../theme/colors';
 
 type RouteProps = RouteProp<EducationStackParamList, 'EducationLesson'>;
@@ -29,7 +30,9 @@ export default function EducationTopicScreen() {
   const { topic, isLoading, error } = useEducationTopic(route.params.lessonId);
   const { getModule } = useEducationCatalog();
   const { completeLesson, isLessonCompleted, refresh } = useEducationProgress();
+  const leaveWithAd = useInterstitialLeave();
   const [markedComplete, setMarkedComplete] = useState(false);
+  const leavingWithAdRef = useRef(false);
 
   const module = getModule(route.params.categoryId, route.params.moduleId);
   const moduleLessonIds = module?.lessons.map((lesson) => lesson.id) ?? [];
@@ -61,6 +64,19 @@ export default function EducationTopicScreen() {
     setMarkedComplete(true);
     void completeLesson(route.params.lessonId, route.params.moduleId, moduleLessonIds);
   };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (leavingWithAdRef.current) return;
+      event.preventDefault();
+      leavingWithAdRef.current = true;
+      void leaveWithAd(() => {
+        navigation.dispatch(event.data.action);
+        leavingWithAdRef.current = false;
+      });
+    });
+    return unsubscribe;
+  }, [leaveWithAd, navigation]);
 
   const relatedLinks: RelatedLink[] = [];
 

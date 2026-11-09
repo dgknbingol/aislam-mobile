@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,11 +13,19 @@ import { isNativeAdsAvailable } from '../constants/ads';
 import { useSubscription } from '../context/SubscriptionContext';
 import { ChatApiError } from '../services/chatApi';
 import { preloadRewardedAd, showRewardedAd } from '../services/rewardedAds';
-import { colors } from '../theme/colors';
+
+const CARD = {
+  bg: '#EAF2FB',
+  accent: '#173B63',
+  title: '#0D1930',
+  body: '#34425B',
+  button: '#173B63',
+  buttonText: '#FFFFFF',
+} as const;
 
 /**
  * Ana sayfa: reklam izle → +1 sohbet hakkı (günde max 5).
- * Premium ve kota dolu rewardedRemaining=0 iken gizlenir.
+ * Premium ve rewardedRemaining=0 iken gizlenir.
  */
 export default function RewardedBonusCard() {
   const { quota, claimRewardedBonus } = useSubscription();
@@ -39,6 +48,10 @@ export default function RewardedBonusCard() {
         return;
       }
       if (result.status === 'dismissed') {
+        Alert.alert(
+          'Ödül kazanılmadı',
+          'Reklamı sonuna kadar izlemen gerekiyor. Bitince hak otomatik eklenir.',
+        );
         return;
       }
       if (result.status === 'error') {
@@ -72,88 +85,95 @@ export default function RewardedBonusCard() {
   }
 
   return (
-    <Pressable
-      onPress={() => void onWatch()}
-      disabled={busy}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed, busy && styles.cardBusy]}
-      accessibilityRole="button"
-      accessibilityLabel="Reklam izle, bir sohbet hakkı kazan"
-    >
+    <View style={styles.card}>
       <View style={styles.accent} />
       <View style={styles.content}>
         <View style={styles.headerRow}>
-          <Text style={styles.emoji}>🎬</Text>
-          <Text style={styles.title}>Ek soru hakkı</Text>
+          <Ionicons name="play-circle" size={20} color={CARD.accent} />
+          <Text style={styles.title} numberOfLines={1}>
+            Sohbet Hakkı Kazan
+          </Text>
         </View>
-        <Text style={styles.body}>
-          Kısa bir reklam izle, 1 sohbet hakkı kazan. Bugün {quota.rewardedRemaining} hakkın kaldı.
+        <Text style={styles.body} numberOfLines={2}>
+          Kısa bir reklam izleyerek bugün {quota.rewardedRemaining} ek soru hakkı
+          kazanabilirsin.
         </Text>
-        <View style={styles.ctaRow}>
+        <Pressable
+          onPress={() => void onWatch()}
+          disabled={busy}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+            busy && styles.buttonBusy,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Reklam izle, bir sohbet hakkı kazan"
+        >
           {busy ? (
-            <ActivityIndicator size="small" color={colors.goldMuted} />
+            <ActivityIndicator size="small" color={CARD.buttonText} />
           ) : (
-            <Text style={styles.cta}>Reklam izle · +1 soru</Text>
+            <Text style={styles.buttonText} numberOfLines={1}>
+              Reklam izle +1 Soru
+            </Text>
           )}
-        </View>
+        </Pressable>
       </View>
-    </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: CARD.bg,
     borderRadius: 16,
     marginBottom: 14,
     overflow: 'hidden',
-    shadowColor: colors.textOnLight,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  cardPressed: {
-    opacity: 0.92,
-  },
-  cardBusy: {
-    opacity: 0.75,
   },
   accent: {
-    width: 5,
-    backgroundColor: '#2E6B9E',
+    width: 4,
+    backgroundColor: CARD.accent,
   },
   content: {
     flex: 1,
-    padding: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
     gap: 8,
-  },
-  emoji: {
-    fontSize: 18,
+    marginBottom: 6,
   },
   title: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 15,
     fontWeight: '700',
-    color: colors.textOnLight,
+    color: CARD.title,
   },
   body: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.textMutedOnLight,
+    fontSize: 13,
+    lineHeight: 18,
+    color: CARD.body,
     marginBottom: 10,
   },
-  ctaRow: {
-    minHeight: 22,
+  button: {
+    alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 40,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    backgroundColor: CARD.button,
   },
-  cta: {
+  buttonPressed: {
+    opacity: 0.9,
+  },
+  buttonBusy: {
+    opacity: 0.75,
+  },
+  buttonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#2E6B9E',
+    color: CARD.buttonText,
   },
 });

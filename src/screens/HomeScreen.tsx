@@ -18,11 +18,13 @@ import { getAsmaOfDay } from '../constants/asmaUlHusna';
 import DailyContentCard from '../components/DailyContentCard';
 import HomeBottomNav, { HOME_BOTTOM_NAV_CONTENT_PAD } from '../components/HomeBottomNav';
 import AdBanner from '../components/ads/AdBanner';
+import RemoveAdsBanner from '../components/ads/RemoveAdsBanner';
 import HomeCompetitionSection from '../components/quiz/HomeCompetitionSection';
 import HomeScoreStatusSection from '../components/quiz/HomeScoreStatusSection';
 import NextPrayerCard from '../components/NextPrayerCard';
 import RewardedBonusCard from '../components/RewardedBonusCard';
 import TodayPrayerTimesSection from '../components/prayer-banners/TodayPrayerTimesSection';
+import { useSubscription } from '../context/SubscriptionContext';
 import { useLocationContext } from '../context/LocationContext';
 import { useHomeTabNavigation } from '../hooks/useHomeTabNavigation';
 import type { RootStackParamList } from '../navigation/types';
@@ -60,6 +62,8 @@ export default function HomeScreen() {
     isLoadingPrayerTimes,
     locationLabel,
   } = useLocationContext();
+  const { quota } = useSubscription();
+  const showHomeAds = quota?.premium !== true;
   const [now, setNow] = useState(() => new Date());
   const [dailyContent, setDailyContent] = useState<DailyContentResponse | null>(null);
   const [isLoadingDaily, setIsLoadingDaily] = useState(true);
@@ -226,6 +230,13 @@ export default function HomeScreen() {
           }
           prayerId={nextPrayer?.id ?? 'ogle'}
         />
+
+        {showHomeAds ? (
+          <>
+            <AdBanner inline />
+            <RemoveAdsBanner />
+          </>
+        ) : null}
 
         <TodayPrayerTimesSection
           todayPrayerDay={todayPrayerDay}
