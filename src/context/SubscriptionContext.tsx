@@ -57,10 +57,11 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const claimRewardedBonus = useCallback(async (): Promise<ChatQuota> => {
-    const next = await claimRewardedChatBonus();
+    const previousBonus = quota?.rewardedBonus ?? 0;
+    const next = await claimRewardedChatBonus(previousBonus);
     setQuota(next);
     return next;
-  }, []);
+  }, [quota?.rewardedBonus]);
 
   const loadOfferings = useCallback(async () => {
     if (!isStoreConfigured) return;

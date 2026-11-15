@@ -1,5 +1,6 @@
 import { AI_CONFIG } from '../config/ai';
 import type { EducationCatalog, EducationQuizDetail, EducationTopicDetail } from '../types/education';
+import { apiClientHeaders } from './apiClientHeaders';
 
 function baseUrl(): string {
   return AI_CONFIG.ragBaseUrl.replace(/\/$/, '');
@@ -22,7 +23,9 @@ export class EducationApiError extends Error {
 }
 
 export async function fetchEducationCatalog(): Promise<EducationCatalog> {
-  const response = await fetch(`${baseUrl()}/api/education/catalog`);
+  const response = await fetch(`${baseUrl()}/api/education/catalog`, {
+    headers: await apiClientHeaders(false),
+  });
   if (!response.ok) {
     throw new EducationApiError(await parseError(response));
   }
@@ -30,7 +33,10 @@ export async function fetchEducationCatalog(): Promise<EducationCatalog> {
 }
 
 export async function fetchEducationTopic(topicId: string): Promise<EducationTopicDetail> {
-  const response = await fetch(`${baseUrl()}/api/education/topics/${encodeURIComponent(topicId)}`);
+  const response = await fetch(
+    `${baseUrl()}/api/education/topics/${encodeURIComponent(topicId)}`,
+    { headers: await apiClientHeaders(false) },
+  );
   if (!response.ok) {
     throw new EducationApiError(await parseError(response));
   }
@@ -38,7 +44,10 @@ export async function fetchEducationTopic(topicId: string): Promise<EducationTop
 }
 
 export async function fetchEducationQuiz(quizId: string): Promise<EducationQuizDetail> {
-  const response = await fetch(`${baseUrl()}/api/education/quizzes/${encodeURIComponent(quizId)}`);
+  const response = await fetch(
+    `${baseUrl()}/api/education/quizzes/${encodeURIComponent(quizId)}`,
+    { headers: await apiClientHeaders(false) },
+  );
   if (!response.ok) {
     throw new EducationApiError(await parseError(response));
   }

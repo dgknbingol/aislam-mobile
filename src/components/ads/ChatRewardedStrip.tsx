@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { isNativeAdsAvailable } from '../../constants/ads';
+import { useAdsConfig } from '../../context/AdsConfigContext';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { ChatApiError } from '../../services/chatApi';
 import { preloadRewardedAd, showRewardedAd } from '../../services/rewardedAds';
@@ -25,6 +26,7 @@ const HONEY = {
  */
 export default function ChatRewardedStrip() {
   const { quota, claimRewardedBonus } = useSubscription();
+  const adsConfig = useAdsConfig();
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function ChatRewardedStrip() {
     }
   }, [busy, claimRewardedBonus]);
 
-  if (!isNativeAdsAvailable()) {
+  if (!isNativeAdsAvailable() || !adsConfig.rewardedEnabled) {
     return null;
   }
   if (!quota || quota.premium || quota.rewardedRemaining <= 0) {

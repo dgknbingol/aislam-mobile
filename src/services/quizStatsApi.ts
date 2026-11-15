@@ -1,5 +1,5 @@
 import { AI_CONFIG } from '../config/ai';
-import { ensureAppUserId } from './appUserStorage';
+import { apiClientHeaders } from './apiClientHeaders';
 
 export interface QuizPlayer {
   playerId: string;
@@ -72,14 +72,6 @@ function baseUrl(): string {
   return AI_CONFIG.ragBaseUrl.replace(/\/$/, '');
 }
 
-async function buildHeaders(): Promise<Record<string, string>> {
-  const appUserId = await ensureAppUserId();
-  return {
-    'Content-Type': 'application/json',
-    'X-App-User-Id': appUserId,
-  };
-}
-
 async function parseJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
     throw new Error(`Quiz stats API failed (${response.status})`);
@@ -93,7 +85,7 @@ export async function registerQuizPlayer(params: {
 }): Promise<QuizPlayer> {
   const response = await fetch(`${baseUrl()}/api/quiz/players/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await apiClientHeaders(true),
     body: JSON.stringify({
       playerId: params.playerId,
       displayName: params.displayName,
@@ -109,7 +101,7 @@ export async function registerQuizParticipation(params: {
 }): Promise<QuizParticipation> {
   const response = await fetch(`${baseUrl()}/api/quiz/participations`, {
     method: 'POST',
-    headers: await buildHeaders(),
+    headers: await apiClientHeaders(true),
     body: JSON.stringify(params),
   });
 
@@ -125,7 +117,7 @@ export async function submitQuizAttempt(params: {
 }): Promise<QuizAttemptStatus> {
   const response = await fetch(`${baseUrl()}/api/quiz/attempts`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await apiClientHeaders(true),
     body: JSON.stringify(params),
   });
 
@@ -137,7 +129,9 @@ export async function fetchQuizAttemptStatus(
   eventId: string,
 ): Promise<QuizAttemptStatus> {
   const query = new URLSearchParams({ playerId, eventId });
-  const response = await fetch(`${baseUrl()}/api/quiz/attempts/status?${query.toString()}`);
+  const response = await fetch(`${baseUrl()}/api/quiz/attempts/status?${query.toString()}`, {
+    headers: await apiClientHeaders(false),
+  });
   return parseJson<QuizAttemptStatus>(response);
 }
 
@@ -149,12 +143,16 @@ export async function fetchMonthlyLeaderboard(
     playerId,
     limit: String(limit),
   });
-  const response = await fetch(`${baseUrl()}/api/quiz/leaderboard/monthly?${query.toString()}`);
+  const response = await fetch(`${baseUrl()}/api/quiz/leaderboard/monthly?${query.toString()}`, {
+    headers: await apiClientHeaders(false),
+  });
   return parseJson<MonthlyLeaderboardDto>(response);
 }
 
 export async function fetchQuizAchievements(playerId: string): Promise<QuizAchievementsDto> {
   const query = new URLSearchParams({ playerId });
-  const response = await fetch(`${baseUrl()}/api/quiz/achievements?${query.toString()}`);
+  const response = await fetch(`${baseUrl()}/api/quiz/achievements?${query.toString()}`, {
+    headers: await apiClientHeaders(false),
+  });
   return parseJson<QuizAchievementsDto>(response);
 }

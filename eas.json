@@ -13,6 +13,7 @@
       "env": {
         "EXPO_PUBLIC_RAG_API_URL": "https://api.e-islam.net",
         "EXPO_PUBLIC_ADMOB_FORCE_TEST_ADS": "true",
+        "EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER": "415198635831",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "415198635831-uau39j8kgmdb9pkmtl2dsan4e0gi30dc.apps.googleusercontent.com",
         "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "415198635831-1u22fskt31pejl149qvmig637k4hbrff.apps.googleusercontent.com"
       }
@@ -26,6 +27,7 @@
       },
       "env": {
         "EXPO_PUBLIC_RAG_API_URL": "https://api.e-islam.net",
+        "EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER": "415198635831",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "415198635831-uau39j8kgmdb9pkmtl2dsan4e0gi30dc.apps.googleusercontent.com",
         "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "415198635831-1u22fskt31pejl149qvmig637k4hbrff.apps.googleusercontent.com"
       }
@@ -35,6 +37,7 @@
       "env": {
         "EXPO_PUBLIC_RAG_API_URL": "https://api.e-islam.net",
         "EXPO_PUBLIC_ADMOB_FORCE_TEST_ADS": "true",
+        "EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER": "415198635831",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "415198635831-uau39j8kgmdb9pkmtl2dsan4e0gi30dc.apps.googleusercontent.com",
         "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "415198635831-1u22fskt31pejl149qvmig637k4hbrff.apps.googleusercontent.com"
       }
@@ -43,6 +46,7 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_RAG_API_URL": "https://api.e-islam.net",
+        "EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER": "415198635831",
         "EXPO_PUBLIC_ADMOB_ANDROID_APP_ID": "ca-app-pub-2273163727464440~4538295161",
         "EXPO_PUBLIC_ADMOB_BANNER_ANDROID": "ca-app-pub-2273163727464440/6255691195",
         "EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID": "ca-app-pub-2273163727464440/5137235973",

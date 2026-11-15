@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AI_CONFIG } from '../config/ai';
+import { apiClientHeaders } from './apiClientHeaders';
 
 export interface DailyItem {
   text: string;
@@ -63,9 +64,7 @@ async function fetchDailyContentFromNetwork(): Promise<DailyContentResponse> {
   const url = `${AI_CONFIG.ragBaseUrl.replace(/\/$/, '')}/api/daily/today`;
 
   const response = await fetch(url, {
-    headers: {
-      'ngrok-skip-browser-warning': 'true',
-    },
+    headers: await apiClientHeaders(false),
   });
 
   let data: DailyContentResponse | ApiErrorResponse | null = null;

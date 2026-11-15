@@ -1,5 +1,5 @@
 import { AI_CONFIG } from '../config/ai';
-import { ensureAppUserId } from './appUserStorage';
+import { apiClientHeaders } from './apiClientHeaders';
 
 export interface ChatQuota {
   limit: number;
@@ -51,15 +51,7 @@ function baseUrl(): string {
 }
 
 async function buildHeaders(json = true): Promise<Record<string, string>> {
-  const appUserId = await ensureAppUserId();
-  const headers: Record<string, string> = {
-    'ngrok-skip-browser-warning': 'true',
-    'X-App-User-Id': appUserId,
-  };
-  if (json) {
-    headers['Content-Type'] = 'application/json';
-  }
-  return headers;
+  return apiClientHeaders(json);
 }
 
 async function parseError(response: Response): Promise<ChatApiError> {
@@ -87,18 +79,42 @@ export async function fetchChatQuota(): Promise<ChatQuota> {
   return normalizeQuota(await response.json());
 }
 
-/** Rewarded reklam ödülü sonrası +1 günlük soru hakkı talep eder. */
-export async function claimRewardedChatBonus(): Promise<ChatQuota> {
+/**
+ * Rewarded sonrası kota yenile.
+ * SSV açıksa sunucu AdMob callback ile bonus verir — istemci claim etmez, poll eder.
+ * SSV kapalıysa eski claim endpoint’ine düşer.
+ */
+export async function claimRewardedChatBonus(
+  previousBonus = 0,
+): Promise<ChatQuota> {
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  for (let i = 0; i < 12; i++) {
+    await sleep(i === 0 ? 800 : 1000);
+    const quota = await fetchChatQuota();
+    if (quota.rewardedBonus > previousBonus) {
+      return quota;
+    }
+  }
+
+  // SSV gecikmesi / kapalı ortam — legacy claim dene
   const response = await fetch(`${baseUrl()}/api/chat/quota/rewarded-bonus`, {
     method: 'POST',
     headers: await buildHeaders(false),
   });
 
-  if (!response.ok) {
-    throw await parseError(response);
+  if (response.ok) {
+    return normalizeQuota(await response.json());
   }
 
-  return normalizeQuota(await response.json());
+  const err = await parseError(response);
+  if (err.code === 'CHAT_REWARD_SSV_REQUIRED') {
+    throw new ChatApiError(
+      'Ödül henüz doğrulanmadı. Birkaç saniye sonra sohbet kotanızı kontrol edin.',
+      err.code,
+    );
+  }
+  throw err;
 }
 
 function normalizeQuota(raw: Partial<ChatQuota> & {

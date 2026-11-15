@@ -7,19 +7,23 @@ import AdBanner from './AdBanner';
 import PremiumPaywallModal from '../subscription/PremiumPaywallModal';
 import { isNativeAdsAvailable } from '../../constants/ads';
 import { PREMIUM_UI_ENABLED } from '../../constants/subscription';
+import { useAdsConfig } from '../../context/AdsConfigContext';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { colors } from '../../theme/colors';
 
 /**
- * Tüm ekranların altında sabit banner.
- * Klavye açıkken gizlenir — chat input klavyenin altında kalmasın.
- * Sağ üst X → Premium (reklamları kaldır).
+ * Tüm ekranların altında sabit banner + alt safe-area.
+ * Premium / ads yokken banner gizlenir ama safe-area spacer kalır
+ * (aksi halde chat, zikirmatik vb. sistem çubuğuna kayar).
+ * Klavye açıkken tamamen gizlenir — chat input klavyenin altında kalmasın.
  */
 export default function GlobalAdBannerHost() {
   const insets = useSafeAreaInsets();
   const { quota } = useSubscription();
+  const adsConfig = useAdsConfig();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const bottomInset = Math.max(insets.bottom, 0);
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -32,12 +36,22 @@ export default function GlobalAdBannerHost() {
     };
   }, []);
 
-  if (quota?.premium || !isNativeAdsAvailable() || keyboardVisible) {
+  if (keyboardVisible) {
     return null;
   }
 
+  const showBanner =
+    !quota?.premium && isNativeAdsAvailable() && adsConfig.bannerEnabled;
+
+  if (!showBanner) {
+    if (bottomInset <= 0) {
+      return null;
+    }
+    return <View style={[styles.safeSpacer, { height: bottomInset }]} />;
+  }
+
   return (
-    <View style={[styles.host, { paddingBottom: Math.max(insets.bottom, 0) }]}>
+    <View style={[styles.host, { paddingBottom: bottomInset }]}>
       <View style={styles.bannerWrap}>
         <AdBanner />
         {PREMIUM_UI_ENABLED ? (
@@ -62,6 +76,9 @@ export default function GlobalAdBannerHost() {
 
 const styles = StyleSheet.create({
   host: {
+    backgroundColor: colors.bar,
+  },
+  safeSpacer: {
     backgroundColor: colors.bar,
   },
   bannerWrap: {

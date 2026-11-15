@@ -1,12 +1,15 @@
 import { AI_CONFIG } from '../config/ai';
 import type { QuizAnswerCheckResult, QuizQuestion } from '../types/quiz';
+import { apiClientHeaders } from './apiClientHeaders';
 
 function baseUrl(): string {
   return AI_CONFIG.ragBaseUrl.replace(/\/$/, '');
 }
 
 export async function fetchQuizQuestions(): Promise<QuizQuestion[]> {
-  const response = await fetch(`${baseUrl()}/api/quiz/questions`);
+  const response = await fetch(`${baseUrl()}/api/quiz/questions`, {
+    headers: await apiClientHeaders(false),
+  });
   if (!response.ok) {
     throw new Error('Sorular yüklenemedi.');
   }
@@ -20,7 +23,7 @@ export async function checkQuizAnswer(
 ): Promise<QuizAnswerCheckResult> {
   const response = await fetch(`${baseUrl()}/api/quiz/questions/${questionId}/check`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await apiClientHeaders(true),
     body: JSON.stringify({ optionId, responseTimeMs }),
   });
 

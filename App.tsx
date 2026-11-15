@@ -13,6 +13,7 @@ import SplashOverlay, { preloadSplashImage } from './src/components/SplashOverla
 import { preloadPrayerBannerImages } from './src/components/prayer-banners/prayerBannerAssets';
 import AppOpenAdLifecycle from './src/components/ads/AppOpenAdLifecycle';
 import GlobalAdBannerHost from './src/components/ads/GlobalAdBannerHost';
+import { AdsConfigProvider } from './src/context/AdsConfigContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { ChatProvider } from './src/context/ChatContext';
 import { LocationProvider } from './src/context/LocationContext';
@@ -88,23 +89,25 @@ export default function App() {
         <LocationProvider>
           <AuthProvider>
             <SubscriptionProvider>
-              <ChatProvider>
-                <View style={styles.shell}>
-                  <View style={styles.navArea}>
-                    <NavigationContainer
-                      ref={navigationRef}
-                      onReady={() => {
-                        flushPendingNotificationNavigation();
-                      }}
-                    >
-                      <RootNavigator />
-                    </NavigationContainer>
+              <AdsConfigProvider>
+                <ChatProvider>
+                  <View style={styles.shell}>
+                    <View style={styles.navArea}>
+                      <NavigationContainer
+                        ref={navigationRef}
+                        onReady={() => {
+                          flushPendingNotificationNavigation();
+                        }}
+                      >
+                        <RootNavigator />
+                      </NavigationContainer>
+                    </View>
+                    {!showSplash ? <GlobalAdBannerHost /> : null}
                   </View>
-                  {!showSplash ? <GlobalAdBannerHost /> : null}
-                </View>
-                <StatusBar style="light" />
-                <AppOpenAdLifecycle splashVisible={showSplash} />
-              </ChatProvider>
+                  <StatusBar style="light" />
+                  <AppOpenAdLifecycle splashVisible={showSplash} />
+                </ChatProvider>
+              </AdsConfigProvider>
             </SubscriptionProvider>
           </AuthProvider>
         </LocationProvider>

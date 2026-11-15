@@ -1,9 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { useSubscription } from '../context/SubscriptionContext';
 import { colors } from '../theme/colors';
 
 const MAX_MESSAGE_LENGTH = 100;
@@ -15,17 +13,10 @@ interface ChatInputProps {
 
 export default function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   const [text, setText] = useState('');
-  const insets = useSafeAreaInsets();
-  const { quota } = useSubscription();
   const canSend = text.trim().length > 0 && !disabled;
   const remaining = MAX_MESSAGE_LENGTH - text.length;
-  /** Klavye kapalıyken alt güvenli alan; açıkken ChatScreen klavye inset uygular. */
-  const paddingBottom =
-    Platform.OS === 'android'
-      ? 8
-      : quota?.premium
-        ? Math.max(insets.bottom, 8)
-        : 8;
+  /** Alt safe-area GlobalAdBannerHost'ta (premium'da spacer). Klavye: ChatScreen. */
+  const paddingBottom = 8;
 
   const handleSend = async () => {
     if (!canSend) return;

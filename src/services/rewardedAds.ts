@@ -1,4 +1,5 @@
 import { getRewardedAdUnitId, isNativeAdsAvailable } from '../constants/ads';
+import { ensureAppUserId } from './appUserStorage';
 
 type RewardedAdLike = {
   loaded: boolean;
@@ -26,25 +27,33 @@ function getAdsModule(): typeof import('react-native-google-mobile-ads') | null 
   }
 }
 
-function requestOptions() {
-  return { requestNonPersonalizedAdsOnly: true as const };
+async function requestOptions() {
+  const userId = await ensureAppUserId();
+  return {
+    requestNonPersonalizedAdsOnly: true as const,
+    serverSideVerificationOptions: {
+      userId,
+      customData: `eislam-${Date.now()}`,
+    },
+  };
 }
 
 export function preloadRewardedAd(): void {
   if (!isNativeAdsAvailable()) return;
-  loadRewarded();
+  void loadRewarded();
 }
 
-function loadRewarded(): void {
+async function loadRewarded(): Promise<void> {
   const mod = getAdsModule();
   if (!mod || rewardedLoading) return;
   if (rewarded?.loaded) return;
 
   rewardedLoading = true;
   try {
+    const options = await requestOptions();
     const next = mod.RewardedAd.createForAdRequest(
       getRewardedAdUnitId(),
-      requestOptions(),
+      options,
     ) as unknown as RewardedAdLike;
     rewarded = next;
 
@@ -69,8 +78,8 @@ export type RewardedShowResult =
   | { status: 'error'; message: string };
 
 /**
- * Rewarded gösterir. Ödül EARNED_REWARD ile hemen onaylanır
- * (CLOSED bazen ödülden önce geldiği için beklemek kaçırmaya yol açıyordu).
+ * Rewarded gösterir. Ödül EARNED_REWARD ile onaylanır;
+ * bonus AdMob SSV callback ile sunucuda verilir — istemci claim etmez.
  */
 export function showRewardedAd(): Promise<RewardedShowResult> {
   return new Promise((resolve) => {
@@ -86,7 +95,7 @@ export function showRewardedAd(): Promise<RewardedShowResult> {
     }
 
     if (!rewarded?.loaded) {
-      loadRewarded();
+      void loadRewarded();
       resolve({ status: 'unavailable' });
       return;
     }
@@ -106,7 +115,7 @@ export function showRewardedAd(): Promise<RewardedShowResult> {
       unsubError();
       rewarded = null;
       rewardedLoading = false;
-      loadRewarded();
+      void loadRewarded();
     };
 
     const finish = (result: RewardedShowResult) => {
@@ -118,11 +127,9 @@ export function showRewardedAd(): Promise<RewardedShowResult> {
 
     const unsubEarned = ad.addAdEventListener(mod.RewardedAdEventType.EARNED_REWARD, () => {
       earned = true;
-      // Ödülü CLOSED'a bırakma — bazı cihazlarda sıra tersine gelebiliyor.
       finish({ status: 'earned' });
     });
     const unsubClosed = ad.addAdEventListener(mod.AdEventType.CLOSED, () => {
-      // EARNED_REWARD biraz gecikebilir; kısa pencere tanı.
       closedFallbackTimer = setTimeout(() => {
         finish(earned ? { status: 'earned' } : { status: 'dismissed' });
       }, 400);

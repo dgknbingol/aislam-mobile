@@ -1,5 +1,6 @@
 import { PRAYER_BANNERS, type PrayerBannerId } from '../components/prayer-banners/shared';
 import { AI_CONFIG } from '../config/ai';
+import { apiClientHeaders } from './apiClientHeaders';
 
 export interface PrayerDay {
   date: string;
@@ -46,9 +47,7 @@ export async function fetchMonthlyPrayerTimes(
   const url = `${AI_CONFIG.ragBaseUrl}/api/prayer-times/monthly?${params.toString()}`;
 
   const response = await fetch(url, {
-    headers: {
-      'ngrok-skip-browser-warning': 'true',
-    },
+    headers: await apiClientHeaders(false),
   });
 
   let data: MonthlyPrayerTimesResponse | ApiErrorResponse | null = null;

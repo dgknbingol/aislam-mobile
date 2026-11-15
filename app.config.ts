@@ -53,6 +53,9 @@ const config: ExpoConfig = {
     supportsTablet: true,
     bundleIdentifier: 'net.eislam.app',
     usesAppleSignIn: true,
+    entitlements: {
+      'com.apple.developer.devicecheck.appattest-environment': 'production',
+    },
     infoPlist: {
       LSApplicationQueriesSchemes: ['comgooglemaps', 'maps'],
       UIBackgroundModes: ['audio'],
@@ -81,6 +84,7 @@ const config: ExpoConfig = {
   plugins: [
     'expo-apple-authentication',
     'expo-web-browser',
+    '@expo/app-integrity',
     [
       'expo-build-properties',
       {

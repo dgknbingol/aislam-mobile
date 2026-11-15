@@ -1,16 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import TesbihTabIcon from './icons/TesbihTabIcon';
 import PressableScale from './PressableScale';
-import { useSubscription } from '../context/SubscriptionContext';
 import { colors } from '../theme/colors';
 import { COMPACT_MAX_FONT_MULTIPLIER } from '../theme/fontScale';
 
 export type HomeTabId = 'home' | 'quran' | 'chat' | 'quiz' | 'tesbih';
 
-/** Alt menü için içerik padding (global banner App kabuğunda; burada yok). */
+/**
+ * Alt menü için içerik padding.
+ * Safe-area GlobalAdBannerHost'ta (premium'da spacer); burada ekleme.
+ */
 export const HOME_BOTTOM_NAV_CONTENT_PAD = 100;
 
 interface HomeBottomNavProps {
@@ -34,13 +35,8 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export default function HomeBottomNav({ activeTab, onTabPress }: HomeBottomNavProps) {
-  const insets = useSafeAreaInsets();
-  const { quota } = useSubscription();
-  // Global banner varken safe-area orada; premium'da banner yok → menüde bırak.
-  const paddingBottom = quota?.premium ? Math.max(insets.bottom, 10) : 10;
-
   return (
-    <View style={[styles.container, { paddingBottom }]}>
+    <View style={styles.container}>
       {NAV_ITEMS.map((item) => {
         const isActive = activeTab === item.id;
         const isChat = item.id === 'chat';
@@ -100,6 +96,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.barBorder,
     paddingTop: 10,
+    paddingBottom: 10,
     paddingHorizontal: 4,
   },
   tabButton: {

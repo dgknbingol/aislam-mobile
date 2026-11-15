@@ -1,13 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getAppOpenAdUnitId, getInterstitialAdUnitId, isNativeAdsAvailable } from '../constants/ads';
+import { getAdsConfig, hydrateAdsConfig } from './adsConfig';
 import { preloadRewardedAd } from './rewardedAds';
-
-/** Tam ekran interstitial'lar arası minimum süre (kısa oturum için). */
-const INTERSTITIAL_COOLDOWN_MS = 2 * 60 * 1000;
-
-/** App Open reklamlar arası minimum süre (arka plandan dönüş / cold start). */
-const APP_OPEN_COOLDOWN_MS = 30 * 60 * 1000;
 
 const COOLDOWN_STORAGE_KEY = '@aislam/fullscreen_ad_cooldowns_v1';
 
@@ -157,6 +152,7 @@ function loadAppOpen(): void {
 export function preloadFullscreenAds(): void {
   if (!isNativeAdsAvailable()) return;
   void hydrateCooldowns();
+  void hydrateAdsConfig();
   loadInterstitial();
   loadAppOpen();
   preloadRewardedAd();
@@ -181,7 +177,15 @@ export async function showInterstitialIfEligible(options?: {
     return false;
   }
   await hydrateCooldowns();
-  if (!options?.ignoreCooldown && !canShowByCooldown(lastInterstitialShownAt, INTERSTITIAL_COOLDOWN_MS)) {
+  await hydrateAdsConfig();
+  const config = getAdsConfig();
+  if (!config.interstitialEnabled) {
+    return false;
+  }
+  if (
+    !options?.ignoreCooldown &&
+    !canShowByCooldown(lastInterstitialShownAt, config.interstitialCooldownMs)
+  ) {
     return false;
   }
   if (!interstitial?.loaded) {
@@ -215,7 +219,12 @@ export async function showAppOpenIfEligible(options?: {
     return false;
   }
   await hydrateCooldowns();
-  if (!options?.ignoreCooldown && !canShowByCooldown(lastAppOpenShownAt, APP_OPEN_COOLDOWN_MS)) {
+  await hydrateAdsConfig();
+  const config = getAdsConfig();
+  if (!config.appOpenEnabled) {
+    return false;
+  }
+  if (!options?.ignoreCooldown && !canShowByCooldown(lastAppOpenShownAt, config.appOpenCooldownMs)) {
     return false;
   }
   if (!appOpen?.loaded) {

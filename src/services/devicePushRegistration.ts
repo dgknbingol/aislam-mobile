@@ -4,6 +4,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import { AI_CONFIG } from '../config/ai';
+import { apiClientHeaders } from './apiClientHeaders';
 import { ensureAppUserId } from './appUserStorage';
 import {
   loadAllCompetitionNotificationSettings,
@@ -103,10 +104,7 @@ export async function registerDeviceForPrayerPush(): Promise<boolean> {
 
     const response = await fetch(`${AI_CONFIG.ragBaseUrl}/api/notifications/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
-      },
+      headers: await apiClientHeaders(true),
       body: JSON.stringify({
         deviceId,
         pushToken,
@@ -139,10 +137,7 @@ export async function unregisterDeviceFromPrayerPush(): Promise<void> {
     const deviceId = await ensureAppUserId();
     await fetch(`${AI_CONFIG.ragBaseUrl}/api/notifications/register`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
-      },
+      headers: await apiClientHeaders(true),
       body: JSON.stringify({ deviceId }),
     });
   } catch {
@@ -150,27 +145,10 @@ export async function unregisterDeviceFromPrayerPush(): Promise<void> {
   }
 }
 
-/** QA: sunucudan anında test push. */
+/**
+ * Test push artık sadece Postman + PUSH_ADMIN_AUTH ile.
+ * Mobil APK admin secret taşımaz.
+ */
 export async function requestServerTestPush(): Promise<boolean> {
-  try {
-    await registerDeviceForPrayerPush();
-    const deviceId = await ensureAppUserId();
-    const response = await fetch(`${AI_CONFIG.ragBaseUrl}/api/notifications/test`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
-      },
-      body: JSON.stringify({
-        deviceId,
-        title: 'e-İslam test push',
-        body: 'Sunucu push çalışıyor (FCM/APNs).',
-      }),
-    });
-    if (!response.ok) return false;
-    const data = (await response.json()) as { ok?: boolean };
-    return data.ok === true;
-  } catch {
-    return false;
-  }
+  return false;
 }
