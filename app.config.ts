@@ -84,7 +84,7 @@ const config: ExpoConfig = {
   plugins: [
     'expo-apple-authentication',
     'expo-web-browser',
-    '@expo/app-integrity',
+    // @expo/app-integrity autolink ile gelir; plugin olarak yüklemek expo config'i kırıyor (SDK 54).
     [
       'expo-build-properties',
       {
