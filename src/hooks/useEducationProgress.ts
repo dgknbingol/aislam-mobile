@@ -4,12 +4,14 @@ import {
   areAllLessonsCompleted,
   completeLessonWithXp,
   countCompletedLessons,
+  getCategoryQuizBestScore,
   getModuleQuizBestScore,
   hasTakenCategoryQuiz,
   hasTakenModuleQuiz,
   isLessonCompleted,
   isModuleCompleted,
   readEducationProgress,
+  submitCategoryQuizWithXp,
   submitModuleQuizWithXp,
   type EducationProgressState,
   type ProgressRewardResult,
@@ -46,11 +48,31 @@ export function useEducationProgress() {
     [],
   );
 
+  const submitCategoryQuiz = useCallback(
+    async (
+      categoryId: string,
+      achievementId: string | null | undefined,
+      correctCount: number,
+      totalCount: number,
+    ) => {
+      const result = await submitCategoryQuizWithXp(
+        categoryId,
+        achievementId,
+        correctCount,
+        totalCount,
+      );
+      setProgress(result.state);
+      return result;
+    },
+    [],
+  );
+
   return {
     progress,
     refresh,
     completeLesson,
     submitModuleQuiz,
+    submitCategoryQuiz,
     totalXp: progress?.totalXp ?? 0,
     isLessonCompleted: (lessonId: string) =>
       progress ? isLessonCompleted(progress, lessonId) : false,
@@ -62,6 +84,8 @@ export function useEducationProgress() {
       progress ? hasTakenCategoryQuiz(progress, categoryId) : false,
     getModuleQuizBestScore: (moduleId: string) =>
       progress ? getModuleQuizBestScore(progress, moduleId) : null,
+    getCategoryQuizBestScore: (categoryId: string) =>
+      progress ? getCategoryQuizBestScore(progress, categoryId) : null,
     countCompletedLessons: (lessonIds: string[]) =>
       progress ? countCompletedLessons(progress, lessonIds) : 0,
     areAllLessonsCompleted: (lessonIds: string[]) =>

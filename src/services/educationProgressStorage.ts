@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
-  EDUCATION_ACHIEVEMENTS,
   getModuleCompleteAchievementId,
   getQuizPerfectAchievementId,
 } from '../constants/educationAchievements';
@@ -222,6 +221,53 @@ export async function submitModuleQuizWithXp(
 
   if (correctCount === totalCount && totalCount > 0) {
     next = awardAchievement(next, getQuizPerfectAchievementId(quizId), newAchievements);
+  }
+
+  await writeEducationProgress(next);
+  const newLevel = levelFromXp(next.totalXp);
+
+  return {
+    state: next,
+    xpGained,
+    leveledUp: newLevel > previousLevel,
+    previousLevel,
+    newLevel,
+    newAchievements,
+  };
+}
+
+export async function submitCategoryQuizWithXp(
+  categoryId: string,
+  achievementId: string | null | undefined,
+  correctCount: number,
+  totalCount: number,
+): Promise<ProgressRewardResult> {
+  const state = await readEducationProgress();
+  const previousLevel = levelFromXp(state.totalXp);
+  const newAchievements: string[] = [];
+  const xpGained = correctCount * EDUCATION_XP.QUIZ_CORRECT_ANSWER;
+
+  const previous = state.categoryQuizResults[categoryId];
+  const bestCorrectCount = Math.max(previous?.bestCorrectCount ?? 0, correctCount);
+
+  let next = addXp(
+    {
+      ...state,
+      categoryQuizResults: {
+        ...state.categoryQuizResults,
+        [categoryId]: {
+          lastAttemptAt: new Date().toISOString(),
+          correctCount,
+          totalCount,
+          bestCorrectCount,
+        },
+      },
+    },
+    xpGained,
+  );
+
+  if (achievementId) {
+    next = awardAchievement(next, achievementId, newAchievements);
   }
 
   await writeEducationProgress(next);

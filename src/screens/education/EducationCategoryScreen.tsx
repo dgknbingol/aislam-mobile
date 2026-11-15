@@ -21,6 +21,7 @@ export default function EducationCategoryScreen() {
   const {
     refresh,
     hasTakenCategoryQuiz,
+    getCategoryQuizBestScore,
     countCompletedLessons,
     hasTakenModuleQuiz,
     isLessonCompleted,
@@ -34,6 +35,7 @@ export default function EducationCategoryScreen() {
     moduleLessonGroups.length > 0 &&
     moduleLessonGroups.every((lessonIds) => countCompletedLessons(lessonIds) === lessonIds.length);
   const categoryQuizTaken = hasTakenCategoryQuiz(route.params.categoryId);
+  const categoryQuizBest = getCategoryQuizBestScore(route.params.categoryId);
 
   useFocusEffect(
     useCallback(() => {
@@ -181,8 +183,8 @@ export default function EducationCategoryScreen() {
               <Text style={styles.quizTitle}>{category.quiz.title}</Text>
               <Text style={styles.quizSubtitle}>
                 {allLessonsDone
-                  ? categoryQuizTaken
-                    ? `${category.quiz.questionCount} soru · tekrar oynanabilir`
+                  ? categoryQuizTaken && categoryQuizBest != null
+                    ? `${category.quiz.questionCount} soru · en iyi: ${categoryQuizBest}/${category.quiz.questionCount} · tekrar oyna`
                     : `${category.quiz.questionCount} soru · her doğru +5 XP`
                   : 'Tüm dersler tamamlanınca açılır'}
               </Text>

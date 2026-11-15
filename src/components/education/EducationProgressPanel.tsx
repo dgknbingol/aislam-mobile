@@ -4,24 +4,12 @@ import { useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { EDUCATION_ACHIEVEMENTS } from '../../constants/educationAchievements';
+import { resolveEducationAchievement } from '../../constants/educationAchievements';
 import { EDUCATION_XP } from '../../constants/educationXp';
 import { useEducationProgress } from '../../hooks/useEducationProgress';
 import { getEarnedAchievementIds } from '../../services/educationProgressStorage';
 import { colors } from '../../theme/colors';
 import EducationLevelBar from './EducationLevelBar';
-
-function getAchievementDef(id: string) {
-  return (
-    EDUCATION_ACHIEVEMENTS[id] ?? {
-      id,
-      title: 'Başarım',
-      description: 'Yeni bir başarım kazandın.',
-      icon: 'ribbon',
-      kind: 'module' as const,
-    }
-  );
-}
 
 export default function EducationProgressPanel() {
   const insets = useSafeAreaInsets();
@@ -77,7 +65,7 @@ export default function EducationProgressPanel() {
         </View>
       ) : (
         earnedIds.map((id) => {
-          const achievement = getAchievementDef(id);
+          const achievement = resolveEducationAchievement(id);
           return (
             <View key={id} style={styles.achievementCard}>
               <View style={styles.achievementIcon}>

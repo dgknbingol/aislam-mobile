@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { EDUCATION_ACHIEVEMENTS } from '../../constants/educationAchievements';
+import { resolveEducationAchievement } from '../../constants/educationAchievements';
 import { EDUCATION_XP } from '../../constants/educationXp';
 import { useEducationCatalog } from '../../hooks/useEducationCatalog';
 import { useEducationProgress } from '../../hooks/useEducationProgress';
@@ -197,17 +197,17 @@ export default function EducationModuleQuizScreen() {
             <View style={styles.achievementCard}>
               <Text style={styles.achievementTitle}>Yeni başarım!</Text>
               {newAchievements.map((id) => {
-                const achievement = EDUCATION_ACHIEVEMENTS[id];
+                const achievement = resolveEducationAchievement(id);
                 return (
                   <View key={id} style={styles.achievementRow}>
                     <Ionicons
-                      name={(achievement?.icon ?? 'ribbon') as keyof typeof Ionicons.glyphMap}
+                      name={achievement.icon as keyof typeof Ionicons.glyphMap}
                       size={20}
                       color={colors.gold}
                     />
                     <View style={styles.achievementText}>
-                      <Text style={styles.achievementName}>{achievement?.title ?? 'Başarım'}</Text>
-                      <Text style={styles.achievementDesc}>{achievement?.description}</Text>
+                      <Text style={styles.achievementName}>{achievement.title}</Text>
+                      <Text style={styles.achievementDesc}>{achievement.description}</Text>
                     </View>
                   </View>
                 );
