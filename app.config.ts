@@ -112,6 +112,7 @@ const config: ExpoConfig = {
       },
     ],
     'expo-screen-orientation',
+    './plugins/withPortraitFeatureOptional',
     [
       'expo-splash-screen',
       {
