@@ -29,47 +29,55 @@ function useTestAdUnits(): boolean {
   return __DEV__ || forceTestAds;
 }
 
-function platformEnv(androidKey: string, iosKey: string): string | undefined {
-  const value =
-    Platform.OS === 'ios' ? process.env[iosKey]?.trim() : process.env[androidKey]?.trim();
-  return value || undefined;
+/** Metro yalnızca statik `process.env.EXPO_PUBLIC_*` erişimini bundle'a gömer. */
+function platformEnv(android?: string, ios?: string): string | undefined {
+  const value = Platform.OS === 'ios' ? ios : android;
+  return value?.trim() || undefined;
 }
 
-function resolveUnitId(testId: string, androidKey: string, iosKey: string): string {
+function resolveUnitId(testId: string, liveId?: string): string {
   if (useTestAdUnits()) {
     return testId;
   }
-  return platformEnv(androidKey, iosKey) ?? testId;
+  return liveId || testId;
 }
 
 export function getBannerAdUnitId(): string {
   return resolveUnitId(
     TEST_ADAPTIVE_BANNER,
-    'EXPO_PUBLIC_ADMOB_BANNER_ANDROID',
-    'EXPO_PUBLIC_ADMOB_BANNER_IOS',
+    platformEnv(
+      process.env.EXPO_PUBLIC_ADMOB_BANNER_ANDROID,
+      process.env.EXPO_PUBLIC_ADMOB_BANNER_IOS,
+    ),
   );
 }
 
 export function getInterstitialAdUnitId(): string {
   return resolveUnitId(
     TEST_INTERSTITIAL,
-    'EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID',
-    'EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS',
+    platformEnv(
+      process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID,
+      process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS,
+    ),
   );
 }
 
 export function getAppOpenAdUnitId(): string {
   return resolveUnitId(
     TEST_APP_OPEN,
-    'EXPO_PUBLIC_ADMOB_APP_OPEN_ANDROID',
-    'EXPO_PUBLIC_ADMOB_APP_OPEN_IOS',
+    platformEnv(
+      process.env.EXPO_PUBLIC_ADMOB_APP_OPEN_ANDROID,
+      process.env.EXPO_PUBLIC_ADMOB_APP_OPEN_IOS,
+    ),
   );
 }
 
 export function getRewardedAdUnitId(): string {
   return resolveUnitId(
     TEST_REWARDED,
-    'EXPO_PUBLIC_ADMOB_REWARDED_ANDROID',
-    'EXPO_PUBLIC_ADMOB_REWARDED_IOS',
+    platformEnv(
+      process.env.EXPO_PUBLIC_ADMOB_REWARDED_ANDROID,
+      process.env.EXPO_PUBLIC_ADMOB_REWARDED_IOS,
+    ),
   );
 }
